@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.Events;
+using PawsyApp.Events.SlashCommands;
 using PawsyApp.GuildStorage;
 using PawsyApp.Utils;
 
@@ -26,7 +27,7 @@ public class PawsyProgram
         _client.MessageReceived += MessageEvent.Handler;
         _client.Ready += ClientReady;
         _client.GuildAvailable += GuildAvailable.Respond;
-        _client.SlashCommandExecuted += SlashCommandHandler;
+        _client.SlashCommandExecuted += SlashCommandHandler.Respond;
 
         //Get token from env
         String? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
@@ -46,11 +47,6 @@ public class PawsyProgram
             return;
         }
 
-    }
-
-    private static async Task SlashCommandHandler(SocketSlashCommand command)
-    {
-        await command.RespondAsync($"Meow!");
     }
 
     private static Task ClientReady()
