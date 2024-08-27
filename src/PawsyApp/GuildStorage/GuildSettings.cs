@@ -11,4 +11,9 @@ public class GuildSettings
         this.LoggingChannelID = LoggingChannelID;
         this.rules = rules;
     }
+
+    public GuildSettings()
+    {
+
+    }
 }
