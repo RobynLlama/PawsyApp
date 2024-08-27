@@ -50,6 +50,11 @@ internal class GuildAvailable
                 AllSettings.GuildSettingsStorage.Add(guild.Id, newSettings);
             }
         }
+        else
+        {
+            AllSettings.GuildSettingsStorage.Add(guild.Id, new());
+            AllSettings.SaveAll();
+        }
 
         return Task.CompletedTask;
     }
