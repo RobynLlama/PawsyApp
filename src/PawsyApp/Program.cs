@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -35,8 +35,10 @@ public class PawsyProgram
             await _client.LoginAsync(TokenType.Bot, token);
             await _client.StartAsync();
 
-            // Block this task until the program is closed.
-            await Task.Delay(-1);
+            while (true)
+            {
+                await Task.Delay(250);
+            }
         }
         else
         {
