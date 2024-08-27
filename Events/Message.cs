@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.GuildStorage;
+using PawsyApp.Settings;
 using PawsyApp.Utils;
 
 namespace PawsyApp.Events;
@@ -42,7 +43,7 @@ internal class MessageEvent
             ("Guild", guild.Name ?? "Unknown"),
             ]);
 
-        if (!PawsyProgram.SettingsStorage.TryGetValue(guild.Id, out var settings))
+        if (!AllSettings.GuildSettingsStorage.TryGetValue(guild.Id, out var settings))
             return;
 
         if (guild.GetChannel(settings.LoggingChannelID) is not SocketTextChannel channel)
