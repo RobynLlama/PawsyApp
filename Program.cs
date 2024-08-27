@@ -24,7 +24,7 @@ public class PawsyProgram
         });
 
         _client.Log += LogEvent.Handler;
-        _client.MessageReceived += MessageEvent.Handler;
+        _client.MessageReceived += MessageEvent.Respond;
         _client.Ready += ClientReady;
         _client.GuildAvailable += GuildAvailable.Respond;
         _client.SlashCommandExecuted += SlashCommandHandler.Respond;

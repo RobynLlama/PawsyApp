@@ -10,7 +10,7 @@ namespace PawsyApp.Events;
 internal class MessageEvent
 {
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
-    internal static async Task Handler(SocketMessage message)
+    internal static async Task Respond(SocketMessage message)
     {
         if (message.Author.IsBot || message.Author.IsWebhook)
             return;
