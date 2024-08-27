@@ -13,11 +13,9 @@ internal class MessageEvent
         if (message.Author.IsBot || message.Author.IsWebhook)
             return;
 
-        var guild = ((SocketGuildChannel)message.Channel).Guild;
-
-        if (guild is not null)
+        if (message.Channel is SocketDMChannel DMchannel)
         {
-            WriteLog.Cutely("Pawsy heard this!", [
+            WriteLog.Cutely("Pawsy heard a DM!", [
             ("Author", message.Author.GlobalName),
             ("CleanContent", message.CleanContent),
             ("Guild", guild.Name ?? "Unknown"),
