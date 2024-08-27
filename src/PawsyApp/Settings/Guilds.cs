@@ -12,7 +12,7 @@ public partial class AllSettings
     {
         foreach (var item in GuildSettingsStorage.Keys)
         {
-            GuildSettingsStorage[item].Save(item);
+            GuildSettingsStorage[item].Save();
         }
     }
 }

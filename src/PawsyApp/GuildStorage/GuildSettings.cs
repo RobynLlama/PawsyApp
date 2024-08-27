@@ -23,9 +23,9 @@ public class GuildSettings
         this.ID = ID;
     }
 
-    internal void Save(ulong MyID)
+    internal void Save()
     {
-        using StreamWriter writer = new(GuildFile.Get(MyID));
+        using StreamWriter writer = new(GuildFile.Get(ID));
         writer.Write(JsonSerializer.Serialize(this, AllSettings.options));
         writer.Flush();
     }
