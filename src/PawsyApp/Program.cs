@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.Events;
 using PawsyApp.Events.SlashCommands;
-using PawsyApp.GuildStorage;
-using PawsyApp.Utils;
 
 namespace PawsyApp;
 public class PawsyProgram

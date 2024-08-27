@@ -6,7 +6,6 @@ using PawsyApp.Utils;
 using PawsyApp.GuildStorage;
 using System.Text.Json;
 using System.Reflection;
-using System.Collections.Generic;
 using PawsyApp.Settings;
 
 namespace PawsyApp.Events;
