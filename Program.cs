@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.IO;
 using System.Reflection;
 
+namespace PawsyApp;
 public class PawsyProgram
 {
     internal static DiscordSocketClient? _client;
