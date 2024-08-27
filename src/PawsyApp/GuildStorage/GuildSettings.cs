@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using PawsyApp.Settings;
 using PawsyApp.Utils;
 
@@ -11,6 +12,8 @@ public class GuildSettings
     public ulong LoggingChannelID { get; set; } = 0;
     public ulong ID { get; set; }
     public List<RuleBundle> rules { get; set; } = [];
+
+    [JsonConstructor]
     public GuildSettings(ulong LoggingChannelID, ulong ID, List<RuleBundle> rules)
     {
         this.LoggingChannelID = LoggingChannelID;
