@@ -51,7 +51,7 @@ internal class GuildAvailable
         }
         else
         {
-            AllSettings.GuildSettingsStorage.Add(guild.Id, new());
+            AllSettings.GuildSettingsStorage.Add(guild.Id, new(guild.Id));
             AllSettings.SaveAll();
         }
 
