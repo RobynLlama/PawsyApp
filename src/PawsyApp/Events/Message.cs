@@ -12,7 +12,7 @@ internal class MessageEvent
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
     internal static async Task Respond(SocketMessage message)
     {
-        if (message.Author.IsBot || message.Author.IsWebhook)
+        if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
             return;
 
         if (message.CleanContent.Contains("pawsy", System.StringComparison.InvariantCultureIgnoreCase))
