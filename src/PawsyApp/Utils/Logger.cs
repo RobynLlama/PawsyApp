@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using PawsyApp.KittyColors;
 
 namespace PawsyApp.Utils;
 
@@ -13,7 +14,7 @@ internal class WriteLog
         foreach (var (ContextName, ContextValue) in context)
         {
             sb.Append("  ");
-            sb.Append(ContextName);
+            sb.Append(KittyColor.WrapInColor(ContextName.ToString(), ColorCode.Cyan));
             sb.Append(": ");
             sb.AppendLine(ContextValue.ToString());
         }
@@ -23,6 +24,6 @@ internal class WriteLog
 
     internal static void Normally(object msg)
     {
-        Console.WriteLine($"[Pawsy!] {msg}");
+        Console.WriteLine($"[{KittyColor.WrapInColor("Pawsy!", ColorCode.Magenta)}] {msg}");
     }
 }
