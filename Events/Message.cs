@@ -8,10 +8,16 @@ namespace PawsyApp.Events;
 
 internal class MessageEvent
 {
+    internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
     internal static async Task Handler(SocketMessage message)
     {
         if (message.Author.IsBot || message.Author.IsWebhook)
             return;
+
+        if (message.CleanContent.Contains("pawsy", System.StringComparison.InvariantCultureIgnoreCase))
+        {
+            await message.AddReactionAsync(PawsySmall);
+        }
 
         if (message.Channel is SocketDMChannel DMchannel)
         {
@@ -20,7 +26,7 @@ internal class MessageEvent
             ("CleanContent", message.CleanContent),
             ]);
 
-            await DMchannel.SendMessageAsync("Hi! I'm Pawsy, the cutie kitty app here to keep you safe and sound! Sorry, but I'm really shy in DMs ≧◡≦ please just talk to me on the server, okay?");
+            await DMchannel.SendMessageAsync("Hi! I'm Pawsy <:pawsysmall:1277935719805096066> the cutie kitty app here to keep you safe and sound! Sorry, but I'm really shy in DMs ≧◡≦ please just talk to me on the server, okay?");
             return;
         }
 
