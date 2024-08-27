@@ -15,11 +15,6 @@ internal class MessageEvent
         if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
             return;
 
-        if (message.CleanContent.Contains("pawsy", System.StringComparison.InvariantCultureIgnoreCase))
-        {
-            await message.AddReactionAsync(PawsySmall);
-        }
-
         if (message.Channel is SocketDMChannel DMchannel)
         {
             WriteLog.Cutely("Pawsy heard a DM!", [
@@ -36,6 +31,11 @@ internal class MessageEvent
 
         var guild = guildChannel.Guild;
         var AuthorName = message.Author.GlobalName ?? message.Author.Username;
+
+        if (message.CleanContent.Contains("pawsy", System.StringComparison.InvariantCultureIgnoreCase))
+        {
+            await message.AddReactionAsync(PawsySmall);
+        }
 
         WriteLog.Cutely("Pawsy heard this!", [
             ("Author", AuthorName),
