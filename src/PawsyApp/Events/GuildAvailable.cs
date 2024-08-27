@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using PawsyApp.Utils;
 using PawsyApp.GuildStorage;
 using System.Text.Json;
-using System.Reflection;
 using PawsyApp.Settings;
 
 namespace PawsyApp.Events;
