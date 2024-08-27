@@ -25,7 +25,7 @@ public class PawsyProgram
 
         _client.Log += LogEvent.Respond;
         _client.MessageReceived += MessageEvent.Respond;
-        _client.Ready += ClientReady;
+        _client.Ready += ClientReady.Respond;
         _client.GuildAvailable += GuildAvailable.Respond;
         _client.SlashCommandExecuted += SlashCommandHandler.Respond;
 
@@ -47,15 +47,5 @@ public class PawsyProgram
             return;
         }
 
-    }
-
-    private static Task ClientReady()
-    {
-        WriteLog.Normally("I'm awake!");
-
-        //Kills all our global commands cuz I added a bunch on accident
-        _client?.BulkOverwriteGlobalApplicationCommandsAsync([]);
-
-        return Task.CompletedTask;
     }
 }
