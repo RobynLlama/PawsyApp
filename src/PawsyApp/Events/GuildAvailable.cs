@@ -36,7 +36,7 @@ internal class GuildAvailable
         if (AllSettings.GuildSettingsStorage.ContainsKey(guild.Id))
             return Task.CompletedTask;
 
-        FileInfo file = new(Path.Combine(Assembly.GetExecutingAssembly().Location.Replace("PawsyApp.dll", ""), "PawsyPersist", $"{guild.Id}.json"));
+        FileInfo file = new(GuildFile.Get(guild.Id));
 
         WriteLog.Normally($"Trying to open {file.FullName}");
 
