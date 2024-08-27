@@ -35,9 +35,10 @@ internal class MessageEvent
             return;
 
         var guild = guildChannel.Guild;
+        var AuthorName = message.Author.GlobalName ?? message.Author.Username;
 
         WriteLog.Cutely("Pawsy heard this!", [
-        ("Author", message.Author.GlobalName),
+            ("Author", AuthorName),
             ("CleanContent", message.CleanContent),
             ("Channel", guildChannel.Name),
             ("Guild", guild.Name ?? "Unknown"),
