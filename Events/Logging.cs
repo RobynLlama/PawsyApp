@@ -6,7 +6,7 @@ namespace PawsyApp.Events;
 
 internal class LogEvent
 {
-    internal static Task Handler(LogMessage msg)
+    internal static Task Respond(LogMessage msg)
     {
         WriteLog.Normally(msg);
         return Task.CompletedTask;

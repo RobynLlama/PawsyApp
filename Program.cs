@@ -23,7 +23,7 @@ public class PawsyProgram
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
         });
 
-        _client.Log += LogEvent.Handler;
+        _client.Log += LogEvent.Respond;
         _client.MessageReceived += MessageEvent.Respond;
         _client.Ready += ClientReady;
         _client.GuildAvailable += GuildAvailable.Respond;
