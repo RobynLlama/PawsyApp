@@ -11,6 +11,8 @@ namespace PawsyApp.GuildStorage;
 
 public class GuildSettings
 {
+    [JsonInclude]
+    private ulong NextCreatedID = 0;
     public ulong LoggingChannelID { get; set; } = 0;
     public ulong ID { get; set; }
     public string ServerName { get; set; }
@@ -28,6 +30,11 @@ public class GuildSettings
     {
         this.ID = ID;
         this.ServerName = ServerName;
+    }
+
+    internal ulong GetNextID()
+    {
+        return NextCreatedID++;
     }
 
     internal async Task Save()
