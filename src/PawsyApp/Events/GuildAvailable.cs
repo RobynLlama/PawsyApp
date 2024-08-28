@@ -54,10 +54,10 @@ internal class GuildAvailable
                 GlobalTaskRunner.FireAndForget(WriteLog.Cutely("Enabling a module", [
                     ("Module", item)
                 ]));
-
-                tasks.Add(SlashCommandHandler.AddCommandsToGuild(guild));
             }
         }
+
+        GlobalTaskRunner.FireAndForget(SlashCommandHandler.AddCommandsToGuild(guild));
 
         await Task.WhenAll(tasks);
         return;
