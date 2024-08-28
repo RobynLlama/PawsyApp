@@ -1,0 +1,29 @@
+namespace PawsyApp.PawsyCore.Modules;
+
+public interface IModuleIdent : IModule, IUnique<ulong>
+{
+    public T AddModuleIdent<T>(ulong ModID) where T : IModuleIdent, new()
+    {
+        T item = new()
+        {
+            ID = ModID,
+            Owner = this
+        };
+
+        (item as IModule).Activate();
+
+        Modules.Add(item);
+        return item;
+    }
+    public T? GetModuleIdent<T>(ulong ModID) where T : class, IModuleIdent
+    {
+        foreach (var item in Modules)
+        {
+            if (item is T thing)
+                if (thing.ID == ModID)
+                    return thing;
+        }
+
+        return null;
+    }
+}

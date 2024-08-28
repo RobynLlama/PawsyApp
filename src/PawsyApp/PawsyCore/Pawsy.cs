@@ -1,17 +1,19 @@
+using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.PawsyCore;
 
-internal class Pawsy : IModule
+public class Pawsy : IModuleIdent
 {
+    private IModule? _owner;
     IModule? IModule.Owner { get => _owner; set => _owner = value; }
     public List<IModule> Modules => myModules;
-    private IModule? _owner = null;
+    public ulong ID { get => 0; set { return; } }
     private readonly List<IModule> myModules = [];
-
-    public Pawsy()
+    void IModule.Activate()
     {
-        //Add submodules
+        throw new NotImplementedException();
     }
 }

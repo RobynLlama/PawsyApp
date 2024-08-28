@@ -2,20 +2,23 @@ using System.Collections.Generic;
 
 namespace PawsyApp.PawsyCore.Modules;
 
-internal interface IModule
+public interface IModule
 {
     IModule? Owner { get; set; }
     List<IModule> Modules { get; }
-    void AddModule<T>() where T : IModule, new()
+    public T AddModule<T>() where T : IModule, new()
     {
         T item = new()
         {
             Owner = this
         };
 
+        item.Activate();
+
         Modules.Add(item);
+        return item;
     }
-    T? GetModule<T>() where T : class, IModule
+    public T? GetModule<T>() where T : class, IModule
     {
         foreach (var item in Modules)
         {
@@ -25,12 +28,14 @@ internal interface IModule
 
         return null;
     }
-    void RemoveModule(IModule module)
+    public void RemoveModule(IModule module)
     {
         Modules.Remove(module);
     }
-    void Destroy()
+    public void Destroy()
     {
         Owner?.RemoveModule(this);
     }
+
+    abstract void Activate();
 }
