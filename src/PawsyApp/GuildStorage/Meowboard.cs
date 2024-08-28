@@ -44,8 +44,22 @@ internal class MeowBoard
         {
             foreach (var item in items)
             {
-                var user = guild.GetUser(item.Key);
-                var username = user.Nickname ?? user.GlobalName ?? user.Username;
+
+                string username;
+
+                if (guild.GetUser(item.Key) is not SocketGuildUser user)
+                {
+
+                    continue;
+                    /*var sUser = client.GetGuildUserAsync(guild.Id, item.Key).Result;
+
+                    username = sUser.Nickname ?? sUser.GlobalName ?? sUser.Username;*/
+                }
+                else
+                {
+                    username = user.Nickname ?? user.GlobalName ?? user.Username;
+                }
+
                 //WriteLog.Normally("Adding a field to the MeowBoard");
                 yield return new EmbedFieldBuilder().WithName(username).WithValue(item.Value.ToString());
             }
@@ -56,6 +70,7 @@ internal class MeowBoard
             .WithColor(0, 128, 196)
             .WithDescription("MeowBoard top 5")
             .WithTitle("MeowBoard")
+            .WithThumbnailUrl("https://raw.githubusercontent.com/RobynLlama/PawsyApp/main/Assets/img/Pawsy-small.png")
             .WithFields(fields(top5, guild));
 
         //WriteLog.Normally("Responding");
