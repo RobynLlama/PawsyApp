@@ -6,19 +6,24 @@ using PawsyApp.Utils;
 using PawsyApp.GuildStorage;
 using System.Text.Json;
 using PawsyApp.Settings;
+using System.Collections.Generic;
 
 namespace PawsyApp.Events;
 
 internal class GuildAvailable
 {
-    internal static Task Respond(SocketGuild guild)
+    internal static async Task Respond(SocketGuild guild)
     {
-        WriteLog.Cutely("Guild Available", [
-            ("GuildID", guild.Id),
-        ]);
 
-        //clear local commands to force the list to refresh
-        guild.DeleteApplicationCommandsAsync();
+        var tasks = new List<Task>
+        {
+            WriteLog.Cutely("Guild Available", [
+            ("GuildID", guild.Id),
+            ]),
+
+            //clear local commands to force the list to refresh
+            guild.DeleteApplicationCommandsAsync()
+        };
 
         // Next, lets create our slash command builder. This is like the embed builder but for slash commands.
         var guildCommand = new SlashCommandBuilder();
@@ -29,15 +34,15 @@ internal class GuildAvailable
         // Descriptions can have a max length of 100.
         guildCommand.WithDescription("Meow meow!");
 
-        guild.CreateApplicationCommandAsync(guildCommand.Build());
-        WriteLog.Normally("Registered command for guild");
+        tasks.Add(guild.CreateApplicationCommandAsync(guildCommand.Build()));
+        tasks.Add(WriteLog.Normally("Registered command for guild"));
 
         if (AllSettings.GuildSettingsStorage.ContainsKey(guild.Id))
-            return Task.CompletedTask;
+            goto EndFunc;
 
         FileInfo file = new(GuildFile.Get(guild.Id));
 
-        WriteLog.Normally($"Trying to open {file.FullName}");
+        tasks.Add(WriteLog.Normally($"Trying to open {file.FullName}"));
 
         if (file.Exists)
         {
@@ -55,6 +60,8 @@ internal class GuildAvailable
             AllSettings.SaveAll();
         }
 
-        return Task.CompletedTask;
+    EndFunc:
+        await Task.WhenAll(tasks);
+        return;
     }
 }
