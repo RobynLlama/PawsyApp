@@ -1,7 +1,8 @@
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.GuildStorage;
-using PawsyApp.Settings;
+using PawsyApp.PawsyCore.Modules;
+using PawsyApp.Utils;
 using System;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ internal interface ISlashCommand
     Task RunOnGuild(SocketSlashCommand command)
     {
         if ((command.GuildId is ulong realID)
-        && AllSettings.GuildSettingsStorage.TryGetValue(realID, out GuildSettings? gSettings)
+        && (CommonGetters.GetSettings(realID) is GuildSettings gSettings)
         && gSettings.EnabledModules.TryGetValue(ModuleName, out bool enabled)
         && enabled)
             return Handler(command);

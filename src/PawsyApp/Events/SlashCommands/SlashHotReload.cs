@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.GuildStorage;
+using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.Events.SlashCommands;
 
@@ -17,7 +18,8 @@ internal class SlashHotReload : ISlashCommand
         if (command.GuildId is ulong realID)
         {
             tasks.Add(command.RespondAsync($"Hot reloading this guild, meow!", ephemeral: true));
-            Settings.AllSettings.GuildSettingsStorage.Remove(realID, out _);
+
+            ((PawsyProgram.Pawsy as IModuleIdent).GetModuleIdent<GuildModule>(realID) as IModule)?.Destroy();
 
             if (PawsyProgram.SocketClient.GetGuild(realID) is SocketGuild guild)
                 tasks.Add(GuildAvailable.Respond(guild));

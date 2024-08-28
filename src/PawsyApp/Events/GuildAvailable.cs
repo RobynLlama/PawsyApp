@@ -1,13 +1,9 @@
-using System.IO;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using PawsyApp.Utils;
-using PawsyApp.GuildStorage;
-using System.Text.Json;
-using PawsyApp.Settings;
 using System.Collections.Generic;
 using PawsyApp.Events.SlashCommands;
-using System.Linq;
+using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.Events;
 
@@ -27,35 +23,7 @@ internal class GuildAvailable
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        FileInfo file = new(GuildFile.Get(guild.Id));
-
-        tasks.Add(WriteLog.Normally($"Reading settings for guild"));
-        GuildSettings? gSettings = null;
-
-        if (file.Exists)
-        {
-            using StreamReader data = new(file.FullName);
-            gSettings = JsonSerializer.Deserialize<GuildSettings>(data.ReadToEnd());
-        }
-
-        gSettings ??= new(guild.Id, guild.Name);
-        AllSettings.GuildSettingsStorage.TryAdd(guild.Id, gSettings);
-
-        tasks.Add(gSettings.Save());
-
-        var settings = gSettings.EnabledModules.ToDictionary();
-
-        //Iterate all modules
-        foreach (var item in settings)
-        {
-            if (item.Value)
-            {
-                //module is enabled
-                GlobalTaskRunner.FireAndForget(WriteLog.Cutely("Enabling a module", [
-                    ("Module", item)
-                ]));
-            }
-        }
+        (PawsyProgram.Pawsy as IModuleIdent).AddModuleIdent<GuildModule>(guild.Id);
 
         GlobalTaskRunner.FireAndForget(SlashCommandHandler.AddCommandsToGuild(guild));
 

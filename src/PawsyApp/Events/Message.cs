@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.GuildStorage;
-using PawsyApp.Settings;
+using PawsyApp.PawsyCore.Modules;
 using PawsyApp.Utils;
 
 namespace PawsyApp.Events;
@@ -44,8 +44,11 @@ internal class MessageEvent
         var guild = guildChannel.Guild;
         var AuthorName = message.Author.GlobalName ?? message.Author.Username;
 
-        if (!AllSettings.GuildSettingsStorage.TryGetValue(guild.Id, out var settings))
-            goto EndFunc;
+        if (CommonGetters.GetSettings(guild.Id) is not GuildSettings settings)
+        {
+            await WriteLog.Normally("Failed to fetch settings");
+            return;
+        }
 
         if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
         {
