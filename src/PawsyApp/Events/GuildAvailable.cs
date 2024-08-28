@@ -25,18 +25,6 @@ internal class GuildAvailable
             guild.DeleteApplicationCommandsAsync()
         };
 
-        // Next, lets create our slash command builder. This is like the embed builder but for slash commands.
-        var guildCommand = new SlashCommandBuilder();
-
-        // Note: Names have to be all lowercase and match the regular expression ^[\w-]{3,32}$
-        guildCommand.WithName("meow");
-
-        // Descriptions can have a max length of 100.
-        guildCommand.WithDescription("Meow meow!");
-
-        tasks.Add(guild.CreateApplicationCommandAsync(guildCommand.Build()));
-        tasks.Add(WriteLog.Normally("Registered command for guild"));
-
         FileInfo file = new(GuildFile.Get(guild.Id));
 
         tasks.Add(WriteLog.Normally($"Trying to open {file.FullName}"));
