@@ -5,31 +5,36 @@ using Discord;
 using Discord.WebSocket;
 using PawsyApp.Events;
 using PawsyApp.Events.SlashCommands;
+using Discord.Rest;
 
 namespace PawsyApp;
 public class PawsyProgram
 {
-    internal static DiscordSocketClient? _client;
-    internal static OpenAIAPI api = new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_AUTH"));
+    internal static DiscordSocketClient SocketClient = new(new DiscordSocketConfig
+    {
+        MessageCacheSize = 100,
+        LogLevel = LogSeverity.Info,
+        AlwaysDownloadUsers = true,
+        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent | GatewayIntents.GuildMembers & ~GatewayIntents.GuildInvites & ~GatewayIntents.GuildScheduledEvents,
+    });
+
+    internal static DiscordRestClient RestClient = new(new DiscordRestConfig
+    {
+        LogLevel = LogSeverity.Info
+    });
+    internal static OpenAIAPI api = new(Environment.GetEnvironmentVariable("OPENAI_AUTH"));
 
     public static async Task Main()
     {
-        //Setup connection client
-        _client = new DiscordSocketClient(new DiscordSocketConfig
-        {
-            MessageCacheSize = 100,
-            LogLevel = LogSeverity.Info,
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
-        });
-
         SlashCommandHandler.RegisterAllModules();
 
-        _client.Log += LogEvent.Respond;
-        _client.MessageReceived += MessageEvent.Respond;
-        _client.Ready += ClientReady.Respond;
-        _client.GuildAvailable += GuildAvailable.Respond;
-        _client.SlashCommandExecuted += SlashCommandHandler.Respond;
-        _client.MessageUpdated += MessageUpdatedEvent.Respond;
+        SocketClient.Log += LogEvent.SocketRespond;
+        SocketClient.MessageReceived += MessageEvent.Respond;
+        SocketClient.Ready += ClientReady.Respond;
+        SocketClient.GuildAvailable += GuildAvailable.Respond;
+        SocketClient.SlashCommandExecuted += SlashCommandHandler.Respond;
+        SocketClient.MessageUpdated += MessageUpdatedEvent.Respond;
+        RestClient.Log += LogEvent.RestRespond;
 
         //Get token from env
         String? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
@@ -37,8 +42,9 @@ public class PawsyProgram
         if (token is not null)
         {
             Console.WriteLine("Logging in with token");
-            await _client.LoginAsync(TokenType.Bot, token);
-            await _client.StartAsync();
+            await SocketClient.LoginAsync(TokenType.Bot, token);
+            await RestClient.LoginAsync(TokenType.Bot, token);
+            await SocketClient.StartAsync();
 
             while (true)
             {

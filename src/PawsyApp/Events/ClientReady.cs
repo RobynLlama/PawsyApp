@@ -10,7 +10,7 @@ internal class ClientReady
         WriteLog.Normally("Building global commands");
 
         //Kills all our global commands cuz I added a bunch on accident
-        PawsyProgram._client?.BulkOverwriteGlobalApplicationCommandsAsync([]);
+        PawsyProgram.RestClient.BulkOverwriteGlobalCommands([]);
 
         return Task.CompletedTask;
     }
