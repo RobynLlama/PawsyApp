@@ -44,8 +44,14 @@ internal class MessageEvent
         var guild = guildChannel.Guild;
         var AuthorName = message.Author.GlobalName ?? message.Author.Username;
 
-        if (message.CleanContent.Contains("pawsy", System.StringComparison.InvariantCultureIgnoreCase))
+        if (!AllSettings.GuildSettingsStorage.TryGetValue(guild.Id, out var settings))
+            goto EndFunc;
+
+        if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
         {
+            //MeowBoard
+            settings.MeowBoard.AddUserMeow(message.Author.Id);
+            settings.Save();
             tasks.Add(message.AddReactionAsync(PawsySmall));
         }
 
@@ -55,9 +61,6 @@ internal class MessageEvent
             ("Channel", guildChannel.Name),
             ("Guild", guild.Name ?? "Unknown"),
             ]));
-
-        if (!AllSettings.GuildSettingsStorage.TryGetValue(guild.Id, out var settings))
-            goto EndFunc;
 
         lock (settings.AccessLock)
             foreach (var item in settings.RuleList)

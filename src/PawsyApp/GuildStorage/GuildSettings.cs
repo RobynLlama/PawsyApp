@@ -13,6 +13,8 @@ public class GuildSettings
     public ulong LoggingChannelID { get; set; } = 0;
     public ulong ID { get; set; }
     public string ServerName { get; set; }
+    [JsonInclude]
+    internal MeowBoard MeowBoard { get; set; } = new();
     internal readonly object AccessLock = new();
 
     [JsonInclude]
