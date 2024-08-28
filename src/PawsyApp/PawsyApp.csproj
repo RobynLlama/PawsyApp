@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,7 +10,7 @@
     <Product>PawsyApp</Product>
     <LangVersion>latest</LangVersion>
 
-    <Version>1.4.0</Version>
+    <Version>1.22.0</Version>
 
     <ProjectDepsFileName>$(Product).deps.json</ProjectDepsFileName>
     <RootNamespace>$(Product)</RootNamespace>
