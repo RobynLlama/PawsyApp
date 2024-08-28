@@ -16,7 +16,7 @@ internal class SlashHotReload : ISlashCommand
 
         if (command.GuildId is ulong realID)
         {
-            tasks.Add(command.RespondAsync($"Hot reloading this guild, meow!"));
+            tasks.Add(command.RespondAsync($"Hot reloading this guild, meow!", ephemeral: true));
             Settings.AllSettings.GuildSettingsStorage.Remove(realID, out _);
 
             if (PawsyProgram._client?.GetGuild(realID) is SocketGuild guild)
