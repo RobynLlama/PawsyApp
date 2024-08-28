@@ -89,7 +89,14 @@ internal class MessageEvent
 
         static Task Chirp(SocketTextChannel channel, SocketMessage message, RuleBundle violation)
         {
-            Embed embed = new EmbedBuilder().WithAuthor("Pawsy").WithTitle("Detected message").WithDescription($"{message.Author}({message.Author.Id})\n\nLink: <@{message.Author.Id}>\nContents: {message.CleanContent}").WithColor(violation.ColorR, violation.ColorG, violation.ColorB).WithFooter($"Rule: {violation.RuleName}").Build();
+            Embed embed = new EmbedBuilder()
+            //.WithAuthor("Pawsy")
+            .WithTitle("Detected message")
+            .WithDescription($"{message.Author}({message.Author.Id})\n\nLink: <@{message.Author.Id}>\nContents: {message.CleanContent}")
+            .WithColor(violation.ColorR, violation.ColorG, violation.ColorB)
+            .WithFooter($"Rule: {violation.RuleName}")
+            .WithCurrentTimestamp()
+            .Build();
             return channel.SendMessageAsync(embed: embed);
         }
 
