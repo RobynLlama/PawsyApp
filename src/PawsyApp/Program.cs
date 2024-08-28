@@ -27,6 +27,7 @@ public class PawsyProgram
         _client.Ready += ClientReady.Respond;
         _client.GuildAvailable += GuildAvailable.Respond;
         _client.SlashCommandExecuted += SlashCommandHandler.Respond;
+        _client.MessageUpdated += MessageUpdatedEvent.Respond;
 
         //Get token from env
         String? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
