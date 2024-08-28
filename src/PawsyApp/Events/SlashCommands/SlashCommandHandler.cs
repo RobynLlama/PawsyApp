@@ -19,6 +19,7 @@ internal class SlashCommandHandler
     {
         //All modules should be created and ready to use here
         new SlashMeow().RegisterSlashCommand();
+        new SlashHotReload().RegisterSlashCommand();
     }
 }
 
