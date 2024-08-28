@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using PawsyApp.Settings;
 using PawsyApp.Utils;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PawsyApp.GuildStorage;
 
@@ -29,10 +30,14 @@ public class GuildSettings
         this.ServerName = ServerName;
     }
 
-    internal void Save()
+    internal async Task Save()
     {
+        List<Task> tasks = [];
+
         using StreamWriter writer = new(GuildFile.Get(ID));
-        writer.Write(JsonSerializer.Serialize(this, AllSettings.options));
-        writer.Flush();
+        tasks.Add(writer.WriteAsync(JsonSerializer.Serialize(this, AllSettings.options)));
+        tasks.Add(writer.FlushAsync());
+
+        await Task.WhenAll(tasks);
     }
 }

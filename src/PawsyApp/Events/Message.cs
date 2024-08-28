@@ -51,7 +51,7 @@ internal class MessageEvent
         {
             //MeowBoard
             settings.MeowBoard.AddUserMeow(message.Author.Id);
-            settings.Save();
+            tasks.Add(settings.Save());
             tasks.Add(message.AddReactionAsync(PawsySmall));
         }
 
