@@ -6,6 +6,7 @@ using Discord.WebSocket;
 using PawsyApp.Events;
 using PawsyApp.Events.SlashCommands;
 using Discord.Rest;
+using PawsyApp.PawsyCore;
 
 namespace PawsyApp;
 public class PawsyProgram
@@ -22,6 +23,8 @@ public class PawsyProgram
     {
         LogLevel = LogSeverity.Info
     });
+
+    internal static Pawsy Pawsy = new();
     internal static OpenAIAPI api = new(Environment.GetEnvironmentVariable("OPENAI_AUTH"));
 
     public static async Task Main()
