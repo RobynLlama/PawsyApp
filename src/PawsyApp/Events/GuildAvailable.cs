@@ -51,7 +51,8 @@ internal class GuildAvailable
                 tasks.Add(WriteLog.Cutely("Enabling a module", [
                     ("Module", item)
                 ]));
-                tasks.Add(guild.CreateApplicationCommandAsync(SlashCommandHandler.Handlers[item].BuiltCommand));
+
+                tasks.Add(SlashCommandHandler.AddCommandsToGuild(guild));
             }
         }
 

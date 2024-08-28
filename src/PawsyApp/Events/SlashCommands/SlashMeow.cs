@@ -15,6 +15,8 @@ internal class SlashMeow : ISlashCommand
 
     public SlashCommandProperties BuiltCommand => MyCommand;
 
+    public string ModuleName => "fun";
+
     private static SlashCommandProperties MyCommand = new SlashCommandBuilder().WithName("meow").WithDescription("Pawsy will meow for you").Build();
 
 }

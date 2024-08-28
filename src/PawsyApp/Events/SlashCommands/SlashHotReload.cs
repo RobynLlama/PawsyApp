@@ -33,6 +33,8 @@ internal class SlashHotReload : ISlashCommand
 
     public SlashCommandProperties BuiltCommand => MyCommand;
 
+    public string ModuleName => "debug";
+
     private static SlashCommandProperties MyCommand = new SlashCommandBuilder().WithName("hot-reload").WithDescription("Reload this guild's configuration").WithDefaultMemberPermissions(GuildPermission.ManageGuild).Build();
 
 }

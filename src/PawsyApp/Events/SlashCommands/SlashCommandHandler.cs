@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 
@@ -11,13 +13,25 @@ internal class SlashCommandHandler
     {
         if (Handlers.TryGetValue(command.CommandName, out ISlashCommand? item))
         {
-            await item.Handler(command);
+            await item.RunOnGuild(command);
         }
     }
 
-    internal static void RegisterAllHandlers()
+    internal static async Task AddCommandsToGuild(SocketGuild guild)
     {
-        //All modules should be created and ready to use here
+        List<Task> tasks = [];
+
+        foreach (var item in Handlers)
+        {
+            tasks.Add(guild.CreateApplicationCommandAsync(item.Value.BuiltCommand));
+        }
+
+        await Task.WhenAll(tasks);
+        return;
+    }
+
+    internal static void RegisterAllModules()
+    {
         new SlashMeow().RegisterSlashCommand();
         new SlashHotReload().RegisterSlashCommand();
     }
