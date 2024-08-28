@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,6 +8,7 @@
     <Authors>Robyn</Authors>
     <Description>Pawsy is a cute cat that helps moderate your Discord</Description>
     <Product>PawsyApp</Product>
+    <LangVersion>latest</LangVersion>
 
     <Version>1.4.0</Version>
 
