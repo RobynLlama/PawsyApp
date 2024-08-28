@@ -7,6 +7,7 @@ using PawsyApp.GuildStorage;
 using System.Text.Json;
 using PawsyApp.Settings;
 using System.Collections.Generic;
+using PawsyApp.Events.SlashCommands;
 
 namespace PawsyApp.Events;
 
@@ -19,6 +20,7 @@ internal class GuildAvailable
         {
             WriteLog.Cutely("Guild Available", [
             ("GuildID", guild.Id),
+            ("GuildName", guild.Name)
             ]),
 
             //clear local commands to force the list to refresh
@@ -27,22 +29,27 @@ internal class GuildAvailable
 
         FileInfo file = new(GuildFile.Get(guild.Id));
 
-        tasks.Add(WriteLog.Normally($"Trying to open {file.FullName}"));
+        tasks.Add(WriteLog.Normally($"Reading settings for guild"));
+        GuildSettings? gSettings = null;
 
         if (file.Exists)
         {
             using StreamReader data = new(file.FullName);
-            var newSettings = JsonSerializer.Deserialize<GuildSettings>(data.ReadToEnd());
-
-            if (newSettings is not null)
-            {
-                AllSettings.GuildSettingsStorage.TryAdd(guild.Id, newSettings);
-            }
+            gSettings = JsonSerializer.Deserialize<GuildSettings>(data.ReadToEnd());
         }
-        else
+
+        gSettings ??= new(guild.Id, guild.Name);
+        AllSettings.GuildSettingsStorage.TryAdd(guild.Id, gSettings);
+        AllSettings.SaveAll();
+
+        //Iterate all modules
+        foreach (var item in gSettings.EnabledModules.Keys)
         {
-            AllSettings.GuildSettingsStorage.TryAdd(guild.Id, new(guild.Id));
-            AllSettings.SaveAll();
+            if (gSettings.EnabledModules[item])
+            {
+                //module is enabled
+                tasks.Add(guild.CreateApplicationCommandAsync(SlashCommandHandler.Handlers[item].BuiltCommand));
+            }
         }
 
         await Task.WhenAll(tasks);
