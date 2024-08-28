@@ -16,6 +16,14 @@ internal class MessageEvent
         if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
             return;
 
+        /*
+        if (message.CleanContent.ToLowerInvariant().StartsWith("pawsy help me:"))
+        {
+            await AIEvent.Respond(message);
+            return;
+        }
+        */
+
         var tasks = new List<Task>();
 
         if (message.Channel is SocketDMChannel DMchannel)

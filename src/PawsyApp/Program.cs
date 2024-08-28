@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenAI_API;
+using System;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -9,6 +10,7 @@ namespace PawsyApp;
 public class PawsyProgram
 {
     internal static DiscordSocketClient? _client;
+    internal static OpenAIAPI api = new OpenAIAPI(Environment.GetEnvironmentVariable("OPENAI_AUTH"));
 
     public static async Task Main()
     {
