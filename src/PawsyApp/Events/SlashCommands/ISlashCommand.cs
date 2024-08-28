@@ -15,19 +15,11 @@ internal interface ISlashCommand
 
     Task RunOnGuild(SocketSlashCommand command)
     {
-        if (command.GuildId is ulong realID)
-        {
-            if (AllSettings.GuildSettingsStorage.TryGetValue(realID, out GuildSettings? gSettings))
-            {
-                if (gSettings.EnabledModules.TryGetValue(ModuleName, out bool enabled))
-                {
-                    if (enabled)
-                    {
-                        return Handler(command);
-                    }
-                }
-            }
-        }
+        if ((command.GuildId is ulong realID)
+        && AllSettings.GuildSettingsStorage.TryGetValue(realID, out GuildSettings? gSettings)
+        && gSettings.EnabledModules.TryGetValue(ModuleName, out bool enabled)
+        && enabled)
+            return Handler(command);
 
         return command.RespondAsync("Sorry, that command is not enabled on this server, meow :sob:", ephemeral: true);
     }
