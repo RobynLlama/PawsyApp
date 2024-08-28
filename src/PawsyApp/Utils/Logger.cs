@@ -47,7 +47,7 @@ internal class WriteLog
 
     internal static Task Normally(object msg)
     {
-        Console.WriteLine($"[{KittyColor.WrapInColor("Pawsy!", ColorCode.Magenta)}] {msg}");
+        Console.WriteLine($"[{KittyColor.WrapInColor("Pawsy!", ColorCode.Magenta)}]  {msg}");
         return Task.CompletedTask;
     }
 }
