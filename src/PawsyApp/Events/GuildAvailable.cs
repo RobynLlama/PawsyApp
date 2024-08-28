@@ -40,7 +40,7 @@ internal class GuildAvailable
 
         gSettings ??= new(guild.Id, guild.Name);
         AllSettings.GuildSettingsStorage.TryAdd(guild.Id, gSettings);
-        AllSettings.SaveAll();
+        gSettings.Save();
 
         //Iterate all modules
         foreach (var item in gSettings.EnabledModules.Keys)
