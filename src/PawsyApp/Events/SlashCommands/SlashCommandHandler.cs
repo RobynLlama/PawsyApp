@@ -34,6 +34,7 @@ internal class SlashCommandHandler
     {
         new SlashMeow().RegisterSlashCommand();
         new SlashHotReload().RegisterSlashCommand();
+        new SlashMeowBoard().RegisterSlashCommand();
     }
 }
 
