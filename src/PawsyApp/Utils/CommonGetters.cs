@@ -11,7 +11,7 @@ internal class CommonGetters
         if (guildID is not ulong realID)
             return null;
 
-        if (PawsyProgram._client?.GetGuild(realID) is SocketGuild guild)
+        if (PawsyProgram.SocketClient.GetGuild(realID) is SocketGuild guild)
         {
             return guild;
         }
