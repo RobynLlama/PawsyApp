@@ -37,9 +37,6 @@ internal class GuildAvailable
         tasks.Add(guild.CreateApplicationCommandAsync(guildCommand.Build()));
         tasks.Add(WriteLog.Normally("Registered command for guild"));
 
-        if (AllSettings.GuildSettingsStorage.ContainsKey(guild.Id))
-            goto EndFunc;
-
         FileInfo file = new(GuildFile.Get(guild.Id));
 
         tasks.Add(WriteLog.Normally($"Trying to open {file.FullName}"));
@@ -51,16 +48,15 @@ internal class GuildAvailable
 
             if (newSettings is not null)
             {
-                AllSettings.GuildSettingsStorage.Add(guild.Id, newSettings);
+                AllSettings.GuildSettingsStorage.TryAdd(guild.Id, newSettings);
             }
         }
         else
         {
-            AllSettings.GuildSettingsStorage.Add(guild.Id, new(guild.Id));
+            AllSettings.GuildSettingsStorage.TryAdd(guild.Id, new(guild.Id));
             AllSettings.SaveAll();
         }
 
-    EndFunc:
         await Task.WhenAll(tasks);
         return;
     }

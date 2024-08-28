@@ -1,12 +1,12 @@
 using PawsyApp.GuildStorage;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace PawsyApp.Settings;
 
 public partial class AllSettings
 {
-    internal static Dictionary<ulong, GuildSettings> GuildSettingsStorage = [];
+    internal static ConcurrentDictionary<ulong, GuildSettings> GuildSettingsStorage = [];
     internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
     internal static void SaveAll()
     {
@@ -14,5 +14,6 @@ public partial class AllSettings
         {
             GuildSettingsStorage[item].Save();
         }
+
     }
 }
