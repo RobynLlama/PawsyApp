@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using PawsyApp.Utils;
 
 namespace PawsyApp.Events.SlashCommands;
 internal class SlashCommandHandler
@@ -21,12 +22,16 @@ internal class SlashCommandHandler
     {
         List<Task> tasks = [];
 
-        foreach (var item in Handlers)
+        var things = Handlers.ToArray();
+
+        foreach (var item in things)
         {
             tasks.Add(guild.CreateApplicationCommandAsync(item.Value.BuiltCommand));
         }
 
         await Task.WhenAll(tasks);
+        GlobalTaskRunner.FireAndForget(WriteLog.Normally("Finished a guild setup"));
+
         return;
     }
 

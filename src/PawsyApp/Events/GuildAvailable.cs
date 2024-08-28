@@ -1,5 +1,4 @@
 using System.IO;
-using Discord;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using PawsyApp.Utils;
@@ -8,6 +7,7 @@ using System.Text.Json;
 using PawsyApp.Settings;
 using System.Collections.Generic;
 using PawsyApp.Events.SlashCommands;
+using System.Linq;
 
 namespace PawsyApp.Events;
 
@@ -40,15 +40,18 @@ internal class GuildAvailable
 
         gSettings ??= new(guild.Id, guild.Name);
         AllSettings.GuildSettingsStorage.TryAdd(guild.Id, gSettings);
-        gSettings.Save();
+
+        tasks.Add(gSettings.Save());
+
+        var settings = gSettings.EnabledModules.ToDictionary();
 
         //Iterate all modules
-        foreach (var item in gSettings.EnabledModules.Keys)
+        foreach (var item in settings)
         {
-            if (gSettings.EnabledModules[item])
+            if (item.Value)
             {
                 //module is enabled
-                tasks.Add(WriteLog.Cutely("Enabling a module", [
+                GlobalTaskRunner.FireAndForget(WriteLog.Cutely("Enabling a module", [
                     ("Module", item)
                 ]));
 
