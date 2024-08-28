@@ -54,7 +54,7 @@ internal class MessageEvent
         lock (settings.AccessLock)
             foreach (var item in settings.RuleList)
             {
-                if (item.Match(message.CleanContent))
+                if (item.Match(message.CleanContent, message.Channel.Id))
                 {
                     if (item.WarnStaff)
                     {

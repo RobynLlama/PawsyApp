@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
@@ -15,6 +16,8 @@ public class RuleBundle
     public int ColorB { get; set; } = 0;
     public bool DeleteMessage { get; set; } = false;
     public bool WarnStaff { get; set; } = true;
+    public FilterType FilterStyle { get; set; } = FilterType.BlackList;
+    public List<ulong> FilteredChannels { get; set; } = [];
     public bool SendResponse
     {
         get
@@ -46,8 +49,13 @@ public class RuleBundle
         this.RuleName = RuleName;
     }
 
-    public bool Match(string content)
+    public bool Match(string content, ulong channelID)
     {
+        var isOnList = FilteredChannels.Contains(channelID);
+
+        if ((FilterStyle == FilterType.BlackList && isOnList) || (FilterStyle == FilterType.WhiteList && !isOnList))
+            return false;
+
         reg ??= new(Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
         return reg.Match(content).Success;
     }
