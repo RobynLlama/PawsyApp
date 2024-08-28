@@ -20,13 +20,14 @@ internal class MessageEvent
 
         if (message.Channel is SocketDMChannel DMchannel)
         {
-            WriteLog.Cutely("Pawsy heard a DM!", [
+            tasks.Add(WriteLog.Cutely("Pawsy heard a DM!", [
             ("Author", message.Author.GlobalName),
             ("CleanContent", message.CleanContent),
-            ]);
+            ]));
 
-            await DMchannel.SendMessageAsync("Hi! I'm Pawsy <:pawsysmall:1277935719805096066> the cutie kitty app here to keep you safe and sound! Sorry, but I'm really shy in DMs ≧◡≦ please just talk to me on the server, okay?");
-            return;
+            tasks.Add(DMchannel.SendMessageAsync("Hi! I'm Pawsy <:pawsysmall:1277935719805096066> the cutie kitty app here to keep you safe and sound! Sorry, but I'm really shy in DMs ≧◡≦ please just talk to me on the server, okay?"));
+
+            goto EndFunc;
         }
 
         if (message.Channel is not SocketGuildChannel guildChannel)
@@ -40,25 +41,19 @@ internal class MessageEvent
             tasks.Add(message.AddReactionAsync(PawsySmall));
         }
 
-        WriteLog.Cutely("Pawsy heard this!", [
+        tasks.Add(WriteLog.Cutely("Pawsy heard this!", [
             ("Author", AuthorName),
             ("CleanContent", message.CleanContent),
             ("Channel", guildChannel.Name),
             ("Guild", guild.Name ?? "Unknown"),
-            ]);
+            ]));
 
         if (!AllSettings.GuildSettingsStorage.TryGetValue(guild.Id, out var settings))
-        {
-            await Task.WhenAll(tasks);
-            return;
-        }
+            goto EndFunc;
 
 
         if (guild.GetChannel(settings.LoggingChannelID) is not SocketTextChannel channel)
-        {
-            await Task.WhenAll(tasks);
-            return;
-        }
+            goto EndFunc;
 
         foreach (var item in settings.rules)
         {
@@ -83,6 +78,8 @@ internal class MessageEvent
             return channel.SendMessageAsync(embed: embed);
         }
 
+
+    EndFunc:
         await Task.WhenAll(tasks);
         return;
     }

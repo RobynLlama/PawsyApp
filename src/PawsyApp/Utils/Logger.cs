@@ -1,13 +1,14 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using PawsyApp.KittyColors;
 
 namespace PawsyApp.Utils;
 
 internal class WriteLog
 {
-    internal static void Cutely(object msg, (object ContextName, object ContextValue)[] context)
+    internal static Task Cutely(object msg, (object ContextName, object ContextValue)[] context)
     {
         StringBuilder sb = new(msg.ToString());
         sb.AppendLine();
@@ -41,11 +42,12 @@ internal class WriteLog
             writer.WriteLine(sb);
         }
 
-        Normally(sb);
+        return Normally(sb);
     }
 
-    internal static void Normally(object msg)
+    internal static Task Normally(object msg)
     {
         Console.WriteLine($"[{KittyColor.WrapInColor("Pawsy!", ColorCode.Magenta)}] {msg}");
+        return Task.CompletedTask;
     }
 }
