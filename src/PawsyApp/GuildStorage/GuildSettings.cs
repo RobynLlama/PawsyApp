@@ -1,9 +1,10 @@
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using PawsyApp.Settings;
 using PawsyApp.Utils;
+using System.Collections.Generic;
 
 namespace PawsyApp.GuildStorage;
 
@@ -11,19 +12,19 @@ public class GuildSettings
 {
     public ulong LoggingChannelID { get; set; } = 0;
     public ulong ID { get; set; }
-    public List<RuleBundle> rules { get; set; } = [];
+    public string ServerName { get; set; }
+    internal readonly object AccessLock = new();
+
+    [JsonInclude]
+    internal List<RuleBundle> RuleList { get; private set; } = [];
+
+    public ConcurrentDictionary<string, bool> EnabledModules { get; set; } = [];
 
     [JsonConstructor]
-    public GuildSettings(ulong LoggingChannelID, ulong ID, List<RuleBundle> rules)
-    {
-        this.LoggingChannelID = LoggingChannelID;
-        this.rules = rules;
-        this.ID = ID;
-    }
-
-    public GuildSettings(ulong ID)
+    public GuildSettings(ulong ID, string ServerName)
     {
         this.ID = ID;
+        this.ServerName = ServerName;
     }
 
     internal void Save()
