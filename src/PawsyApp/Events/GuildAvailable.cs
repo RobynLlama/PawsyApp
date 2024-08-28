@@ -24,7 +24,7 @@ internal class GuildAvailable
             ]),
 
             //clear local commands to force the list to refresh
-            guild.DeleteApplicationCommandsAsync()
+            //guild.DeleteApplicationCommandsAsync()
         };
 
         FileInfo file = new(GuildFile.Get(guild.Id));
@@ -48,6 +48,9 @@ internal class GuildAvailable
             if (gSettings.EnabledModules[item])
             {
                 //module is enabled
+                tasks.Add(WriteLog.Cutely("Enabling a module", [
+                    ("Module", item)
+                ]));
                 tasks.Add(guild.CreateApplicationCommandAsync(SlashCommandHandler.Handlers[item].BuiltCommand));
             }
         }
