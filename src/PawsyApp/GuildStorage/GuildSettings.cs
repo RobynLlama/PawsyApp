@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using PawsyApp.Settings;
 using PawsyApp.Utils;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +18,7 @@ public class GuildSettings
     [JsonInclude]
     internal MeowBoard MeowBoard { get; set; } = new();
     internal readonly object AccessLock = new();
+    internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
 
     [JsonInclude]
     internal List<RuleBundle> RuleList { get; private set; } = [];
@@ -26,10 +26,10 @@ public class GuildSettings
     public ConcurrentDictionary<string, bool> EnabledModules { get; set; } = [];
 
     [JsonConstructor]
-    public GuildSettings(ulong ID, string ServerName)
+    public GuildSettings(ulong ID)
     {
         this.ID = ID;
-        this.ServerName = ServerName;
+        ServerName = PawsyProgram.SocketClient.GetGuild(ID).Name;
     }
 
     internal ulong GetNextID()
@@ -42,7 +42,7 @@ public class GuildSettings
         List<Task> tasks = [];
 
         using StreamWriter writer = new(GuildFile.Get(ID));
-        tasks.Add(writer.WriteAsync(JsonSerializer.Serialize(this, AllSettings.options)));
+        tasks.Add(writer.WriteAsync(JsonSerializer.Serialize(this, options)));
         tasks.Add(writer.FlushAsync());
 
         await Task.WhenAll(tasks);
