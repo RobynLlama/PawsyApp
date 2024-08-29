@@ -4,7 +4,7 @@ using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.Utils;
 
-internal class CommonGetters
+internal partial class Helpers
 {
     internal static SocketGuild? GetGuild(ulong? guildID)
     {
