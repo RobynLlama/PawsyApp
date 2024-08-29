@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.Events;
-using PawsyApp.Events.SlashCommands;
 using Discord.Rest;
 using PawsyApp.PawsyCore;
 
@@ -29,13 +28,10 @@ public class PawsyProgram
 
     public static async Task Main()
     {
-        SlashCommandHandler.RegisterAllModules();
-
         SocketClient.Log += LogEvent.SocketRespond;
         SocketClient.MessageReceived += MessageEvent.Respond;
         SocketClient.Ready += ClientReady.Respond;
         SocketClient.GuildAvailable += GuildAvailable.Respond;
-        SocketClient.SlashCommandExecuted += SlashCommandHandler.Respond;
         RestClient.Log += LogEvent.RestRespond;
 
         //Get token from env

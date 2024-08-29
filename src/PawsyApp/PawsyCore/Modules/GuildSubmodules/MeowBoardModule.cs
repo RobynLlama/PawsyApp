@@ -25,8 +25,46 @@ internal class MeowBoardModule : GuildSubmodule
 
         if (Owner is GuildModule guild)
         {
+            guild.RegisterSlashCommand(
+                new(CommandMeowBoard,
+                new SlashCommandBuilder().
+                WithName("meowboard")
+                .WithDescription("View the MeowBoard")
+                .Build(),
+                Name)
+            );
+
+            guild.RegisterSlashCommand(
+                new(CommandMeow,
+                new SlashCommandBuilder()
+                .WithName("meow")
+                .WithDescription("Pawsy will meow for you")
+                .Build(),
+                Name)
+            );
+
+        }
+    }
+
+    public override void RegisterHooks()
+    {
+        if (_owner is GuildModule guild)
+        {
             guild.OnGuildMessage += MessageCallback;
         }
+    }
+
+    private Task CommandMeowBoard(SocketSlashCommand command)
+    {
+        if (_settings is not null)
+            return _settings.EmbedMeowBoard(command);
+
+        return command.RespondAsync("Something went wrong, meow!", ephemeral: true);
+    }
+
+    private Task CommandMeow(SocketSlashCommand command)
+    {
+        return command.RespondAsync($"Meow!");
     }
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)

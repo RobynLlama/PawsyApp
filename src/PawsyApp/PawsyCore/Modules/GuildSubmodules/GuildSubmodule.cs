@@ -21,6 +21,7 @@ internal abstract class GuildSubmodule() : IModule
     public abstract IModuleSettings? Settings { get; }
 
     public abstract void Activate();
+    public abstract void RegisterHooks();
 
     public string GetSettingsLocation()
     {

@@ -28,7 +28,10 @@ internal class FilterMatcherModule : GuildSubmodule
         WriteLog.Cutely("Filters loaded", [
             ("Filter Count", _settings.RuleList.Count.ToString())
         ]);
+    }
 
+    public override void RegisterHooks()
+    {
         if (Owner is GuildModule guild)
         {
             guild.OnGuildMessage += MessageCallBack;
