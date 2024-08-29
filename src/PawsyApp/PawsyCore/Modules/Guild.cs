@@ -19,7 +19,7 @@ internal class GuildModule() : IModuleIdent
     public GuildSettings? Settings;
     void IModule.Activate()
     {
-        FileInfo file = new(GuildFile.Get(ID));
+        FileInfo file = new(Path.Combine(Helpers.GetPersistPath(_id), $"{Name}.json"));
 
         WriteLog.Normally($"Reading settings for guild");
 
