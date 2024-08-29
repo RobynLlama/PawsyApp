@@ -20,5 +20,7 @@ public class Pawsy : IModuleIdent
         WriteLog.Normally("Pawsy Core Activated");
     }
 
+    void IModule.RegisterHooks() { return; }
+
     public string GetSettingsLocation() => "";
 }

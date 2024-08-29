@@ -53,7 +53,7 @@ internal interface IModule
 
         WriteLog.Cutely("Failed to read settings", [
             ("Module ", Name),
-            ("Settings Type", typeof(T))
+            ("From", file.FullName)
         ]);
         var x = new T
         {
@@ -75,4 +75,5 @@ internal interface IModule
     }
 
     abstract void Activate();
+    abstract void RegisterHooks();
 }
