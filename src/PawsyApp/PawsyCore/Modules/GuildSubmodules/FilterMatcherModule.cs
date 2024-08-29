@@ -35,6 +35,7 @@ internal class FilterMatcherModule : GuildSubmodule
         if (Owner is GuildModule guild)
         {
             guild.OnGuildMessage += MessageCallBack;
+            guild.OnGuildMessageEdit += MessageCallBack;
         }
     }
 
