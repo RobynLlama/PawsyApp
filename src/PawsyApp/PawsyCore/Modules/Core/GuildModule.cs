@@ -36,6 +36,7 @@ internal class GuildModule() : IModuleIdent
         //Decide if we should activate modules here
         (this as IModule).AddModule<MeowBoardModule>();
         (this as IModule).AddModule<FilterMatcherModule>();
+        (this as IModule).AddModule<LogMuncherModule>();
 
         //Subscribe to events
         PawsyProgram.SocketClient.MessageReceived += OnMessage;

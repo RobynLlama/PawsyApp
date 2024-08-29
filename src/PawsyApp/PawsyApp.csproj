@@ -22,4 +22,10 @@
     <PackageReference Include="OpenAI" Version="1.11.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="LogMuncher">
+      <HintPath>../../MuncherLib/LogMuncher.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
