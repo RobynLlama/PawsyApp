@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.GuildStorage;
 using PawsyApp.Utils;
 
 namespace PawsyApp.Events.SlashCommands;
@@ -12,8 +11,8 @@ internal class SlashMeowBoard : ISlashCommand
 
     private static Task HandleCommand(SocketSlashCommand command)
     {
-        if (Helpers.GetSettings(command.GuildId) is GuildSettings settings)
-            return settings.MeowBoard.EmbedMeowBoard(command, settings);
+        /*if (Helpers.GetSettings(command.GuildId) is GuildSettings settings)
+            return settings.MeowBoard.EmbedMeowBoard(command, settings);*/
 
         command.RespondAsync("Something went wrong", ephemeral: true);
 

@@ -1,6 +1,5 @@
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.GuildStorage;
 using PawsyApp.PawsyCore.Modules;
 using PawsyApp.Utils;
 using System;
@@ -16,11 +15,11 @@ internal interface ISlashCommand
 
     Task RunOnGuild(SocketSlashCommand command)
     {
-        if ((command.GuildId is ulong realID)
+        /*if ((command.GuildId is ulong realID)
         && (Helpers.GetSettings(realID) is GuildSettings gSettings)
         && gSettings.EnabledModules.TryGetValue(ModuleName, out bool enabled)
         && enabled)
-            return Handler(command);
+            return Handler(command);*/
 
         return command.RespondAsync("Sorry, that command is not enabled on this server, meow :sob:", ephemeral: true);
     }

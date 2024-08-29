@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace PawsyApp.GuildStorage;
+namespace PawsyApp.PawsyCore.Modules.Settings;
 
 //new( new("""smelly""", RegexOptions.IgnoreCase | RegexOptions.Compiled, new(0, 0, 1)), "Test Rule")
 public class RuleBundle

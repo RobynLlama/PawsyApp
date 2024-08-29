@@ -4,6 +4,7 @@ using PawsyApp.Utils;
 using System.Collections.Generic;
 using PawsyApp.Events.SlashCommands;
 using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.Core;
 
 namespace PawsyApp.Events;
 

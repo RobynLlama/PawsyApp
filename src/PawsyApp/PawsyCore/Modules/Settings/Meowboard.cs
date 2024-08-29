@@ -7,7 +7,7 @@ using Discord;
 using Discord.WebSocket;
 using PawsyApp.Utils;
 
-namespace PawsyApp.GuildStorage;
+namespace PawsyApp.PawsyCore.Modules.Settings;
 
 internal class MeowBoard
 {

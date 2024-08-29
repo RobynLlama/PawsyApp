@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.GuildStorage;
 using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.Core;
+using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 
 namespace PawsyApp.Events;
@@ -11,10 +12,12 @@ namespace PawsyApp.Events;
 internal class MessageEvent
 {
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
+
     internal static async Task Respond(SocketMessage message)
     {
         if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
             return;
+
 
         /*
         if (message.CleanContent.ToLowerInvariant().StartsWith("pawsy help me:"))
@@ -43,8 +46,9 @@ internal class MessageEvent
 
         var guild = guildChannel.Guild;
         var AuthorName = message.Author.GlobalName ?? message.Author.Username;
+        var pawsy = PawsyProgram.Pawsy;
 
-        if (Helpers.GetSettings(guild.Id) is not GuildSettings settings)
+        if (true)
         {
             await WriteLog.Normally("Failed to fetch settings");
             return;
@@ -53,9 +57,9 @@ internal class MessageEvent
         if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
         {
             //MeowBoard
-            settings.MeowBoard.AddUserMeow(message.Author.Id);
-            tasks.Add(settings.Save());
-            tasks.Add(message.AddReactionAsync(PawsySmall));
+            //settings.MeowBoard.AddUserMeow(message.Author.Id);
+            //tasks.Add(settings.Save());
+            //tasks.Add(message.AddReactionAsync(PawsySmall));
         }
 
         tasks.Add(WriteLog.Cutely("Pawsy heard this!", [
@@ -65,7 +69,8 @@ internal class MessageEvent
             ("Guild", guild.Name ?? "Unknown"),
             ]));
 
-        lock (settings.AccessLock)
+        /*
+        lock (settings.AccessLock.)
             foreach (var item in settings.RuleList)
             {
                 if (item.Match(message.CleanContent, message.Channel.Id))
@@ -89,6 +94,7 @@ internal class MessageEvent
                     break;
                 }
             }
+            */
 
         static Task Chirp(SocketTextChannel channel, SocketMessage message, RuleBundle violation)
         {

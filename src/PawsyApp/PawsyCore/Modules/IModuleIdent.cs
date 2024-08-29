@@ -1,8 +1,8 @@
 namespace PawsyApp.PawsyCore.Modules;
 
-public interface IModuleIdent : IModule, IUnique<ulong>
+internal interface IModuleIdent : IModule, IUnique<ulong>
 {
-    public T AddModuleIdent<T>(ulong ModID) where T : IModuleIdent, new()
+    internal T AddModuleIdent<T>(ulong ModID) where T : IModuleIdent, new()
     {
         T item = new()
         {

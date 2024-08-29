@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
 using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.Settings;
+using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore;
 
 public class Pawsy : IModuleIdent
 {
-    private IModule? _owner;
     IModule? IModule.Owner { get => _owner; set => _owner = value; }
-    public List<IModule> Modules => myModules;
+    List<IModule> IModule.Modules => _modules;
+    IModuleSettings? IModule.Settings => null;
     public ulong ID { get => 0; set { return; } }
-
     public string Name => "PawsyCore";
 
-    private readonly List<IModule> myModules = [];
+    private readonly List<IModule> _modules = [];
+    private IModule? _owner;
     void IModule.Activate()
     {
-        throw new NotImplementedException();
+        WriteLog.Normally("Pawsy Core Activated");
     }
+
+    public string GetSettingsLocation() => "";
 }
