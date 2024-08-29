@@ -14,7 +14,7 @@ internal class GuildModule() : IModuleIdent
     public IModule? Owner { get => _owner; set => _owner = value; }
     public List<IModule> Modules => _modules;
     public ulong ID { get => _id; set => _id = value; }
-    public string Name { get => "GuildStorage"; }
+    public string Name => "GuildStorage";
 
     public GuildSettings? Settings;
     void IModule.Activate()
