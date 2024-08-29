@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
@@ -12,7 +12,7 @@ internal class GuildSettings() : IModuleSettings
     public IModule? Owner { get => _owner; set => _owner = value; }
 
     [JsonInclude]
-    public readonly ConcurrentBag<string> EnabledModules = [];
+    public List<string> EnabledModules { get; set; } = [];
 
     [JsonIgnore]
     protected string _location = string.Empty;
