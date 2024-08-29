@@ -5,6 +5,7 @@ namespace PawsyApp.PawsyCore.Modules;
 public interface IModule
 {
     IModule? Owner { get; set; }
+    string Name { get; }
     List<IModule> Modules { get; }
     public T AddModule<T>() where T : IModule, new()
     {
