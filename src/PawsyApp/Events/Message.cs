@@ -44,7 +44,7 @@ internal class MessageEvent
         var guild = guildChannel.Guild;
         var AuthorName = message.Author.GlobalName ?? message.Author.Username;
 
-        if (CommonGetters.GetSettings(guild.Id) is not GuildSettings settings)
+        if (Helpers.GetSettings(guild.Id) is not GuildSettings settings)
         {
             await WriteLog.Normally("Failed to fetch settings");
             return;

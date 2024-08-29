@@ -17,7 +17,7 @@ internal interface ISlashCommand
     Task RunOnGuild(SocketSlashCommand command)
     {
         if ((command.GuildId is ulong realID)
-        && (CommonGetters.GetSettings(realID) is GuildSettings gSettings)
+        && (Helpers.GetSettings(realID) is GuildSettings gSettings)
         && gSettings.EnabledModules.TryGetValue(ModuleName, out bool enabled)
         && enabled)
             return Handler(command);

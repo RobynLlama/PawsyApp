@@ -12,7 +12,7 @@ internal class SlashMeowBoard : ISlashCommand
 
     private static Task HandleCommand(SocketSlashCommand command)
     {
-        if (CommonGetters.GetSettings(command.GuildId) is GuildSettings settings)
+        if (Helpers.GetSettings(command.GuildId) is GuildSettings settings)
             return settings.MeowBoard.EmbedMeowBoard(command, settings);
 
         command.RespondAsync("Something went wrong", ephemeral: true);

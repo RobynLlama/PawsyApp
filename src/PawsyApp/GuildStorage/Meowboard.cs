@@ -26,7 +26,7 @@ internal class MeowBoard
     public Task EmbedMeowBoard(SocketSlashCommand command, GuildSettings settings)
     {
 
-        if (CommonGetters.GetGuild(command.GuildId) is not SocketGuild guild)
+        if (Helpers.GetGuild(command.GuildId) is not SocketGuild guild)
         {
             command.RespondAsync("Something went wrong", ephemeral: true);
             return Task.CompletedTask;
