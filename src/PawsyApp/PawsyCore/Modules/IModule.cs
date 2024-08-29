@@ -39,8 +39,6 @@ internal interface IModule
     {
         FileInfo file = new(GetSettingsLocation());
 
-        WriteLog.Normally($"Reading settings");
-
         if (file.Exists)
         {
             using StreamReader data = new(file.FullName);
@@ -53,7 +51,10 @@ internal interface IModule
 
         }
 
-        WriteLog.Normally("Failed to read settings");
+        WriteLog.Cutely("Failed to read settings", [
+            ("Module ", Name),
+            ("Settings Type", typeof(T))
+        ]);
         var x = new T
         {
             Location = file.FullName,

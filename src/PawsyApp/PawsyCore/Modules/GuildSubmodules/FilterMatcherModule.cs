@@ -1,4 +1,8 @@
+using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using Discord.WebSocket;
+using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 
@@ -21,5 +25,15 @@ internal class FilterMatcherModule : GuildSubmodule
         WriteLog.Cutely("Filters loaded", [
             ("Filter Count", _settings.RuleList.Count.ToString())
         ]);
+
+        if (Owner is GuildModule guild)
+        {
+            guild.OnGuildMessage += MessageCallBack;
+        }
+    }
+
+    private async Task MessageCallBack(SocketUserMessage message, SocketGuildChannel channel)
+    {
+        await WriteLog.Normally("FilterMatcher Call Back!");
     }
 }

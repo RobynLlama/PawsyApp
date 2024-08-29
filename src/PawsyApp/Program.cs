@@ -32,11 +32,10 @@ public class PawsyProgram
         SlashCommandHandler.RegisterAllModules();
 
         SocketClient.Log += LogEvent.SocketRespond;
-        //SocketClient.MessageReceived += MessageEvent.Respond;
+        SocketClient.MessageReceived += MessageEvent.Respond;
         SocketClient.Ready += ClientReady.Respond;
         SocketClient.GuildAvailable += GuildAvailable.Respond;
         SocketClient.SlashCommandExecuted += SlashCommandHandler.Respond;
-        SocketClient.MessageUpdated += MessageUpdatedEvent.Respond;
         RestClient.Log += LogEvent.RestRespond;
 
         //Get token from env
