@@ -2,7 +2,6 @@ using Discord.WebSocket;
 using System.Threading.Tasks;
 using PawsyApp.Utils;
 using System.Collections.Generic;
-using PawsyApp.Events.SlashCommands;
 using PawsyApp.PawsyCore.Modules;
 using PawsyApp.PawsyCore.Modules.Core;
 using System.IO;
@@ -32,8 +31,6 @@ internal class GuildAvailable
             storage.Create();
 
         (PawsyProgram.Pawsy as IModuleIdent).AddModuleIdent<GuildModule>(guild.Id);
-
-        GlobalTaskRunner.FireAndForget(SlashCommandHandler.AddCommandsToGuild(guild));
 
         await Task.WhenAll(tasks);
         return;
