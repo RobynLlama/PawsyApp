@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using PawsyApp.PawsyCore.Modules;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
@@ -9,12 +8,12 @@ namespace PawsyApp.PawsyCore;
 public class Pawsy : IModuleIdent
 {
     IModule? IModule.Owner { get => _owner; set => _owner = value; }
-    List<IModule> IModule.Modules => _modules;
+    ConcurrentBag<IModule> IModule.Modules => _modules;
     IModuleSettings? IModule.Settings => null;
     public ulong ID { get => 0; set { return; } }
     public string Name => "PawsyCore";
 
-    private readonly List<IModule> _modules = [];
+    private readonly ConcurrentBag<IModule> _modules = [];
     private IModule? _owner;
     void IModule.Activate()
     {

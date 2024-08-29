@@ -1,5 +1,8 @@
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.IO;
+using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
+using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 
@@ -7,23 +10,25 @@ namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 /// GuildSubmodules specifically rely on being added as a child
 /// component of a GuildModule. They will not work otherwise
 /// </summary>
-internal class GuildSubmodule() : IModule
+internal abstract class GuildSubmodule() : IModule
 {
-    public IModule? Owner { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public abstract IModule? Owner { get; set; }
 
-    public string Name => throw new System.NotImplementedException();
+    public abstract string Name { get; }
 
-    public List<IModule> Modules => throw new System.NotImplementedException();
+    public abstract ConcurrentBag<IModule> Modules { get; }
 
-    public IModuleSettings? Settings => throw new System.NotImplementedException();
+    public abstract IModuleSettings? Settings { get; }
 
-    public void Activate()
-    {
-        throw new System.NotImplementedException();
-    }
+    public abstract void Activate();
 
     public string GetSettingsLocation()
     {
-        throw new System.NotImplementedException();
+        if (Owner is GuildModule guild)
+        {
+            return Path.Combine(Helpers.GetPersistPath(guild.ID), $"{Name}.json");
+        }
+
+        return string.Empty;
     }
 }

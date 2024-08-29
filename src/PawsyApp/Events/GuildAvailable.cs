@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using PawsyApp.Events.SlashCommands;
 using PawsyApp.PawsyCore.Modules;
 using PawsyApp.PawsyCore.Modules.Core;
+using System.IO;
 
 namespace PawsyApp.Events;
 
@@ -23,6 +24,12 @@ internal class GuildAvailable
             //clear local commands to force the list to refresh
             //guild.DeleteApplicationCommandsAsync()
         };
+
+        //Prepare the storage directory
+        DirectoryInfo storage = new(Helpers.GetPersistPath(guild.Id));
+
+        if (!storage.Exists)
+            storage.Create();
 
         (PawsyProgram.Pawsy as IModuleIdent).AddModuleIdent<GuildModule>(guild.Id);
 

@@ -3,8 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 
-[method: JsonConstructor]
-internal class GuildSettings() : IModuleSettings
+internal class FilterMatcherSettings() : IModuleSettings
 {
     [JsonIgnore]
     public string Location { get => _location; set => _location = value; }
@@ -12,7 +11,11 @@ internal class GuildSettings() : IModuleSettings
     public IModule? Owner { get => _owner; set => _owner = value; }
 
     [JsonInclude]
-    public readonly ConcurrentBag<string> EnabledModules = [];
+    internal ConcurrentDictionary<ulong, RuleBundle> RuleList { get; set; } = [];
+    [JsonInclude]
+    internal ulong LoggingChannelID { get; set; } = 0;
+    [JsonInclude]
+    internal ulong NextRuleID { get; set; } = 0;
 
     [JsonIgnore]
     protected string _location = string.Empty;

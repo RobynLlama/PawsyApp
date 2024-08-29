@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 using PawsyApp.PawsyCore.Modules.Settings;
@@ -10,7 +10,7 @@ internal interface IModule
 {
     IModule? Owner { get; set; }
     string Name { get; }
-    List<IModule> Modules { get; }
+    ConcurrentBag<IModule> Modules { get; }
     IModuleSettings? Settings { get; }
     public T AddModule<T>() where T : IModule, new()
     {
@@ -34,16 +34,7 @@ internal interface IModule
 
         return null;
     }
-    public void RemoveModule(IModule module)
-    {
-        Modules.Remove(module);
-    }
-    public void Destroy()
-    {
-        Owner?.RemoveModule(this);
-    }
-
-    public string GetSettingsLocation();
+    public abstract string GetSettingsLocation();
     public T LoadSettings<T>() where T : class, IModuleSettings, new()
     {
         FileInfo file = new(GetSettingsLocation());
@@ -63,7 +54,13 @@ internal interface IModule
         }
 
         WriteLog.Normally("Failed to read settings");
-        return new();
+        var x = new T
+        {
+            Location = file.FullName,
+            Owner = this,
+        };
+        x.Save<T>();
+        return x;
     }
 
     public T? GetSettings<T>() where T : class, IModuleSettings
