@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading.Channels;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
@@ -34,6 +37,48 @@ internal class FilterMatcherModule : GuildSubmodule
 
     private async Task MessageCallBack(SocketUserMessage message, SocketGuildChannel channel)
     {
-        await WriteLog.Normally("FilterMatcher Call Back!");
+
+        if (_settings is null)
+            return;
+
+        List<Task> tasks = [];
+
+        foreach (var item in _settings.RuleList.Values)
+        {
+            if (item.Match(message.CleanContent, message.Channel.Id))
+            {
+                if (item.WarnStaff)
+                {
+                    if (channel.Guild.GetChannel(_settings.LoggingChannelID) is SocketTextChannel logChannel)
+                    {
+                        tasks.Add(SendMessageReport(logChannel, message, item));
+                    }
+
+                }
+
+                //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
+                if (item.SendResponse)
+                    tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG));
+
+                if (item.DeleteMessage)
+                    tasks.Add(message.DeleteAsync());
+
+                break;
+            }
+        }
+
+        await Task.WhenAll(tasks);
+    }
+
+    private static Task<Discord.Rest.RestUserMessage> SendMessageReport(SocketTextChannel channel, SocketMessage message, RuleBundle violation)
+    {
+        Embed embed = new EmbedBuilder()
+        .WithTitle("Detected message")
+        .WithDescription($"{message.Author}({message.Author.Id})\n\nLink: <@{message.Author.Id}>\nContents: {message.CleanContent}")
+        .WithColor(violation.ColorR, violation.ColorG, violation.ColorB)
+        .WithFooter($"Rule: {violation.RuleName}")
+        .WithCurrentTimestamp()
+        .Build();
+        return channel.SendMessageAsync(embed: embed);
     }
 }

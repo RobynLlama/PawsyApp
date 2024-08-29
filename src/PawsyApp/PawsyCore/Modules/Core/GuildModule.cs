@@ -58,7 +58,10 @@ internal class GuildModule() : IModuleIdent
 
     private async Task OnMessageEdit(Cacheable<IMessage, ulong> cacheable, SocketMessage message, ISocketMessageChannel channel)
     {
-        //Filter out bots and system messages
+        //Filter out bots, system and webhook message
+        if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
+            return;
+
         if (message is SocketUserMessage uMessage)
         {
             //Guild messages

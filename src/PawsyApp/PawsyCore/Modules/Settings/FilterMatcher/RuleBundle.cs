@@ -9,7 +9,6 @@ public class RuleBundle
 {
     internal Regex? reg;
     [JsonInclude]
-    public ulong RuleID { get; protected set; } = 0;
     public string Regex { get; set; }
     public string? ResponseMSG { get; set; }
     public string RuleName { get; set; }
@@ -35,14 +34,8 @@ public class RuleBundle
         }
     }
     protected bool _sendResponse = false;
-    public RuleBundle(string Regex, string RuleName, ulong RuleID)
-    {
-        this.RuleID = RuleID;
-        this.Regex = Regex;
-        this.RuleName = RuleName;
-        SendResponse = false;
-    }
-    public RuleBundle(string Regex, string RuleName, string ResponseMSG, ulong RuleID) : this(Regex, RuleName, RuleID)
+
+    public RuleBundle(string Regex, string RuleName, string ResponseMSG) : this(Regex, RuleName)
     {
         this.ResponseMSG = ResponseMSG;
         SendResponse = true;
