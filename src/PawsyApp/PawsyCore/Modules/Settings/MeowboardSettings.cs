@@ -34,7 +34,7 @@ internal class MeowBoardSettings() : IModuleSettings
         (this as IModuleSettings).Save<MeowBoardSettings>();
     }
 
-    public Task EmbedMeowBoard(SocketSlashCommand command, GuildSettings settings)
+    public Task EmbedMeowBoard(SocketSlashCommand command)
     {
 
         if (Helpers.GetGuild(command.GuildId) is not SocketGuild guild)
