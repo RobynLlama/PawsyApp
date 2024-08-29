@@ -30,6 +30,8 @@ internal class MeowBoardSettings() : IModuleSettings
             Records[userID] = amount + 1;
         else
             Records.TryAdd(userID, 1);
+
+        (this as IModuleSettings).Save<MeowBoardSettings>();
     }
 
     public Task EmbedMeowBoard(SocketSlashCommand command, GuildSettings settings)
