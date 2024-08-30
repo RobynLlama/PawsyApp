@@ -1,0 +1,3 @@
+[submodule "Submodules/LogMuncher"]
+	path = Submodules/LogMuncher
+	url = git@github.com:LethalCompanyModding/LogMuncher.git
