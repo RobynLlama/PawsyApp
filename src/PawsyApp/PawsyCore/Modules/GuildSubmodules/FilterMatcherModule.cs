@@ -65,7 +65,10 @@ internal class FilterMatcherModule : GuildSubmodule
                     tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG));
 
                 if (item.DeleteMessage)
-                    tasks.Add(message.DeleteAsync());
+                {
+                    var m = await message.Channel.GetMessageAsync(message.Id);
+                    await m.DeleteAsync();
+                }
 
                 break;
             }
