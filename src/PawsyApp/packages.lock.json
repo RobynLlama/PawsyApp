@@ -16,6 +16,12 @@
           "Discord.Net.Webhook": "3.15.3"
         }
       },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[8.0.8, )",
+        "resolved": "8.0.8",
+        "contentHash": "P8wR6MUWwYXIjPJuBaZgo5zlI/GWI6QEAo6NyVIbPefa9CCkohYu7dP2rD/mrqnjEqfRHyl+h9VZrDoGpELqYg=="
+      },
       "OpenAI": {
         "type": "Direct",
         "requested": "[1.11.0, )",
@@ -226,6 +232,7 @@
           "dev.mamallama.checkrunnerlib": "[2.1.0, )"
         }
       }
-    }
+    },
+    "net8.0/linux-x64": {}
   }
 }

@@ -23,9 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="LogMuncher">
-      <HintPath>../../MuncherLib/LogMuncher.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="../../Submodules/LogMuncher/src/MuncherLib/MuncherLib.csproj" />
   </ItemGroup>
 
 </Project>
