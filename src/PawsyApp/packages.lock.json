@@ -232,7 +232,6 @@
           "dev.mamallama.checkrunnerlib": "[2.1.0, )"
         }
       }
-    },
-    "net8.0/linux-x64": {}
+    }
   }
 }
