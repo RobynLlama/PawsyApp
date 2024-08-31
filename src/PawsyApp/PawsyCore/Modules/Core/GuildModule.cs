@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
 using System.Linq;
+using System.Text;
 
 namespace PawsyApp.PawsyCore.Modules.Core;
 
@@ -61,6 +62,12 @@ internal class GuildModule() : IModuleIdent
             .WithName("deactivate")
             .WithDescription("Disables a module for your guild")
             .AddOption("name", ApplicationCommandOptionType.String, "the name of the module to deactivate", isRequired: true)
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("list")
+            .WithDescription("Lists all available modules")
         );
 
         RegisterSlashCommand(
@@ -86,6 +93,11 @@ internal class GuildModule() : IModuleIdent
     {
         return;
     }
+    public void OnModuleDeactivation()
+    {
+        //I can't think of any reasons a Guild would be deactivated
+        return;
+    }
 
     private async Task ModuleActivator(SocketSlashCommand command)
     {
@@ -100,17 +112,12 @@ internal class GuildModule() : IModuleIdent
 
         var subCommand = command.Data.Options.First();
         var activationType = subCommand.Name;
-        string? modName = subCommand.Options.First().Value.ToString();
-
-        if (modName is null)
-        {
-            await command.RespondAsync("What?", ephemeral: true);
-            return;
-        }
+        string modName;
 
         switch (activationType)
         {
             case "activate":
+                modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
                 await WriteLog.LineNormal($"Activate a module {modName}");
                 //Already active?
                 if (Settings.EnabledModules.Contains(modName))
@@ -129,7 +136,7 @@ internal class GuildModule() : IModuleIdent
                         item.OnModuleActivation();
                         Settings.EnabledModules.Add(modName);
                         (Settings as IModuleSettings).Save<GuildSettings>();
-                        await command.RespondAsync("Module enabled, meow!", ephemeral: true);
+                        await command.RespondAsync($"{modName} enabled, meow!");
                     }
                 }
 
@@ -138,6 +145,7 @@ internal class GuildModule() : IModuleIdent
 
                 return;
             case "deactivate":
+                modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
                 await WriteLog.LineNormal($"Deactivate a module {modName}");
 
                 //Check if its active
@@ -154,12 +162,27 @@ internal class GuildModule() : IModuleIdent
                         item.OnModuleDeactivation();
                         Settings.EnabledModules.Remove(modName);
                         (Settings as IModuleSettings).Save<GuildSettings>();
-                        await command.RespondAsync("Module disabled, meow!", ephemeral: true);
+                        await command.RespondAsync($"{modName} disabled, meow!");
                         return;
                     }
                 }
 
                 await command.RespondAsync("Error: module is in the active list but does not exist.", ephemeral: true);
+                return;
+            case "list":
+                StringBuilder sb = new("All Modules:\n");
+
+                foreach (var item in _modules)
+                {
+                    var enabled = Settings.EnabledModules.Contains(item.Name);
+
+                    sb.Append(item.Name);
+                    sb.Append(": [");
+                    sb.AppendLine(enabled ? "Enabled]" : "Disabled]");
+                }
+
+                await command.RespondAsync(sb.ToString(), ephemeral: true);
+
                 return;
             default:
                 await WriteLog.LineNormal("Something went very wrong in HandleActivation");
@@ -170,11 +193,6 @@ internal class GuildModule() : IModuleIdent
         return;
     }
 
-    public void OnModuleDeactivation()
-    {
-        //I can't think of any reasons a Guild would be deactivated
-        return;
-    }
     public async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
         await WriteLog.LineNormal("Registering a command");
