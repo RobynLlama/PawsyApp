@@ -53,7 +53,7 @@ internal class FilterMatcherModule : GuildSubmodule
 
         foreach (var item in _settings.RuleList.Values)
         {
-            if (item.Match(message.CleanContent, message.Channel.Id))
+            if (item.Match(message.CleanContent, channel))
             {
                 if (item.WarnStaff)
                 {

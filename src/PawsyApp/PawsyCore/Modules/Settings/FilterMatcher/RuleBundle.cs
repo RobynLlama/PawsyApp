@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Discord;
+using Discord.WebSocket;
+using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 
@@ -48,8 +51,17 @@ public class RuleBundle
         this.RuleName = RuleName;
     }
 
-    public bool Match(string content, ulong channelID)
+    public bool Match(string content, SocketGuildChannel channel)
     {
+
+        var channelID = channel.Id;
+
+        if (channel is SocketThreadChannel tChannel)
+        {
+            //WriteLog.Normally("Filter is applied inside a thread");
+            channelID = tChannel.ParentChannel.Id;
+        }
+
         var isOnList = FilteredChannels.Contains(channelID);
 
         if ((FilterStyle == FilterType.BlackList && isOnList) || (FilterStyle == FilterType.WhiteList && !isOnList))
