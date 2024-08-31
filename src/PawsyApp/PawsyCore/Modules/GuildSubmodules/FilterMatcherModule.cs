@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading.Channels;
+using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -46,8 +46,35 @@ internal class FilterMatcherModule : GuildSubmodule
         if (_settings is null)
             return;
 
+        /*await WriteLog.Cutely("Filter heard a message callback",
+        [
+            ("ID", message.Id),
+            ("Author", message.Author),
+            ("Guild", channel.Guild.Name)
+        ]);*/
+
+        if (message.Author is SocketGuildUser gUser)
+        {
+            if (gUser.GetPermissions(channel).ManageMessages)
+            {
+                await WriteLog.LineNormal("User is exempt from filters");
+                return;
+            }
+        }
+
         if (LastDeletedMessage == message.Id)
+        {
+            await WriteLog.LineNormal("Already deleted this one before..");
+
+            using StreamWriter writer = new("Pawsy.Errors.log", true);
+            writer.WriteLine("Pawsy tried to delete a message twice");
+            writer.WriteLine(Environment.StackTrace);
+            writer.WriteLine();
+            writer.Flush();
+
             return;
+        }
+
 
         List<Task> tasks = [];
 
@@ -59,6 +86,7 @@ internal class FilterMatcherModule : GuildSubmodule
                 {
                     if (channel.Guild.GetChannel(_settings.LoggingChannelID) is SocketTextChannel logChannel)
                     {
+                        tasks.Add(WriteLog.LineNormal("Filter is alerting staff about a message"));
                         tasks.Add(SendMessageReport(logChannel, message, item));
                     }
 
@@ -66,14 +94,18 @@ internal class FilterMatcherModule : GuildSubmodule
 
                 //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
                 if (item.SendResponse)
+                {
+                    tasks.Add(WriteLog.LineNormal("Filter responding to a message"));
                     tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG));
+                }
 
                 if (item.DeleteMessage)
                 {
                     LastDeletedMessage = message.Id;
+                    tasks.Add(WriteLog.LineNormal("Filter is deleting a message"));
 
                     var m = await message.Channel.GetMessageAsync(message.Id);
-                    await m.DeleteAsync();
+                    tasks.Add(m.DeleteAsync());
                 }
 
                 break;
