@@ -13,7 +13,7 @@ internal static class GlobalTaskRunner
         }
         catch (Exception)
         {
-            await WriteLog.Normally("HandleTask encountered an error, discarding");
+            await WriteLog.LineNormal("HandleTask encountered an error, discarding");
         }
     }
 

@@ -7,7 +7,7 @@ internal class ClientReady
 {
     internal static Task Respond()
     {
-        WriteLog.Normally("Building global commands");
+        WriteLog.LineNormal("Building global commands");
 
         //Kills all our global commands cuz I added a bunch on accident
         PawsyProgram.RestClient.BulkOverwriteGlobalCommands([]);

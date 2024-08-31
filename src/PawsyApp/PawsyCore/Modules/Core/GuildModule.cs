@@ -47,7 +47,7 @@ internal class GuildModule() : IModuleIdent
         {
             if (Settings.EnabledModules.Contains(item.Name))
             {
-                WriteLog.Normally($"Registering {item.Name}");
+                WriteLog.LineNormal($"Registering {item.Name}");
                 item.RegisterHooks();
             }
         }
@@ -57,7 +57,7 @@ internal class GuildModule() : IModuleIdent
 
     public async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
-        await WriteLog.Normally("Registering a command");
+        await WriteLog.LineNormal("Registering a command");
         var sockCommand = await PawsyProgram.SocketClient.GetGuild(ID).CreateApplicationCommandAsync(bundle.BuiltCommand);
         //var restCommand = await PawsyProgram.RestClient.CreateGuildCommand(bundle.BuiltCommand, ID);
         GuildCommands.TryAdd(sockCommand.Id, bundle);

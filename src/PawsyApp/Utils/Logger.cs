@@ -42,12 +42,15 @@ internal class WriteLog
             writer.WriteLine(sb);
         }
 
-        return Normally(sb);
+        sb.AppendLine();
+        return Normal(sb);
     }
 
-    internal static Task Normally(object msg)
+    internal static Task LineNormal(object msg) => Normal(msg.ToString() + "\n");
+
+    internal static Task Normal(object msg)
     {
-        Console.WriteLine($"[{KittyColor.WrapInColor("Pawsy!", ColorCode.Magenta)}]  {msg}");
+        Console.Write($"[{KittyColor.WrapInColor("Pawsy!", ColorCode.Magenta)}]  {msg}");
         return Task.CompletedTask;
     }
 }

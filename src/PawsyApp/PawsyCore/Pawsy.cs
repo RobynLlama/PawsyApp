@@ -17,7 +17,7 @@ public class Pawsy : IModuleIdent
     private IModule? _owner;
     void IModule.Activate()
     {
-        WriteLog.Normally("Pawsy Core Activated");
+        WriteLog.LineNormal("Pawsy Core Activated");
     }
 
     void IModule.RegisterHooks() { return; }

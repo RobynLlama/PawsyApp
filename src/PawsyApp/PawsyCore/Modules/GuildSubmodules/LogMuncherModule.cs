@@ -27,7 +27,7 @@ internal class LogMuncherModule : GuildSubmodule
 
     public override void Activate()
     {
-        WriteLog.Normally("Muncher module ready to munch");
+        WriteLog.LineNormal("Muncher module ready to munch");
         _settings = (this as IModule).LoadSettings<LogMuncherSettings>();
 
         if (!RulesInit)
@@ -54,7 +54,7 @@ internal class LogMuncherModule : GuildSubmodule
         if (channel.Id != _settings.MunchingChannel)
             return;
 
-        await WriteLog.Normally("Checking for attachments");
+        await WriteLog.LineNormal("Checking for attachments");
 
         foreach (var item in message.Attachments)
         {
@@ -65,9 +65,9 @@ internal class LogMuncherModule : GuildSubmodule
                 tasks.Add(GetResourceAsync(item.Url));
             }
 
-            await WriteLog.Normally("Waiting for downloads...");
+            await WriteLog.LineNormal("Waiting for downloads...");
             await Task.WhenAll(tasks);
-            await WriteLog.Normally("done downloading");
+            await WriteLog.LineNormal("done downloading");
 
             foreach (var data in tasks)
             {
@@ -110,7 +110,7 @@ internal class LogMuncherModule : GuildSubmodule
                 }
 
 
-                await WriteLog.Normally("Done!");
+                await WriteLog.LineNormal("Done!");
             }
         }
     }
@@ -133,7 +133,7 @@ internal class LogMuncherModule : GuildSubmodule
         catch (HttpRequestException)
         {
             // Handle any exceptions that occur during the request.
-            await WriteLog.Normally("Failed to fetch resource");
+            await WriteLog.LineNormal("Failed to fetch resource");
             return null;
         }
     }
