@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using MuncherLib.Muncher;
 using System.Linq;
+using Discord;
 
 namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 
@@ -35,6 +36,24 @@ internal class LogMuncherModule : GuildSubmodule
             MuncherLib.RuleDatabase.Rules.Init();
             RulesInit = true;
         }
+
+        var ConfigCommand = new SlashCommandBuilder()
+        .WithName("muncher-config")
+        .WithDescription("Configure the Log Muncher module")
+        .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.Channel)
+            .WithName("muncher-channel")
+            .WithDescription("The channel Pawsy will look for logs in")
+        );
+
+        if (Owner is GuildModule guild)
+        {
+            guild.RegisterSlashCommand(
+                new(HandleConfig, ConfigCommand.Build(), Name)
+            );
+        }
     }
 
     public override void OnModuleActivation()
@@ -50,6 +69,37 @@ internal class LogMuncherModule : GuildSubmodule
         if (Owner is GuildModule guild)
         {
             guild.OnGuildMessage -= MessageResponse;
+        }
+    }
+    private async Task HandleConfig(SocketSlashCommand command)
+    {
+
+        if (_settings is null)
+        {
+            await command.RespondAsync("Config is unavailable in HandleConfig", ephemeral: true);
+            return;
+        }
+
+        var option = command.Data.Options.First();
+        var optionName = option.Name;
+        var optionValue = option.Value;
+
+        switch (optionName)
+        {
+            case "muncher-channel":
+                if (optionValue is not SocketTextChannel optionChannel)
+                {
+                    await command.RespondAsync("Only text channels, please and thank mew", ephemeral: true);
+                    return;
+                }
+
+                _settings.MunchingChannel = optionChannel.Id;
+                (_settings as IModuleSettings).Save<LogMuncherSettings>();
+                await command.RespondAsync($"Set search channel to <#{optionChannel.Id}>");
+                return;
+            default:
+                await command.RespondAsync("Something went wrong in HandleConfig", ephemeral: true);
+                return;
         }
     }
 
