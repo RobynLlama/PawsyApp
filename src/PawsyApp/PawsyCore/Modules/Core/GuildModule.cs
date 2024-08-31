@@ -109,7 +109,18 @@ internal class GuildModule() : IModuleIdent
         {
             //Guild messages
             if (OnGuildMessageEdit is not null && message.Channel is SocketGuildChannel gChannel && gChannel.Guild.Id == ID)
+            {
+                /*
+                await WriteLog.Cutely("Pawsy heard an update", [
+                ("CacheID", cacheable.Id),
+                ("Cached", cacheable.HasValue),
+                ("Author", uMessage.Author),
+                ("Channel", gChannel.Guild.Name),
+                ]);
+                */
+
                 await OnGuildMessageEdit(uMessage, gChannel);
+            }
         }
     }
 }
