@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
+using System;
 
 namespace PawsyApp.PawsyCore.Modules.Core;
 
@@ -26,35 +27,39 @@ internal class GuildModule() : IModuleIdent
     protected GuildSettings? Settings;
 
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
+    public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
     public event GuildMessageHandler? OnGuildMessage;
     public event GuildMessageHandler? OnGuildMessageEdit;
+    public event GuildThreadCreatedHandler? OnGuildThreadCreated;
 
     public void Activate()
     {
-        Settings = (this as IModule).LoadSettings<GuildSettings>();
-
         //Decide if we should activate modules here
-        (this as IModule).AddModule<MeowBoardModule>();
-        (this as IModule).AddModule<FilterMatcherModule>();
-        (this as IModule).AddModule<LogMuncherModule>();
+        if (this is IModule module)
+        {
+            Settings = module.LoadSettings<GuildSettings>();
+            module.AddModule<MeowBoardModule>();
+            module.AddModule<FilterMatcherModule>();
+            module.AddModule<LogMuncherModule>();
+            module.AddModule<ModderRoleCheckerModule>();
+        }
 
         //Subscribe to events
         PawsyProgram.SocketClient.MessageReceived += OnMessage;
         PawsyProgram.SocketClient.MessageUpdated += OnMessageEdit;
         PawsyProgram.SocketClient.SlashCommandExecuted += OnSlashCommand;
+        PawsyProgram.SocketClient.ThreadCreated += OnThreadCreated;
 
         foreach (var item in Modules)
         {
-            if (Settings.EnabledModules.Contains(item.Name))
+            if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
             {
                 WriteLog.LineNormal($"Registering {item.Name}");
                 item.RegisterHooks();
             }
         }
     }
-
     public void RegisterHooks() { return; }
-
     public async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
         await WriteLog.LineNormal("Registering a command");
@@ -62,7 +67,16 @@ internal class GuildModule() : IModuleIdent
         //var restCommand = await PawsyProgram.RestClient.CreateGuildCommand(bundle.BuiltCommand, ID);
         GuildCommands.TryAdd(sockCommand.Id, bundle);
     }
+    private async Task OnThreadCreated(SocketThreadChannel channel)
+    {
+        if (channel.Guild.Id != ID)
+            return;
 
+        if (OnGuildThreadCreated is not null)
+        {
+            await OnGuildThreadCreated(channel);
+        }
+    }
     private async Task OnSlashCommand(SocketSlashCommand command)
     {
         if (command.GuildId is not ulong guild)
