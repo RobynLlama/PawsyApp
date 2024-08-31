@@ -1,5 +1,3 @@
-using System;
-
 namespace PawsyApp.KittyColors;
 
 internal static class KittyColor

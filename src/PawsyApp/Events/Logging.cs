@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Discord;
 using PawsyApp.KittyColors;
-using PawsyApp.Utils;
 
 namespace PawsyApp.Events;
 

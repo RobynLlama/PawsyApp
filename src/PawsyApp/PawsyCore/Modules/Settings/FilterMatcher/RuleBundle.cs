@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Discord;
 using Discord.WebSocket;
-using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 

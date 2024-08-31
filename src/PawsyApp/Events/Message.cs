@@ -1,10 +1,6 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.PawsyCore.Modules;
-using PawsyApp.PawsyCore.Modules.Core;
-using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 
 namespace PawsyApp.Events;
