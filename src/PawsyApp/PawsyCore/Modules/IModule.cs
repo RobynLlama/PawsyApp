@@ -19,7 +19,7 @@ internal interface IModule
             Owner = this
         };
 
-        item.Activate();
+        item.Alive();
 
         Modules.Add(item);
         return item;
@@ -74,6 +74,7 @@ internal interface IModule
         return null;
     }
 
-    abstract void Activate();
-    abstract void RegisterHooks();
+    abstract void Alive();
+    abstract void OnModuleActivation();
+    abstract void OnModuleDeactivation();
 }
