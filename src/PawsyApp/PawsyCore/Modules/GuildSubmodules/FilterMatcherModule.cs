@@ -21,6 +21,7 @@ internal class FilterMatcherModule : GuildSubmodule
     protected IModule? _owner;
     protected readonly ConcurrentBag<IModule> _modules = [];
     protected FilterMatcherSettings? _settings;
+    protected ulong LastDeletedMessage = 0;
 
     public override void Activate()
     {
@@ -45,6 +46,9 @@ internal class FilterMatcherModule : GuildSubmodule
         if (_settings is null)
             return;
 
+        if (LastDeletedMessage == message.Id)
+            return;
+
         List<Task> tasks = [];
 
         foreach (var item in _settings.RuleList.Values)
@@ -66,6 +70,8 @@ internal class FilterMatcherModule : GuildSubmodule
 
                 if (item.DeleteMessage)
                 {
+                    LastDeletedMessage = message.Id;
+
                     var m = await message.Channel.GetMessageAsync(message.Id);
                     await m.DeleteAsync();
                 }
