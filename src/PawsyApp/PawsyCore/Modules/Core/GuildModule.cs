@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
 using System;
+using System.Linq;
 
 namespace PawsyApp.PawsyCore.Modules.Core;
 
@@ -32,7 +33,7 @@ internal class GuildModule() : IModuleIdent
     public event GuildMessageHandler? OnGuildMessageEdit;
     public event GuildThreadCreatedHandler? OnGuildThreadCreated;
 
-    public void Activate()
+    public void Alive()
     {
         //Decide if we should activate modules here
         if (this is IModule module)
@@ -44,6 +45,29 @@ internal class GuildModule() : IModuleIdent
             module.AddModule<ModderRoleCheckerModule>();
         }
 
+        var ModuleCommands = new SlashCommandBuilder()
+        .WithName("module")
+        .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
+        .WithDescription("Manage your activated modules")
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("activate")
+            .WithDescription("Enables a module for your guild")
+            .AddOption("name", ApplicationCommandOptionType.String, "the name of the module to activate", isRequired: true)
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("deactivate")
+            .WithDescription("Disables a module for your guild")
+            .AddOption("name", ApplicationCommandOptionType.String, "the name of the module to deactivate", isRequired: true)
+        );
+
+        RegisterSlashCommand(
+            new(ModuleActivator, ModuleCommands.Build(), Name)
+        );
+
         //Subscribe to events
         PawsyProgram.SocketClient.MessageReceived += OnMessage;
         PawsyProgram.SocketClient.MessageUpdated += OnMessageEdit;
@@ -54,12 +78,104 @@ internal class GuildModule() : IModuleIdent
         {
             if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
             {
-                WriteLog.LineNormal($"Registering {item.Name}");
-                item.RegisterHooks();
+                WriteLog.LineNormal($"Activating {item.Name}");
+                item.OnModuleActivation();
             }
         }
     }
-    public void RegisterHooks() { return; }
+    public void OnModuleActivation()
+    {
+        return;
+    }
+
+    private async Task ModuleActivator(SocketSlashCommand command)
+    {
+
+        if (Settings is null)
+        {
+            await command.RespondAsync("This guild's config is unavailable, something really went wrong.", ephemeral: true);
+            return;
+        }
+
+        //Activation has been called
+
+        var subCommand = command.Data.Options.First();
+        var activationType = subCommand.Name;
+        string? modName = subCommand.Options.First().Value.ToString();
+
+        if (modName is null)
+        {
+            await command.RespondAsync("What?", ephemeral: true);
+            return;
+        }
+
+        switch (activationType)
+        {
+            case "activate":
+                await WriteLog.LineNormal($"Activate a module {modName}");
+                //Already active?
+                if (Settings.EnabledModules.Contains(modName))
+                {
+                    await command.RespondAsync("That module is already active", ephemeral: true);
+                    return;
+                }
+
+                bool EnabledAnything = false;
+
+                foreach (var item in Modules)
+                {
+                    if (item.Name == modName)
+                    {
+                        EnabledAnything = true;
+                        item.OnModuleActivation();
+                        Settings.EnabledModules.Add(modName);
+                        (Settings as IModuleSettings).Save<GuildSettings>();
+                        await command.RespondAsync("Module enabled, meow!", ephemeral: true);
+                    }
+                }
+
+                if (!EnabledAnything)
+                    await command.RespondAsync("Sorry, meow! I couldn't find that module (and I looked really hard, too)", ephemeral: true);
+
+                return;
+            case "deactivate":
+                await WriteLog.LineNormal($"Deactivate a module {modName}");
+
+                //Check if its active
+                if (!Settings.EnabledModules.Contains(modName))
+                {
+                    await command.RespondAsync("That module is not active", ephemeral: true);
+                    return;
+                }
+
+                foreach (var item in Modules)
+                {
+                    if (item.Name == modName)
+                    {
+                        item.OnModuleDeactivation();
+                        Settings.EnabledModules.Remove(modName);
+                        (Settings as IModuleSettings).Save<GuildSettings>();
+                        await command.RespondAsync("Module disabled, meow!", ephemeral: true);
+                        return;
+                    }
+                }
+
+                await command.RespondAsync("Error: module is in the active list but does not exist.", ephemeral: true);
+                return;
+            default:
+                await WriteLog.LineNormal("Something went very wrong in HandleActivation");
+                break;
+        }
+
+        await command.RespondAsync("Error: Something went really wrong!", ephemeral: true);
+        return;
+    }
+
+    public void OnModuleDeactivation()
+    {
+        //I can't think of any reasons a Guild would be deactivated
+        return;
+    }
     public async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
         await WriteLog.LineNormal("Registering a command");
@@ -91,7 +207,7 @@ internal class GuildModule() : IModuleIdent
             return;
         }
 
-        if (Settings.EnabledModules.Contains(bundle.ModuleName))
+        if (bundle.ModuleName == "GuildGlobal" || Settings.EnabledModules.Contains(bundle.ModuleName))
         {
             await bundle.Handler(command);
             return;
