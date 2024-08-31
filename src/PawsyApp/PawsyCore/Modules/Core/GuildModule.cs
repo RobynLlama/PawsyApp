@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
-using System;
 using System.Linq;
 
 namespace PawsyApp.PawsyCore.Modules.Core;
