@@ -23,7 +23,7 @@ internal class FilterMatcherModule : GuildSubmodule
     protected FilterMatcherSettings? _settings;
     protected ulong LastDeletedMessage = 0;
 
-    public override void Activate()
+    public override void Alive()
     {
         _settings = (this as IModule).LoadSettings<FilterMatcherSettings>();
         WriteLog.Cutely("Filters loaded", [
@@ -31,12 +31,21 @@ internal class FilterMatcherModule : GuildSubmodule
         ]);
     }
 
-    public override void RegisterHooks()
+    public override void OnModuleActivation()
     {
         if (Owner is GuildModule guild)
         {
             guild.OnGuildMessage += MessageCallBack;
             guild.OnGuildMessageEdit += MessageCallBack;
+        }
+    }
+
+    public override void OnModuleDeactivation()
+    {
+        if (Owner is GuildModule guild)
+        {
+            guild.OnGuildMessage -= MessageCallBack;
+            guild.OnGuildMessageEdit -= MessageCallBack;
         }
     }
 

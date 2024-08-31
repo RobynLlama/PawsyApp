@@ -15,12 +15,13 @@ public class Pawsy : IModuleIdent
 
     private readonly ConcurrentBag<IModule> _modules = [];
     private IModule? _owner;
-    void IModule.Activate()
+    void IModule.Alive()
     {
         WriteLog.LineNormal("Pawsy Core Activated");
     }
 
-    void IModule.RegisterHooks() { return; }
+    void IModule.OnModuleActivation() { return; }
+    void IModule.OnModuleDeactivation() { return; }
 
     public string GetSettingsLocation() => "";
 }

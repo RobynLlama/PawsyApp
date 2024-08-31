@@ -25,7 +25,7 @@ internal class LogMuncherModule : GuildSubmodule
     protected LogMuncherSettings? _settings;
     protected static bool RulesInit = false;
 
-    public override void Activate()
+    public override void Alive()
     {
         WriteLog.LineNormal("Muncher module ready to munch");
         _settings = (this as IModule).LoadSettings<LogMuncherSettings>();
@@ -37,11 +37,19 @@ internal class LogMuncherModule : GuildSubmodule
         }
     }
 
-    public override void RegisterHooks()
+    public override void OnModuleActivation()
     {
         if (Owner is GuildModule guild)
         {
             guild.OnGuildMessage += MessageResponse;
+        }
+    }
+
+    public override void OnModuleDeactivation()
+    {
+        if (Owner is GuildModule guild)
+        {
+            guild.OnGuildMessage -= MessageResponse;
         }
     }
 

@@ -10,7 +10,7 @@ internal interface IModuleIdent : IModule, IUnique<ulong>
             Owner = this
         };
 
-        (item as IModule).Activate();
+        (item as IModule).Alive();
 
         Modules.Add(item);
         return item;

@@ -19,7 +19,7 @@ internal class MeowBoardModule : GuildSubmodule
     protected MeowBoardSettings? _settings;
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
 
-    public override void Activate()
+    public override void Alive()
     {
         _settings = (this as IModule).LoadSettings<MeowBoardSettings>();
 
@@ -46,11 +46,19 @@ internal class MeowBoardModule : GuildSubmodule
         }
     }
 
-    public override void RegisterHooks()
+    public override void OnModuleActivation()
     {
         if (_owner is GuildModule guild)
         {
             guild.OnGuildMessage += MessageCallback;
+        }
+    }
+
+    public override void OnModuleDeactivation()
+    {
+        if (_owner is GuildModule guild)
+        {
+            guild.OnGuildMessage -= MessageCallback;
         }
     }
 

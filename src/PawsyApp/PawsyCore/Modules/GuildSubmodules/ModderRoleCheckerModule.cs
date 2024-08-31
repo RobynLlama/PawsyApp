@@ -20,16 +20,24 @@ internal class ModderRoleCheckerModule : GuildSubmodule
     protected readonly ConcurrentBag<IModule> _modules = [];
     protected ModderRoleCheckerSettings? _settings;
 
-    public override void Activate()
+    public override void Alive()
     {
         _settings = (this as IModule).LoadSettings<ModderRoleCheckerSettings>();
     }
 
-    public override void RegisterHooks()
+    public override void OnModuleActivation()
     {
         if (_owner is GuildModule guild)
         {
             guild.OnGuildThreadCreated += ThreadCreated;
+        }
+    }
+
+    public override void OnModuleDeactivation()
+    {
+        if (_owner is GuildModule guild)
+        {
+            guild.OnGuildThreadCreated -= ThreadCreated;
         }
     }
 
