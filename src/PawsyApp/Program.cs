@@ -33,6 +33,7 @@ public class PawsyProgram
         SocketClient.Ready += ClientReady.Respond;
         SocketClient.GuildAvailable += GuildAvailable.Respond;
         RestClient.Log += LogEvent.RestRespond;
+        SocketClient.ThreadCreated += ThreadEvent.Respond;
 
         //Get token from env
         String? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
