@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,28 +20,8 @@ internal class MeowBoardModule : GuildSubmodule
     public override void Alive()
     {
         _settings = (this as IModule).LoadSettings<MeowBoardSettings>();
-
-        if (Owner is GuildModule guild)
-        {
-            guild.RegisterSlashCommand(
-                new(CommandMeowBoard,
-                new SlashCommandBuilder().
-                WithName("meowboard")
-                .WithDescription("View the MeowBoard")
-                .Build(),
-                Name)
-            );
-
-            guild.RegisterSlashCommand(
-                new(CommandMeow,
-                new SlashCommandBuilder()
-                .WithName("meow")
-                .WithDescription("Pawsy will meow for you")
-                .Build(),
-                Name)
-            );
-
-        }
+        _declaresCommands = true;
+        _declaresConfigs = true;
     }
 
     public override void OnModuleActivation()
@@ -57,6 +38,25 @@ internal class MeowBoardModule : GuildSubmodule
         {
             guild.OnGuildMessage -= MessageCallback;
         }
+    }
+
+    public override SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder builder)
+    {
+        builder
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("meow")
+            .WithDescription("Pawsy will meow for you")
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("display")
+            .WithDescription("Pawsy will show you the MeowBoard rankings")
+        );
+
+        return new SlashCommandBundle(MeowBoardHandler, builder.Build(), Name);
     }
 
     public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
@@ -99,17 +99,24 @@ internal class MeowBoardModule : GuildSubmodule
         }
     }
 
-    private Task CommandMeowBoard(SocketSlashCommand command)
+    private Task MeowBoardHandler(SocketSlashCommand command)
     {
-        if (_settings is not null)
-            return _settings.EmbedMeowBoard(command);
 
-        return command.RespondAsync("Something went wrong, meow!", ephemeral: true);
-    }
+        if (_settings is null)
+            return command.RespondAsync("Settings are null in MeowBoardHandler", ephemeral: true);
 
-    private Task CommandMeow(SocketSlashCommand command)
-    {
-        return command.RespondAsync($"Meow!");
+        var options = command.Data.Options.First();
+        var commandName = options.Name;
+
+        switch (commandName)
+        {
+            case "meow":
+                return command.RespondAsync($"Meow!"); ;
+            case "display":
+                return _settings.EmbedMeowBoard(command);
+            default:
+                return command.RespondAsync("Something went wrong in MeowBoardHandler", ephemeral: true); ;
+        }
     }
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)

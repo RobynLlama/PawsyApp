@@ -13,6 +13,8 @@ internal interface IModule
 {
     IModule? Owner { get; set; }
     string Name { get; }
+    bool ModuleDeclaresConfig { get; }
+    bool ModuleDeclaresCommands { get; }
     ConcurrentBag<IModule> Modules { get; }
     IModuleSettings? Settings { get; }
     public T AddModule<T>() where T : IModule, new()
@@ -82,4 +84,5 @@ internal interface IModule
     abstract void OnModuleDeactivation();
     abstract void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig);
     abstract Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options);
+    abstract SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder rootCommand);
 }

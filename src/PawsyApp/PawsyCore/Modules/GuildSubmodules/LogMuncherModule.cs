@@ -26,29 +26,12 @@ internal class LogMuncherModule : GuildSubmodule
     {
         WriteLog.LineNormal("Muncher module ready to munch");
         _settings = (this as IModule).LoadSettings<LogMuncherSettings>();
+        _declaresConfigs = true;
 
         if (!RulesInit)
         {
             MuncherLib.RuleDatabase.Rules.Init();
             RulesInit = true;
-        }
-
-        var ConfigCommand = new SlashCommandBuilder()
-        .WithName("muncher-config")
-        .WithDescription("Configure the Log Muncher module")
-        .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
-        .AddOption(
-            new SlashCommandOptionBuilder()
-            .WithType(ApplicationCommandOptionType.Channel)
-            .WithName("muncher-channel")
-            .WithDescription("The channel Pawsy will look for logs in")
-        );
-
-        if (Owner is GuildModule guild)
-        {
-            guild.RegisterSlashCommand(
-                new(HandleConfig, ConfigCommand.Build(), Name)
-            );
         }
     }
 
@@ -68,16 +51,26 @@ internal class LogMuncherModule : GuildSubmodule
         }
     }
 
-    private async Task HandleConfig(SocketSlashCommand command)
+    public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
     {
+        rootConfig
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.Channel)
+            .WithName("muncher-channel")
+            .WithDescription("The channel Pawsy should watch for logs in")
+        );
+    }
 
+    public override async Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
+    {
         if (_settings is null)
         {
             await command.RespondAsync("Config is unavailable in HandleConfig", ephemeral: true);
             return;
         }
 
-        var option = command.Data.Options.First();
+        var option = options.Options.First();
         var optionName = option.Name;
         var optionValue = option.Value;
 

@@ -86,14 +86,25 @@ internal class GuildModule() : CoreModule, IModuleIdent
         {
 
             //add a config option for each module
-            var configRoot = new SlashCommandOptionBuilder()
-            .WithName(item.Name)
-            .WithDescription($"Configure the {item.Name} module")
-            .WithType(ApplicationCommandOptionType.SubCommand);
+            if (item.ModuleDeclaresConfig)
+            {
+                var configRoot = new SlashCommandOptionBuilder()
+                .WithName(item.Name)
+                .WithDescription($"Configure the {item.Name} module")
+                .WithType(ApplicationCommandOptionType.SubCommand);
 
-            item.OnModuleDeclareConfig(configRoot);
+                item.OnModuleDeclareConfig(configRoot);
+                ModuleConfigurationRoot.AddOption(configRoot);
+            }
 
-            ModuleConfigurationRoot.AddOption(configRoot);
+            if (item.ModuleDeclaresCommands)
+            {
+                var commandRoot = new SlashCommandBuilder()
+                .WithName(item.Name)
+                .WithDescription($"Run a command from {item.Name}");
+
+                RegisterSlashCommand(item.OnModuleDeclareCommands(commandRoot));
+            }
 
             if (_settings is not null && _settings.EnabledModules.Contains(item.Name))
             {

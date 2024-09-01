@@ -15,8 +15,14 @@ internal abstract class CoreModule() : IModule
     public IModule? Owner { get => _owner; set => _owner = value; }
     public ConcurrentBag<IModule> Modules => _modules;
 
+    public virtual bool ModuleDeclaresConfig => _declaresConfigs;
+    public virtual bool ModuleDeclaresCommands => _declaresCommands;
+    protected bool _declaresConfigs = false;
+    protected bool _declaresCommands = false;
+
     public abstract string Name { get; }
     public abstract IModuleSettings? Settings { get; }
+
     public abstract string GetSettingsLocation();
 
     protected IModule? _owner;
@@ -34,6 +40,10 @@ internal abstract class CoreModule() : IModule
     public virtual void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
     {
         return;
+    }
+    public virtual SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder builder)
+    {
+        throw new System.Exception("OnModuleDeclareCommands called without a matching body in module, panic!");
     }
     public virtual Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
     {
