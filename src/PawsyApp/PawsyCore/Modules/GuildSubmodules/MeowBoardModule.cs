@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -23,8 +24,25 @@ internal class MeowBoardModule : GuildSubmodule
     {
         _settings = (this as IModule).LoadSettings<MeowBoardSettings>();
 
+        var ConfigCommand = new SlashCommandBuilder()
+        .WithName("meowboard-config")
+        .WithDescription("Configure the MeowBoard module")
+        .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.Integer)
+            .WithName("max-display")
+            .WithDescription("The maximum number of users Pawsy will show in the /meowboard embed")
+            .WithMaxValue(20)
+            .WithMinValue(1)
+        );
+
         if (Owner is GuildModule guild)
         {
+            guild.RegisterSlashCommand(
+                new(HandleConfig, ConfigCommand.Build(), Name)
+            );
+
             guild.RegisterSlashCommand(
                 new(CommandMeowBoard,
                 new SlashCommandBuilder().
@@ -59,6 +77,38 @@ internal class MeowBoardModule : GuildSubmodule
         if (_owner is GuildModule guild)
         {
             guild.OnGuildMessage -= MessageCallback;
+        }
+    }
+
+    private async Task HandleConfig(SocketSlashCommand command)
+    {
+
+        if (_settings is null)
+        {
+            await command.RespondAsync("Config is unavailable in HandleConfig", ephemeral: true);
+            return;
+        }
+
+        var option = command.Data.Options.First();
+        var optionName = option.Name;
+        var optionValue = option.Value;
+
+        switch (optionName)
+        {
+            case "max-display":
+                if (optionValue is not long optionMax)
+                {
+                    await command.RespondAsync("I don't think that's a number, meow!", ephemeral: true);
+                    return;
+                }
+
+                _settings.MeowBoardDisplayLimit = (int)optionMax;
+                (_settings as IModuleSettings).Save<MeowBoardSettings>();
+                await command.RespondAsync($"Set max user display for MeowBoard to {optionMax}");
+                return;
+            default:
+                await command.RespondAsync("Something went wrong in HandleConfig", ephemeral: true);
+                return;
         }
     }
 

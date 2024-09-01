@@ -19,6 +19,9 @@ internal class MeowBoardSettings() : IModuleSettings
     [JsonInclude]
     internal ConcurrentDictionary<ulong, int> Records { get; set; } = [];
 
+    [JsonInclude]
+    internal int MeowBoardDisplayLimit = 5;
+
     [JsonIgnore]
     protected string _location = string.Empty;
     [JsonIgnore]
@@ -48,7 +51,7 @@ internal class MeowBoardSettings() : IModuleSettings
         //WriteLog.Normally("MeowBoard being built");
 
         var top5 = Records.OrderByDescending(kvp => kvp.Value)
-                    .Take(5)
+                    .Take(MeowBoardDisplayLimit)
                     .ToList();
 
         static IEnumerable<EmbedFieldBuilder> fields(List<KeyValuePair<ulong, int>> items, SocketGuild guild)
@@ -72,7 +75,7 @@ internal class MeowBoardSettings() : IModuleSettings
         builder
             //.WithAuthor("Pawsy!")
             .WithColor(0, 128, 196)
-            .WithDescription("Meow Board top 5")
+            .WithDescription($"Meow Board top {MeowBoardDisplayLimit}")
             .WithTitle("Meow Board")
             .WithThumbnailUrl("https://raw.githubusercontent.com/RobynLlama/PawsyApp/main/Assets/img/Pawsy-small.png")
             .WithFields(fields(top5, guild))
