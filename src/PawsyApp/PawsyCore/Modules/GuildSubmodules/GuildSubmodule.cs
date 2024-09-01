@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.IO;
+using Discord;
+using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
@@ -10,27 +12,15 @@ namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 /// GuildSubmodules specifically rely on being added as a child
 /// component of a GuildModule. They will not work otherwise
 /// </summary>
-internal abstract class GuildSubmodule() : IModule
+internal abstract class GuildSubmodule() : CoreModule
 {
-    public abstract IModule? Owner { get; set; }
-
-    public abstract string Name { get; }
-
-    public abstract ConcurrentBag<IModule> Modules { get; }
-
-    public abstract IModuleSettings? Settings { get; }
-
-    public abstract void Alive();
-    public abstract void OnModuleActivation();
-    public abstract void OnModuleDeactivation();
-
-    public string GetSettingsLocation()
+    public override string GetSettingsLocation()
     {
         if (Owner is GuildModule guild)
         {
             return Path.Combine(Helpers.GetPersistPath(guild.ID), $"{Name}.json");
         }
 
-        return string.Empty;
+        throw new System.SystemException($"GuildSubmodule {Name} is not a child of a GuildModule");
     }
 }

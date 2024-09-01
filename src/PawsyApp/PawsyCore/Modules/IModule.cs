@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
+using Discord;
+using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 
@@ -77,4 +79,6 @@ internal interface IModule
     abstract void Alive();
     abstract void OnModuleActivation();
     abstract void OnModuleDeactivation();
+    abstract void OnModuleDeclareConfig(SlashCommandBuilder rootConfig);
+    abstract void OnConfigUpdated(SocketSlashCommand command);
 }

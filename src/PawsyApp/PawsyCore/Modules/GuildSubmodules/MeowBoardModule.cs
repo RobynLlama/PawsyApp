@@ -11,7 +11,7 @@ namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 internal class MeowBoardModule : GuildSubmodule
 {
     public override IModule? Owner { get => _owner; set => _owner = value; }
-    public override string Name => "MeowBoard";
+    public override string Name => "meow-board";
     public override ConcurrentBag<IModule> Modules => _modules;
     public override IModuleSettings? Settings => _settings;
 

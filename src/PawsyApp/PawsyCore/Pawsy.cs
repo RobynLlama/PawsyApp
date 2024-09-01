@@ -11,7 +11,7 @@ public class Pawsy : IModuleIdent
     ConcurrentBag<IModule> IModule.Modules => _modules;
     IModuleSettings? IModule.Settings => null;
     public ulong ID { get => 0; set { return; } }
-    public string Name => "PawsyCore";
+    public string Name => "pawsy-core";
 
     private readonly ConcurrentBag<IModule> _modules = [];
     private IModule? _owner;
@@ -22,6 +22,8 @@ public class Pawsy : IModuleIdent
 
     void IModule.OnModuleActivation() { return; }
     void IModule.OnModuleDeactivation() { return; }
+    void IModule.OnModuleDeclareConfig(Discord.SlashCommandBuilder rootConfig) { return; }
+    void IModule.OnConfigUpdated(Discord.WebSocket.SocketSlashCommand command) { return; }
 
     public string GetSettingsLocation() => "";
 }
