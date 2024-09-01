@@ -16,13 +16,9 @@ namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 
 internal class LogMuncherModule : GuildSubmodule
 {
-    public override IModule? Owner { get => _owner; set => _owner = value; }
     public override string Name => "log-muncher";
-    public override ConcurrentBag<IModule> Modules => _modules;
     public override IModuleSettings? Settings => _settings;
 
-    protected IModule? _owner;
-    protected readonly ConcurrentBag<IModule> _modules = [];
     protected LogMuncherSettings? _settings;
     protected static bool RulesInit = false;
 

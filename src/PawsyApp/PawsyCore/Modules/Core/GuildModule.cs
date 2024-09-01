@@ -13,25 +13,21 @@ namespace PawsyApp.PawsyCore.Modules.Core;
 
 internal class GuildModule() : CoreModule, IModuleIdent
 {
-    public override IModule? Owner { get => _owner; set => _owner = value; }
-    public override ConcurrentBag<IModule> Modules => _modules;
     public override string Name { get => "guild-global"; }
-    public ulong ID { get => _id; set => _id = value; }
     public override IModuleSettings? Settings => Settings;
     public override string GetSettingsLocation() =>
     Path.Combine(Helpers.GetPersistPath(ID), $"{Name}.json");
 
-    protected ulong _id;
-    protected IModule? _owner;
-    protected readonly ConcurrentBag<IModule> _modules = [];
-    protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
-    protected GuildSettings? _settings;
-
+    public ulong ID { get => _id; set => _id = value; }
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
     public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
     public event GuildMessageHandler? OnGuildMessage;
     public event GuildMessageHandler? OnGuildMessageEdit;
     public event GuildThreadCreatedHandler? OnGuildThreadCreated;
+
+    protected ulong _id;
+    protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
+    protected GuildSettings? _settings;
 
     public override void Alive()
     {
@@ -46,7 +42,7 @@ internal class GuildModule() : CoreModule, IModuleIdent
         }
 
         var ModuleCommands = new SlashCommandBuilder()
-        .WithName("module")
+        .WithName("module-manage")
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
         .WithDescription("Manage your activated modules")
         .AddOption(
@@ -74,6 +70,12 @@ internal class GuildModule() : CoreModule, IModuleIdent
             new(ModuleActivator, ModuleCommands.Build(), Name)
         );
 
+        //Module configuration command
+        var ModuleConfigurationRoot = new SlashCommandBuilder()
+        .WithName("module-config")
+        .WithDescription("Configure Pawsy's modules")
+        .WithDefaultMemberPermissions(GuildPermission.ManageGuild);
+
         //Subscribe to events
         PawsyProgram.SocketClient.MessageReceived += OnMessage;
         PawsyProgram.SocketClient.MessageUpdated += OnMessageEdit;
@@ -82,31 +84,66 @@ internal class GuildModule() : CoreModule, IModuleIdent
 
         foreach (var item in Modules)
         {
+
+            //add a config option for each module
+            var configRoot = new SlashCommandOptionBuilder()
+            .WithName(item.Name)
+            .WithDescription($"Configure the {item.Name} module")
+            .WithType(ApplicationCommandOptionType.SubCommand);
+
+            item.OnModuleDeclareConfig(configRoot);
+
+            ModuleConfigurationRoot.AddOption(configRoot);
+
             if (_settings is not null && _settings.EnabledModules.Contains(item.Name))
             {
                 WriteLog.LineNormal($"Activating {item.Name}");
                 item.OnModuleActivation();
             }
         }
-    }
-    void IModule.OnModuleActivation()
-    {
-        return;
-    }
-    void IModule.OnModuleDeactivation()
-    {
-        //I can't think of any reasons a Guild would be deactivated
-        return;
+
+        RegisterSlashCommand(
+            new(GuildConfigurationEvent, ModuleConfigurationRoot.Build(), Name)
+        );
     }
 
-    void IModule.OnModuleDeclareConfig(SlashCommandBuilder rootConfig)
+    private async Task GuildConfigurationEvent(SocketSlashCommand command)
     {
-        return;
-    }
+        var configOptions = command.Data.Options.First();
+        var modName = configOptions.Name;
 
-    void IModule.OnConfigUpdated(SocketSlashCommand command)
-    {
-        return;
+        await WriteLog.LineNormal($"Config command for {modName}");
+
+        if (_settings is null)
+        {
+            await command.RespondAsync("Settings are null in Configuration Event", ephemeral: true);
+            return;
+        }
+
+        if (!_settings.EnabledModules.Contains(modName))
+        {
+            await command.RespondAsync("That module is disabled", ephemeral: true);
+            return;
+        }
+
+        IModule? module = null;
+
+        foreach (var item in Modules)
+        {
+            if (item.Name == modName)
+            {
+                module = item;
+                break;
+            }
+        }
+
+        if (module is null)
+        {
+            await command.RespondAsync($"Error, unable to locate module {modName}");
+            return;
+        }
+
+        await module.OnConfigUpdated(command, configOptions);
     }
 
     private async Task ModuleActivator(SocketSlashCommand command)

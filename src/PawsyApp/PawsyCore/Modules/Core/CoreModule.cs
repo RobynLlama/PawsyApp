@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Settings;
+using System.Threading.Tasks;
 
 namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 
@@ -11,15 +12,15 @@ namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 /// </summary>
 internal abstract class CoreModule() : IModule
 {
-    public abstract IModule? Owner { get; set; }
+    public IModule? Owner { get => _owner; set => _owner = value; }
+    public ConcurrentBag<IModule> Modules => _modules;
 
     public abstract string Name { get; }
-
-    public abstract ConcurrentBag<IModule> Modules { get; }
-
     public abstract IModuleSettings? Settings { get; }
-
     public abstract string GetSettingsLocation();
+
+    protected IModule? _owner;
+    protected readonly ConcurrentBag<IModule> _modules = [];
 
     public abstract void Alive();
     public virtual void OnModuleActivation()
@@ -30,12 +31,12 @@ internal abstract class CoreModule() : IModule
     {
         return;
     }
-    public virtual void OnModuleDeclareConfig(SlashCommandBuilder rootConfig)
+    public virtual void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
     {
         return;
     }
-    public virtual async void OnConfigUpdated(SocketSlashCommand command)
+    public virtual Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
     {
-        await command.RespondAsync("No configs defined for this module", ephemeral: true); ;
+        return command.RespondAsync("This module is not configurable or unavailable", ephemeral: true); ;
     }
 }

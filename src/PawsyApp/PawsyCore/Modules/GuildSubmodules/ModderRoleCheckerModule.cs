@@ -10,13 +10,9 @@ namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
 
 internal class ModderRoleCheckerModule : GuildSubmodule
 {
-    public override IModule? Owner { get => _owner; set => _owner = value; }
     public override string Name => "modder-role";
-    public override ConcurrentBag<IModule> Modules => _modules;
     public override IModuleSettings? Settings => _settings;
 
-    protected IModule? _owner;
-    protected readonly ConcurrentBag<IModule> _modules = [];
     protected ModderRoleCheckerSettings? _settings;
 
     public override void Alive()
