@@ -1,47 +1,36 @@
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 
-namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
+namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
-internal class ModderRoleCheckerModule : GuildSubmodule
+internal class ModderRoleCheckerModule : GuildModule
 {
-    public override string Name => "modder-role";
-    public override IModuleSettings? Settings => _settings;
+    protected ModderRoleCheckerSettings Settings;
 
-    protected ModderRoleCheckerSettings? _settings;
-
-    public override void Alive()
+    public ModderRoleCheckerModule(Guild Owner) : base(Owner, "modder-role")
     {
-        _settings = (this as IModule).LoadSettings<ModderRoleCheckerSettings>();
+        Settings = (this as ISettingsOwner).LoadSettings<ModderRoleCheckerSettings>();
     }
 
     public override void OnModuleActivation()
     {
-        if (_owner is GuildModule guild)
-        {
-            guild.OnGuildThreadCreated += ThreadCreated;
-        }
+        Owner.OnGuildThreadCreated += ThreadCreated;
     }
 
     public override void OnModuleDeactivation()
     {
-        if (_owner is GuildModule guild)
-        {
-            guild.OnGuildThreadCreated -= ThreadCreated;
-        }
+        Owner.OnGuildThreadCreated -= ThreadCreated;
     }
 
     private async Task ThreadCreated(SocketThreadChannel channel)
     {
-        if (_settings is null)
+        if (Settings is null)
             return;
 
-        if (channel.ParentChannel.Id != _settings.ModdingChannel)
+        if (channel.ParentChannel.Id != Settings.ModdingChannel)
             return;
 
         var ownerRoles = channel.Guild.GetUser(channel.Owner.Id).Roles;
@@ -49,7 +38,7 @@ internal class ModderRoleCheckerModule : GuildSubmodule
 
         foreach (var item in ownerRoles)
         {
-            if (item.Id == _settings.ModderRoleID)
+            if (item.Id == Settings.ModderRoleID)
             {
                 ownerNeedsRole = false;
                 break;
@@ -61,7 +50,7 @@ internal class ModderRoleCheckerModule : GuildSubmodule
                 ("Needs Role", ownerNeedsRole),
                 ]);
 
-        if (ownerNeedsRole && channel.Guild.GetChannel(_settings.AlertChannel) is SocketTextChannel logChannel)
+        if (ownerNeedsRole && channel.Guild.GetChannel(Settings.AlertChannel) is SocketTextChannel logChannel)
         {
             Embed embed = new EmbedBuilder()
             .WithTitle("New modders in YOUR area")

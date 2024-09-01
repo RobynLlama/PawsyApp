@@ -1,54 +1,44 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 
-namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
+namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
-internal class FilterMatcherModule : GuildSubmodule
+internal class FilterMatcherModule : GuildModule
 {
-    public override string Name => "filter-matcher";
-    public override IModuleSettings? Settings => _settings;
-
-    protected FilterMatcherSettings? _settings;
+    protected FilterMatcherSettings Settings;
     protected ulong LastDeletedMessage = 0;
 
-    public override void Alive()
+    public FilterMatcherModule(Guild Owner) : base(Owner, "filter-matcher")
     {
-        _settings = (this as IModule).LoadSettings<FilterMatcherSettings>();
+        Settings = (this as ISettingsOwner).LoadSettings<FilterMatcherSettings>();
+
         WriteLog.Cutely("Filters loaded", [
-            ("Filter Count", _settings.RuleList.Count.ToString())
+            ("Filter Count", Settings.RuleList.Count.ToString())
         ]);
     }
 
     public override void OnModuleActivation()
     {
-        if (Owner is GuildModule guild)
-        {
-            guild.OnGuildMessage += MessageCallBack;
-            guild.OnGuildMessageEdit += MessageCallBack;
-        }
+        Owner.OnGuildMessage += MessageCallBack;
+        Owner.OnGuildMessageEdit += MessageCallBack;
     }
 
     public override void OnModuleDeactivation()
     {
-        if (Owner is GuildModule guild)
-        {
-            guild.OnGuildMessage -= MessageCallBack;
-            guild.OnGuildMessageEdit -= MessageCallBack;
-        }
+        Owner.OnGuildMessage -= MessageCallBack;
+        Owner.OnGuildMessageEdit -= MessageCallBack;
     }
 
     private async Task MessageCallBack(SocketUserMessage message, SocketGuildChannel channel)
     {
 
-        if (_settings is null)
+        if (Settings is null)
             return;
 
         /*await WriteLog.Cutely("Filter heard a message callback",
@@ -60,7 +50,7 @@ internal class FilterMatcherModule : GuildSubmodule
 
         if (message.Author is SocketGuildUser gUser)
         {
-            if (gUser.GetPermissions(channel).ManageMessages)
+            if (gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568)
             {
                 await WriteLog.LineNormal("User is exempt from filters");
                 return;
@@ -83,13 +73,13 @@ internal class FilterMatcherModule : GuildSubmodule
 
         List<Task> tasks = [];
 
-        foreach (var item in _settings.RuleList.Values)
+        foreach (var item in Settings.RuleList.Values)
         {
             if (item.Match(message.CleanContent, channel))
             {
                 if (item.WarnStaff)
                 {
-                    if (channel.Guild.GetChannel(_settings.LoggingChannelID) is SocketTextChannel logChannel)
+                    if (channel.Guild.GetChannel(Settings.LoggingChannelID) is SocketTextChannel logChannel)
                     {
                         tasks.Add(WriteLog.LineNormal("Filter is alerting staff about a message"));
                         tasks.Add(SendMessageReport(logChannel, message, item));

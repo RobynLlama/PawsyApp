@@ -1,22 +1,16 @@
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 
-internal interface IModuleSettings
+internal interface ISettings
 {
-    [JsonIgnore]
     internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
-    [JsonIgnore]
-    public string Location { get; set; }
-    [JsonIgnore]
-    public IModule? Owner { get; set; }
-    void Save<T>() where T : class, IModuleSettings
+    void Save<T>(ISettingsOwner owner) where T : class
     {
         if (this is T serial)
         {
-            using StreamWriter writer = new(Location);
+            using StreamWriter writer = new(owner.GetSettingsLocation());
             writer.Write(JsonSerializer.Serialize(serial, options));
         }
     }

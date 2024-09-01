@@ -1,46 +1,48 @@
 using System.IO;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
-using PawsyApp.PawsyCore.Modules.GuildSubmodules;
 using System.Collections.Concurrent;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
 using System.Linq;
 using System.Text;
+using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.GuildModules;
 
-namespace PawsyApp.PawsyCore.Modules.Core;
+namespace PawsyApp.PawsyCore;
 
-internal class GuildModule() : CoreModule, IModuleIdent
+internal class Guild : IUnique<ulong>, ISettingsOwner
 {
-    public override string Name { get => "guild-global"; }
-    public override IModuleSettings? Settings => Settings;
-    public override string GetSettingsLocation() =>
+    public string Name { get; } = "guild-global";
+    public string GetSettingsLocation() =>
     Path.Combine(Helpers.GetPersistPath(ID), $"{Name}.json");
-
-    public ulong ID { get => _id; set => _id = value; }
+    public ulong ID { get; }
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
     public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
     public event GuildMessageHandler? OnGuildMessage;
     public event GuildMessageHandler? OnGuildMessageEdit;
     public event GuildThreadCreatedHandler? OnGuildThreadCreated;
 
-    protected ulong _id;
     protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
-    protected GuildSettings? _settings;
+    protected readonly GuildSettings Settings;
+    protected readonly ConcurrentBag<IGuildModule> Modules = [];
 
-    public override void Alive()
+    public Guild(ulong ID)
     {
-        //Decide if we should activate modules here
-        if (this is IModule module)
-        {
-            _settings = module.LoadSettings<GuildSettings>();
-            module.AddModule<MeowBoardModule>();
-            module.AddModule<FilterMatcherModule>();
-            module.AddModule<LogMuncherModule>();
-            module.AddModule<ModderRoleCheckerModule>();
-        }
+        this.ID = ID;
+        Settings = (this as ISettingsOwner).LoadSettings<GuildSettings>();
 
+        Modules.Add(new MeowBoardModule(this));
+        Modules.Add(new LogMuncherModule(this));
+        Modules.Add(new FilterMatcherModule(this));
+        Modules.Add(new ModderRoleCheckerModule(this));
+
+        GuildSetup();
+    }
+
+    public void GuildSetup()
+    {
         var ModuleCommands = new SlashCommandBuilder()
         .WithName("module-manage")
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
@@ -106,7 +108,7 @@ internal class GuildModule() : CoreModule, IModuleIdent
                 RegisterSlashCommand(item.OnModuleDeclareCommands(commandRoot));
             }
 
-            if (_settings is not null && _settings.EnabledModules.Contains(item.Name))
+            if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
             {
                 WriteLog.LineNormal($"Activating {item.Name}");
                 item.OnModuleActivation();
@@ -125,19 +127,19 @@ internal class GuildModule() : CoreModule, IModuleIdent
 
         await WriteLog.LineNormal($"Config command for {modName}");
 
-        if (_settings is null)
+        if (Settings is null)
         {
             await command.RespondAsync("Settings are null in Configuration Event", ephemeral: true);
             return;
         }
 
-        if (!_settings.EnabledModules.Contains(modName))
+        if (!Settings.EnabledModules.Contains(modName))
         {
             await command.RespondAsync("That module is disabled", ephemeral: true);
             return;
         }
 
-        IModule? module = null;
+        IGuildModule? module = null;
 
         foreach (var item in Modules)
         {
@@ -160,7 +162,7 @@ internal class GuildModule() : CoreModule, IModuleIdent
     private async Task ModuleActivator(SocketSlashCommand command)
     {
 
-        if (_settings is null)
+        if (Settings is null)
         {
             await command.RespondAsync("This guild's config is unavailable, something really went wrong.", ephemeral: true);
             return;
@@ -178,7 +180,7 @@ internal class GuildModule() : CoreModule, IModuleIdent
                 modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
                 await WriteLog.LineNormal($"Activate a module {modName}");
                 //Already active?
-                if (_settings.EnabledModules.Contains(modName))
+                if (Settings.EnabledModules.Contains(modName))
                 {
                     await command.RespondAsync("That module is already active", ephemeral: true);
                     return;
@@ -192,8 +194,8 @@ internal class GuildModule() : CoreModule, IModuleIdent
                     {
                         EnabledAnything = true;
                         item.OnModuleActivation();
-                        _settings.EnabledModules.Add(modName);
-                        (_settings as IModuleSettings).Save<GuildSettings>();
+                        Settings.EnabledModules.Add(modName);
+                        (Settings as ISettings).Save<GuildSettings>(this);
                         await command.RespondAsync($"{modName} enabled, meow!");
                     }
                 }
@@ -207,7 +209,7 @@ internal class GuildModule() : CoreModule, IModuleIdent
                 await WriteLog.LineNormal($"Deactivate a module {modName}");
 
                 //Check if its active
-                if (!_settings.EnabledModules.Contains(modName))
+                if (!Settings.EnabledModules.Contains(modName))
                 {
                     await command.RespondAsync("That module is not active", ephemeral: true);
                     return;
@@ -218,8 +220,8 @@ internal class GuildModule() : CoreModule, IModuleIdent
                     if (item.Name == modName)
                     {
                         item.OnModuleDeactivation();
-                        _settings.EnabledModules.Remove(modName);
-                        (_settings as IModuleSettings).Save<GuildSettings>();
+                        Settings.EnabledModules.Remove(modName);
+                        (Settings as ISettings).Save<GuildSettings>(this);
                         await command.RespondAsync($"{modName} disabled, meow!");
                         return;
                     }
@@ -230,9 +232,9 @@ internal class GuildModule() : CoreModule, IModuleIdent
             case "list":
                 StringBuilder sb = new("All Modules:\n");
 
-                foreach (var item in _modules)
+                foreach (var item in Modules)
                 {
-                    var enabled = _settings.EnabledModules.Contains(item.Name);
+                    var enabled = Settings.EnabledModules.Contains(item.Name);
 
                     sb.Append(item.Name);
                     sb.Append(": [");
@@ -276,13 +278,13 @@ internal class GuildModule() : CoreModule, IModuleIdent
         if (guild != ID)
             return;
 
-        if (_settings is null || !GuildCommands.TryGetValue(command.CommandId, out SlashCommandBundle bundle))
+        if (Settings is null || !GuildCommands.TryGetValue(command.CommandId, out SlashCommandBundle bundle))
         {
             await command.RespondAsync("Sowwy, meow. That command is not available", ephemeral: true);
             return;
         }
 
-        if (bundle.ModuleName == "guild-global" || _settings.EnabledModules.Contains(bundle.ModuleName))
+        if (bundle.ModuleName == "guild-global" || Settings.EnabledModules.Contains(bundle.ModuleName))
         {
             await bundle.Handler(command);
             return;

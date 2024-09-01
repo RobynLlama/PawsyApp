@@ -9,23 +9,13 @@ using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 
-internal class MeowBoardSettings() : IModuleSettings
+internal class MeowBoardSettings() : ISettings
 {
-    [JsonIgnore]
-    public string Location { get => _location; set => _location = value; }
-    [JsonIgnore]
-    public IModule? Owner { get => _owner; set => _owner = value; }
-
     [JsonInclude]
     internal ConcurrentDictionary<ulong, int> Records { get; set; } = [];
 
     [JsonInclude]
     internal int MeowBoardDisplayLimit = 5;
-
-    [JsonIgnore]
-    protected string _location = string.Empty;
-    [JsonIgnore]
-    protected IModule? _owner;
 
     public void AddUserMeow(ulong userID)
     {
@@ -33,8 +23,6 @@ internal class MeowBoardSettings() : IModuleSettings
             Records[userID] = amount + 1;
         else
             Records.TryAdd(userID, 1);
-
-        (this as IModuleSettings).Save<MeowBoardSettings>();
     }
 
     public Task EmbedMeowBoard(SocketSlashCommand command)

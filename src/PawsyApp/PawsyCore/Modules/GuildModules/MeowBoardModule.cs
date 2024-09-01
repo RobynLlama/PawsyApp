@@ -1,43 +1,30 @@
-using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.PawsyCore.Modules.Core;
 using PawsyApp.PawsyCore.Modules.Settings;
+using PawsyApp.Utils;
 
-namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
+namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
-internal class MeowBoardModule : GuildSubmodule
+internal class MeowBoardModule : GuildModule
 {
-    public override string Name => "meow-board";
-    public override IModuleSettings? Settings => _settings;
-
-    protected MeowBoardSettings? _settings;
+    protected MeowBoardSettings Settings;
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
 
-    public override void Alive()
+    public MeowBoardModule(Guild Owner) : base(Owner, "meow-board", true, true)
     {
-        _settings = (this as IModule).LoadSettings<MeowBoardSettings>();
-        _declaresCommands = true;
-        _declaresConfigs = true;
+        Settings = (this as ISettingsOwner).LoadSettings<MeowBoardSettings>();
     }
 
     public override void OnModuleActivation()
     {
-        if (_owner is GuildModule guild)
-        {
-            guild.OnGuildMessage += MessageCallback;
-        }
+        Owner.OnGuildMessage += MessageCallback;
     }
 
     public override void OnModuleDeactivation()
     {
-        if (_owner is GuildModule guild)
-        {
-            guild.OnGuildMessage -= MessageCallback;
-        }
+        Owner.OnGuildMessage -= MessageCallback;
     }
 
     public override SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder builder)
@@ -74,7 +61,7 @@ internal class MeowBoardModule : GuildSubmodule
 
     public override Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
     {
-        if (_settings is null)
+        if (Settings is null)
         {
             return command.RespondAsync("Config is unavailable in HandleConfig", ephemeral: true);
         }
@@ -91,8 +78,8 @@ internal class MeowBoardModule : GuildSubmodule
                     return command.RespondAsync("I don't think that's a number, meow!", ephemeral: true);
                 }
 
-                _settings.MeowBoardDisplayLimit = (int)optionMax;
-                (_settings as IModuleSettings).Save<MeowBoardSettings>();
+                Settings.MeowBoardDisplayLimit = (int)optionMax;
+                (Settings as ISettings).Save<MeowBoardSettings>(this);
                 return command.RespondAsync($"Set max user display for MeowBoard to {optionMax}");
             default:
                 return command.RespondAsync("Something went wrong in HandleConfig", ephemeral: true); ;
@@ -102,7 +89,7 @@ internal class MeowBoardModule : GuildSubmodule
     private Task MeowBoardHandler(SocketSlashCommand command)
     {
 
-        if (_settings is null)
+        if (Settings is null)
             return command.RespondAsync("Settings are null in MeowBoardHandler", ephemeral: true);
 
         var options = command.Data.Options.First();
@@ -113,7 +100,7 @@ internal class MeowBoardModule : GuildSubmodule
             case "meow":
                 return command.RespondAsync($"Meow!"); ;
             case "display":
-                return _settings.EmbedMeowBoard(command);
+                return Settings.EmbedMeowBoard(command);
             default:
                 return command.RespondAsync("Something went wrong in MeowBoardHandler", ephemeral: true); ;
         }
@@ -123,7 +110,7 @@ internal class MeowBoardModule : GuildSubmodule
     {
         if (message.CleanContent.Contains("meow"))
         {
-            _settings?.AddUserMeow(message.Author.Id);
+            Settings?.AddUserMeow(message.Author.Id);
             message.AddReactionAsync(PawsySmall);
         }
 

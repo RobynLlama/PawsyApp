@@ -1,8 +1,6 @@
-using System.Collections.Concurrent;
 using PawsyApp.PawsyCore.Modules.Settings;
 using PawsyApp.Utils;
 using System.Text;
-using PawsyApp.PawsyCore.Modules.Core;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using System.Net.Http;
@@ -12,21 +10,16 @@ using MuncherLib.Muncher;
 using System.Linq;
 using Discord;
 
-namespace PawsyApp.PawsyCore.Modules.GuildSubmodules;
+namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
-internal class LogMuncherModule : GuildSubmodule
+internal class LogMuncherModule : GuildModule
 {
-    public override string Name => "log-muncher";
-    public override IModuleSettings? Settings => _settings;
-
-    protected LogMuncherSettings? _settings;
+    protected LogMuncherSettings Settings;
     protected static bool RulesInit = false;
 
-    public override void Alive()
+    public LogMuncherModule(Guild Owner) : base(Owner, "log-muncher", declaresConfig: true)
     {
-        WriteLog.LineNormal("Muncher module ready to munch");
-        _settings = (this as IModule).LoadSettings<LogMuncherSettings>();
-        _declaresConfigs = true;
+        Settings = (this as ISettingsOwner).LoadSettings<LogMuncherSettings>();
 
         if (!RulesInit)
         {
@@ -37,18 +30,12 @@ internal class LogMuncherModule : GuildSubmodule
 
     public override void OnModuleActivation()
     {
-        if (Owner is GuildModule guild)
-        {
-            guild.OnGuildMessage += MessageResponse;
-        }
+        Owner.OnGuildMessage += MessageResponse;
     }
 
     public override void OnModuleDeactivation()
     {
-        if (Owner is GuildModule guild)
-        {
-            guild.OnGuildMessage -= MessageResponse;
-        }
+        Owner.OnGuildMessage -= MessageResponse;
     }
 
     public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
@@ -64,7 +51,7 @@ internal class LogMuncherModule : GuildSubmodule
 
     public override async Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
     {
-        if (_settings is null)
+        if (Settings is null)
         {
             await command.RespondAsync("Config is unavailable in HandleConfig", ephemeral: true);
             return;
@@ -83,8 +70,8 @@ internal class LogMuncherModule : GuildSubmodule
                     return;
                 }
 
-                _settings.MunchingChannel = optionChannel.Id;
-                (_settings as IModuleSettings).Save<LogMuncherSettings>();
+                Settings.MunchingChannel = optionChannel.Id;
+                (Settings as ISettings).Save<LogMuncherSettings>(this);
                 await command.RespondAsync($"Set search channel to <#{optionChannel.Id}>");
                 return;
             default:
@@ -96,10 +83,10 @@ internal class LogMuncherModule : GuildSubmodule
     private async Task MessageResponse(SocketUserMessage message, SocketGuildChannel channel)
     {
 
-        if (_settings is null)
+        if (Settings is null)
             return;
 
-        if (channel.Id != _settings.MunchingChannel)
+        if (channel.Id != Settings.MunchingChannel)
             return;
 
         await WriteLog.LineNormal("Checking for attachments");

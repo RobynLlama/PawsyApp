@@ -1,3 +1,4 @@
+/*
 namespace PawsyApp.PawsyCore.Modules;
 
 internal interface IModuleIdent : IModule, IUnique<ulong>
@@ -27,3 +28,4 @@ internal interface IModuleIdent : IModule, IUnique<ulong>
         return null;
     }
 }
+*/

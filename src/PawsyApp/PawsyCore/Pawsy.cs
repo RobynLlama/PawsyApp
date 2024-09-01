@@ -1,20 +1,21 @@
 using System.Collections.Concurrent;
-using PawsyApp.PawsyCore.Modules;
-using PawsyApp.PawsyCore.Modules.GuildSubmodules;
-using PawsyApp.PawsyCore.Modules.Settings;
-using PawsyApp.Utils;
+using System.Linq;
 
 namespace PawsyApp.PawsyCore;
 
-internal class Pawsy : CoreModule, IModuleIdent
+internal class Pawsy()
 {
-    public override IModuleSettings? Settings => null;
-    public ulong ID { get => 0; set { return; } }
-    public override string Name => "pawsy-core";
-    public override string GetSettingsLocation() => "";
+    //Eventually migrate socket connection here
+    protected ConcurrentBag<Guild> Guilds = [];
 
-    public override void Alive()
+    public void AddGuild(ulong ID)
     {
-        WriteLog.LineNormal("Pawsy Core Activated");
+        foreach (var item in Guilds)
+        {
+            if (item.ID == ID)
+                return;
+        }
+
+        Guilds.Add(new(ID));
     }
 }
