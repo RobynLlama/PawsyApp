@@ -113,28 +113,27 @@ internal class LogMuncherModule : GuildSubmodule
                 tasks.Add(GetResourceAsync(item.Url));
             }
 
-            await WriteLog.LineNormal("Waiting for downloads...");
+            //await WriteLog.LineNormal("Waiting for downloads...");
             await Task.WhenAll(tasks);
-            await WriteLog.LineNormal("done downloading");
+            //await WriteLog.LineNormal("done downloading");
 
             foreach (var data in tasks)
             {
                 if (data.Result is null)
                     continue;
 
-                //await WriteLog.Normally("Making a stream for an attachment");
+                await WriteLog.LineNormal("Muncher called");
 
                 StreamReader reader = new(new MemoryStream(Encoding.UTF8.GetBytes(data.Result)));
-                //StreamWriter writer = new("");
 
-                //await WriteLog.Normally("Making a new muncher");
+                //await WriteLog.LineNormal("Making a new muncher");
 
                 var munch = new LogMuncher(reader, null!, [], false, false);
 
-                //await WriteLog.Normally("Processing output");
+                //await WriteLog.LineNormal("Processing output");
                 var lines = await munch.MunchLog(true);
 
-                //await WriteLog.Normally("Sending results");
+                //await WriteLog.LineNormal("Sending results");
                 await message.Channel.SendMessageAsync("I see you posted a log file, let me find the most serious errors for you..");
 
                 var issues = lines.Take(2);
@@ -143,9 +142,12 @@ internal class LogMuncherModule : GuildSubmodule
                 foreach (var thing in issues)
                 {
                     await Task.Delay(750);
+                    //await WriteLog.LineNormal("Sending a result");
                     await message.Channel.SendMessageAsync(thing.ToString(), flags: Discord.MessageFlags.SuppressEmbeds);
                     DidAny = true;
                 }
+
+                //await WriteLog.LineNormal("Done with results");
 
                 await Task.Delay(750);
                 if (DidAny)
@@ -158,7 +160,7 @@ internal class LogMuncherModule : GuildSubmodule
                 }
 
 
-                await WriteLog.LineNormal("Done!");
+                //await WriteLog.LineNormal("Done!");
             }
         }
     }
