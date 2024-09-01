@@ -10,7 +10,9 @@ Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives 
 
 ## Features
 
-Note: Not all features are configurable yet. Pawsy was primarily designed for use on the Lethal Company Modding server, so more options are slowly coming.
+> *Note*
+>
+> Not all features are configurable yet. Pawsy was primarily designed for use on the Lethal Company Modding server, so more options are slowly coming.
 
 - Filter Matcher*
 - Log Muncher
@@ -56,8 +58,9 @@ Configuration:
 
 Pawsy will keep track of how many times each user says "Meow" and react to each message containing meow with an emote.
 
-Use the /meow-board display command to view the top ranking meowers in your server
-Use the /meow-board meow command to have Pawsy meow for you
+Use the `/meow-board display` command to view the top ranking meowers in your server
+
+Use the `/meow-board meow` command to have Pawsy meow for you
 
 ### Modder Role Checker
 
