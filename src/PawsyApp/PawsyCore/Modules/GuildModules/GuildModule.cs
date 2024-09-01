@@ -17,7 +17,7 @@ internal abstract class GuildModule(Guild Owner, string name, bool declaresConfi
     {
         if (Owner is not null)
         {
-            return Path.Combine(Helpers.GetPersistPath(Owner.ID), $"{Name}.json");
+            return Path.Combine(Guild.GetPersistPath(Owner.ID), $"{Name}.json");
         }
 
         throw new System.SystemException($"GuildSubmodule {Name} has no owner");

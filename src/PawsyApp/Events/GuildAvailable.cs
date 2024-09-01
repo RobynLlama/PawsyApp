@@ -22,12 +22,6 @@ internal class GuildAvailable
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        //Prepare the storage directory
-        DirectoryInfo storage = new(Helpers.GetPersistPath(guild.Id));
-
-        if (!storage.Exists)
-            storage.Create();
-
         PawsyProgram.Pawsy.AddGuild(guild.Id);
 
         await Task.WhenAll(tasks);

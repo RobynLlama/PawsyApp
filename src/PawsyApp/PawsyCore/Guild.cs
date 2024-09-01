@@ -14,9 +14,14 @@ namespace PawsyApp.PawsyCore;
 
 internal class Guild : IUnique<ulong>, ISettingsOwner
 {
+    internal static string GetPersistPath(ulong guild)
+    {
+        return Path.Combine(Pawsy.BaseConfigDir, guild.ToString());
+    }
+
     public string Name { get; } = "guild-global";
     public string GetSettingsLocation() =>
-    Path.Combine(Helpers.GetPersistPath(ID), $"{Name}.json");
+    Path.Combine(GetPersistPath(ID), $"{Name}.json");
     public ulong ID { get; }
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
     public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
@@ -31,6 +36,12 @@ internal class Guild : IUnique<ulong>, ISettingsOwner
     public Guild(ulong ID)
     {
         this.ID = ID;
+
+        DirectoryInfo storage = new(Path.Combine(Pawsy.BaseConfigDir, ID.ToString()));
+
+        if (!storage.Exists)
+            storage.Create();
+
         Settings = (this as ISettingsOwner).LoadSettings<GuildSettings>();
 
         Modules.Add(new MeowBoardModule(this));
