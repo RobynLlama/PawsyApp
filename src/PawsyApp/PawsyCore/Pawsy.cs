@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using PawsyApp.Utils;
+using Discord.WebSocket;
 
 namespace PawsyApp.PawsyCore;
 
@@ -20,14 +21,15 @@ internal class Pawsy : IUniqueCollection<ulong>
             config.Create();
     }
 
-    public Guild AddOrGetGuild(ulong ID)
+    public Guild AddOrGetGuild(SocketGuild guild)
     {
+        var ID = guild.Id;
         var item = (this as IUniqueCollection<ulong>).GetUniqueItem(ID);
 
         if (item is null)
         {
             WriteLog.LineNormal($"Creating Guild Instance for {ID}");
-            Guild newItem = new(ID);
+            Guild newItem = new(guild);
             Guilds.Add(newItem);
             return newItem;
         }

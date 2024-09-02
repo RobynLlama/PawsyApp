@@ -21,7 +21,7 @@ internal class GuildAvailable
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        PawsyProgram.Pawsy.AddOrGetGuild(guild.Id);
+        PawsyProgram.Pawsy.AddOrGetGuild(guild);
 
         await Task.WhenAll(tasks);
         return;
