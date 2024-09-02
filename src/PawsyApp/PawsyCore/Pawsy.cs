@@ -8,6 +8,7 @@ using Discord.Rest;
 using Discord;
 using System.Threading.Tasks;
 using PawsyApp.KittyColors;
+using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.PawsyCore;
 

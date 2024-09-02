@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using Discord;
 using System.Linq;
 using System.Text;
-using PawsyApp.PawsyCore.Modules;
 using PawsyApp.PawsyCore.Modules.GuildModules;
 using System.Collections.Generic;
 
-namespace PawsyApp.PawsyCore;
+namespace PawsyApp.PawsyCore.Modules;
 
 internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 {
