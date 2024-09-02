@@ -17,17 +17,17 @@ internal class MeowBoardModule : GuildModule
         Settings = (this as ISettingsOwner).LoadSettings<MeowBoardSettings>();
     }
 
-    public override void OnModuleActivation()
+    public override void OnActivate()
     {
         Owner.OnGuildMessage += MessageCallback;
     }
 
-    public override void OnModuleDeactivation()
+    public override void OnDeactivate()
     {
         Owner.OnGuildMessage -= MessageCallback;
     }
 
-    public override SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder builder)
+    public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
     {
         builder
         .AddOption(
@@ -46,7 +46,7 @@ internal class MeowBoardModule : GuildModule
         return new SlashCommandBundle(MeowBoardHandler, builder.Build(), Name);
     }
 
-    public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
+    public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
     {
         rootConfig
         .AddOption(

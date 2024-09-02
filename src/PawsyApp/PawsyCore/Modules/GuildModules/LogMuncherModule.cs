@@ -27,17 +27,17 @@ internal class LogMuncherModule : GuildModule
         }
     }
 
-    public override void OnModuleActivation()
+    public override void OnActivate()
     {
         Owner.OnGuildMessage += MessageResponse;
     }
 
-    public override void OnModuleDeactivation()
+    public override void OnDeactivate()
     {
         Owner.OnGuildMessage -= MessageResponse;
     }
 
-    public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
+    public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
     {
         rootConfig
         .AddOption(

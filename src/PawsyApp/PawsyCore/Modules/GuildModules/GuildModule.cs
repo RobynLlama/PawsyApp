@@ -23,19 +23,19 @@ internal abstract class GuildModule(Guild Owner, string name, bool declaresConfi
         throw new System.SystemException($"GuildSubmodule {Name} has no owner");
     }
 
-    public virtual void OnModuleActivation()
+    public virtual void OnActivate()
     {
         return;
     }
-    public virtual void OnModuleDeactivation()
+    public virtual void OnDeactivate()
     {
         return;
     }
-    public virtual void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
+    public virtual void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
     {
         return;
     }
-    public virtual SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder builder)
+    public virtual SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
     {
         throw new System.Exception("OnModuleDeclareCommands called without a matching body in module, panic!");
     }

@@ -24,19 +24,19 @@ internal class FilterMatcherModule : GuildModule
         ]);
     }
 
-    public override void OnModuleActivation()
+    public override void OnActivate()
     {
         Owner.OnGuildMessage += MessageCallBack;
         Owner.OnGuildMessageEdit += MessageCallBack;
     }
 
-    public override void OnModuleDeactivation()
+    public override void OnDeactivate()
     {
         Owner.OnGuildMessage -= MessageCallBack;
         Owner.OnGuildMessageEdit -= MessageCallBack;
     }
 
-    public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
+    public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
     {
         rootConfig
         .AddOption(
@@ -47,7 +47,7 @@ internal class FilterMatcherModule : GuildModule
         );
     }
 
-    public override SlashCommandBundle OnModuleDeclareCommands(SlashCommandBuilder builder)
+    public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
     {
         builder
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild)

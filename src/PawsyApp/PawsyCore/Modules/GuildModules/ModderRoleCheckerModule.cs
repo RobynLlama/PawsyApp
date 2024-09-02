@@ -16,17 +16,17 @@ internal class ModderRoleCheckerModule : GuildModule
         Settings = (this as ISettingsOwner).LoadSettings<ModderRoleCheckerSettings>();
     }
 
-    public override void OnModuleActivation()
+    public override void OnActivate()
     {
         Owner.OnGuildThreadCreated += ThreadCreated;
     }
 
-    public override void OnModuleDeactivation()
+    public override void OnDeactivate()
     {
         Owner.OnGuildThreadCreated -= ThreadCreated;
     }
 
-    public override void OnModuleDeclareConfig(SlashCommandOptionBuilder rootConfig)
+    public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
     {
         rootConfig
         .AddOption(
