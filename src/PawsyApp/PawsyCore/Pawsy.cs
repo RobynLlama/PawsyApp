@@ -1,14 +1,17 @@
 using System.Collections.Concurrent;
 using System;
 using System.IO;
+using System.Collections.Generic;
+using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore;
 
-internal class Pawsy
+internal class Pawsy : IUniqueCollection<ulong>
 {
     //Eventually migrate socket connection here
     public static string BaseConfigDir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pawsy");
     protected ConcurrentBag<Guild> Guilds = [];
+    public IEnumerable<IUnique<ulong>> UniqueCollection => Guilds;
 
     public Pawsy()
     {
@@ -17,14 +20,24 @@ internal class Pawsy
             config.Create();
     }
 
-    public void AddGuild(ulong ID)
+    public Guild AddOrGetGuild(ulong ID)
     {
-        foreach (var item in Guilds)
+        var item = (this as IUniqueCollection<ulong>).GetUniqueItem(ID);
+
+        if (item is null)
         {
-            if (item.ID == ID)
-                return;
+            WriteLog.LineNormal($"Creating Guild Instance for {ID}");
+            Guild newItem = new(ID);
+            Guilds.Add(newItem);
+            return newItem;
         }
 
-        Guilds.Add(new(ID));
+        if (item is Guild gItem)
+        {
+            WriteLog.LineNormal($"Returning Guild Instance for {ID}");
+            return gItem;
+        }
+
+        throw new Exception($"Unreachable code in AddOrGetGuild. ID: {ID}");
     }
 }
