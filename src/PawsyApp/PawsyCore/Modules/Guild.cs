@@ -58,33 +58,40 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
     public void GuildSetup()
     {
+        var optionAdd = new SlashCommandOptionBuilder()
+        .WithName("name")
+        .WithType(ApplicationCommandOptionType.String)
+        .WithDescription("the name of the module to activate")
+        .WithRequired(true);
+
+        var optionRemove = new SlashCommandOptionBuilder()
+        .WithName("name")
+        .WithType(ApplicationCommandOptionType.String)
+        .WithDescription("the name of the module to deactivate")
+        .WithRequired(true);
+
+
         var ModuleCommands = new SlashCommandBuilder()
         .WithName("module-manage")
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild)
         .WithDescription("Manage your activated modules")
-        .AddOption(
-            new SlashCommandOptionBuilder()
+        .AddOption(new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.SubCommand)
             .WithName("activate")
             .WithDescription("Enables a module for your guild")
-            .AddOption("name", ApplicationCommandOptionType.String, "the name of the module to activate", isRequired: true)
-        )
-        .AddOption(
-            new SlashCommandOptionBuilder()
+            .AddOption(optionAdd)
+            )
+        .AddOption(new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.SubCommand)
             .WithName("deactivate")
             .WithDescription("Disables a module for your guild")
-            .AddOption("name", ApplicationCommandOptionType.String, "the name of the module to deactivate", isRequired: true)
-        )
+            .AddOption(optionRemove)
+            )
         .AddOption(
             new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.SubCommand)
             .WithName("list")
             .WithDescription("Lists all available modules")
-        );
-
-        RegisterSlashCommand(
-            new(ModuleActivator, ModuleCommands.Build(), Name)
         );
 
         //Module configuration command
@@ -101,6 +108,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
         foreach (var item in Modules)
         {
+
+            optionAdd.AddChoice(item.Name, item.Name);
+            optionRemove.AddChoice(item.Name, item.Name);
 
             //add a config option for each module
             if (item.ModuleDeclaresConfig)
@@ -129,6 +139,10 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                 item.OnModuleActivation();
             }
         }
+
+        RegisterSlashCommand(
+            new(ModuleActivator, ModuleCommands.Build(), Name)
+        );
 
         RegisterSlashCommand(
             new(GuildConfigurationEvent, ModuleConfigurationRoot.Build(), Name)
