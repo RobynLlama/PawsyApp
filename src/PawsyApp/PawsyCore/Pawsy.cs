@@ -45,6 +45,7 @@ internal class Pawsy : IUniqueCollection<ulong>, IUnique<ulong>
             config.Create();
 
         SocketClient.GuildAvailable += GuildAvailable;
+        SocketClient.GuildUnavailable += GuildUnavailable;
         SocketClient.MessageReceived += MessageReceived;
         SocketClient.Log += SocketLog;
 
@@ -148,10 +149,31 @@ internal class Pawsy : IUniqueCollection<ulong>, IUnique<ulong>
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        AddOrGetGuild(guild);
+        var pGuild = AddOrGetGuild(guild);
+        pGuild.OnActivate();
 
         await Task.WhenAll(tasks);
         return;
+    }
+    private async Task GuildUnavailable(SocketGuild guild)
+    {
+        var tasks = new List<Task>
+        {
+            LogAppendContext(Name, "Guild Unavailable", [
+            ("GuildID", guild.Id),
+            ("GuildName", guild.Name)
+            ]),
+        };
+
+        var uGuild = (this as IUniqueCollection<ulong>).GetUniqueItem(guild.Id);
+
+        if (uGuild is Guild gGuild)
+        {
+            tasks.Add(LogAppendLine(Name, "Removing Guild hooks"));
+            gGuild.OnDeactivate();
+        }
+
+        await Task.WhenAll(tasks);
     }
 
     protected Guild AddOrGetGuild(SocketGuild guild)
@@ -170,7 +192,6 @@ internal class Pawsy : IUniqueCollection<ulong>, IUnique<ulong>
         if (item is Guild gItem)
         {
             LogAppendLine(Name, $"Returning Guild Instance for {ID}");
-            gItem.GuildSetup();
             return gItem;
         }
 

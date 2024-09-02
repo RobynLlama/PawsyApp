@@ -12,7 +12,7 @@ using System;
 
 namespace PawsyApp.PawsyCore.Modules;
 
-internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
+internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>, IActivatable
 {
     internal static string GetPersistPath(ulong guild)
     {
@@ -59,7 +59,10 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         Modules.Add(new LogMuncherModule(this));
         Modules.Add(new FilterMatcherModule(this));
         Modules.Add(new ModderRoleCheckerModule(this));
+    }
 
+    public void OnActivate()
+    {
         //Subscribe to events
         Pawsy.SocketClient.MessageReceived += OnMessage;
         Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
@@ -69,10 +72,21 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         Pawsy.SocketClient.ButtonExecuted += OnButtonClicked;
         Pawsy.SocketClient.SelectMenuExecuted += OnMenuSelected;
 
-        GuildSetup();
+        GuildCommandSetup();
     }
 
-    public void GuildSetup()
+    public void OnDeactivate()
+    {
+        Pawsy.SocketClient.MessageReceived -= OnMessage;
+        Pawsy.SocketClient.MessageUpdated -= OnMessageEdit;
+        Pawsy.SocketClient.SlashCommandExecuted -= OnSlashCommand;
+        Pawsy.SocketClient.ThreadCreated -= OnThreadCreated;
+        Pawsy.SocketClient.ModalSubmitted -= OnModalSubmit;
+        Pawsy.SocketClient.ButtonExecuted -= OnButtonClicked;
+        Pawsy.SocketClient.SelectMenuExecuted -= OnMenuSelected;
+    }
+
+    public void GuildCommandSetup()
     {
         var optionAdd = new SlashCommandOptionBuilder()
         .WithName("name")
@@ -130,7 +144,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                 .WithDescription($"Configure the {item.Name} module")
                 .WithType(ApplicationCommandOptionType.SubCommand);
 
-                item.OnModuleDeclareConfig(configRoot);
+                item.OnConfigDeclared(configRoot);
                 ModuleConfigurationRoot.AddOption(configRoot);
             }
 
@@ -140,13 +154,13 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                 .WithName(item.Name)
                 .WithDescription($"Run a command from {item.Name}");
 
-                RegisterSlashCommand(item.OnModuleDeclareCommands(commandRoot));
+                RegisterSlashCommand(item.OnCommandsDeclared(commandRoot));
             }
 
             if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
             {
                 Pawsy.LogAppendLine(Name, $"Activating {item.Name}");
-                item.OnModuleActivation();
+                item.OnActivate();
             }
         }
 
@@ -232,7 +246,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                     if (item.Name == modName)
                     {
                         EnabledAnything = true;
-                        item.OnModuleActivation();
+                        item.OnActivate();
                         Settings.EnabledModules.Add(modName);
                         (Settings as ISettings).Save<GuildSettings>(this);
                         await command.RespondAsync($"{modName} enabled, meow!");
@@ -254,17 +268,17 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                     return;
                 }
 
-                foreach (var item in Modules)
-                {
-                    if (item.Name == modName)
+                var uItem = (this as IUniqueCollection<string>).GetUniqueItem(modName);
+
+                if (uItem is IGuildModule mItem)
+                    if (mItem.Name == modName)
                     {
-                        item.OnModuleDeactivation();
+                        mItem.OnDeactivate();
                         Settings.EnabledModules.Remove(modName);
                         (Settings as ISettings).Save<GuildSettings>(this);
                         await command.RespondAsync($"{modName} disabled, meow!");
                         return;
                     }
-                }
 
                 await command.RespondAsync("Error: module is in the active list but does not exist.", ephemeral: true);
                 return;
