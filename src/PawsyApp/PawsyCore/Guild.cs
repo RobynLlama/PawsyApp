@@ -9,10 +9,11 @@ using System.Linq;
 using System.Text;
 using PawsyApp.PawsyCore.Modules;
 using PawsyApp.PawsyCore.Modules.GuildModules;
+using System.Collections.Generic;
 
 namespace PawsyApp.PawsyCore;
 
-internal class Guild : IUnique<ulong>, ISettingsOwner
+internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 {
     internal static string GetPersistPath(ulong guild)
     {
@@ -23,6 +24,8 @@ internal class Guild : IUnique<ulong>, ISettingsOwner
     public string GetSettingsLocation() =>
     Path.Combine(GetPersistPath(ID), $"{Name}.json");
     public ulong ID { get; }
+    public IEnumerable<IUnique<string>> UniqueCollection => Modules;
+
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
     public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
     public event GuildMessageHandler? OnGuildMessage;
