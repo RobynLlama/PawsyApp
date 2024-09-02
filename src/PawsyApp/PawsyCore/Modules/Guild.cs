@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using PawsyApp.PawsyCore.Modules.GuildModules;
 using System.Collections.Generic;
+using System;
 
 namespace PawsyApp.PawsyCore.Modules;
 
@@ -27,9 +28,15 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
     public SocketGuild DiscordGuild;
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
     public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
+    public delegate Task GuildModalHandler(SocketModal modal);
+    public delegate Task GuildButtonHandler(SocketMessageComponent component);
+    public delegate Task GuildMenuHandler(SocketMessageComponent component);
     public event GuildMessageHandler? OnGuildMessage;
     public event GuildMessageHandler? OnGuildMessageEdit;
     public event GuildThreadCreatedHandler? OnGuildThreadCreated;
+    public event GuildModalHandler? OnGuildModalSubmit;
+    public event GuildButtonHandler? OnGuildButtonClicked;
+    public event GuildMenuHandler? OnGuildMenuClicked;
     public readonly Pawsy Pawsy;
 
     protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
@@ -58,6 +65,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
         Pawsy.SocketClient.SlashCommandExecuted += OnSlashCommand;
         Pawsy.SocketClient.ThreadCreated += OnThreadCreated;
+        Pawsy.SocketClient.ModalSubmitted += OnModalSubmit;
+        Pawsy.SocketClient.ButtonExecuted += OnButtonClicked;
+        Pawsy.SocketClient.SelectMenuExecuted += OnMenuSelected;
 
         GuildSetup();
     }
@@ -297,6 +307,36 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         if (OnGuildThreadCreated is not null)
         {
             await OnGuildThreadCreated(channel);
+        }
+    }
+    private async Task OnModalSubmit(SocketModal modal)
+    {
+        if (modal.GuildId != DiscordGuild.Id)
+            return;
+
+        if (OnGuildModalSubmit is not null)
+        {
+            await OnGuildModalSubmit(modal);
+        }
+    }
+    private async Task OnButtonClicked(SocketMessageComponent component)
+    {
+        if (component.GuildId != DiscordGuild.Id)
+            return;
+
+        if (OnGuildButtonClicked is not null)
+        {
+            await OnGuildButtonClicked(component);
+        }
+    }
+    private async Task OnMenuSelected(SocketMessageComponent component)
+    {
+        if (component.GuildId != DiscordGuild.Id)
+            return;
+
+        if (OnGuildMenuClicked is not null)
+        {
+            await OnGuildMenuClicked(component);
         }
     }
     private async Task OnSlashCommand(SocketSlashCommand command)
