@@ -23,9 +23,10 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
     public string Name { get; } = "guild-global";
     public string GetSettingsLocation() =>
     Path.Combine(GetPersistPath(ID), $"{Name}.json");
-    public ulong ID { get; }
+    public ulong ID { get => DiscordGuild.Id; }
     public IEnumerable<IUnique<string>> UniqueCollection => Modules;
 
+    public SocketGuild DiscordGuild;
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
     public delegate Task GuildThreadCreatedHandler(SocketThreadChannel channel);
     public event GuildMessageHandler? OnGuildMessage;
@@ -36,9 +37,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
     protected readonly GuildSettings Settings;
     protected readonly ConcurrentBag<IGuildModule> Modules = [];
 
-    public Guild(ulong ID)
+    public Guild(SocketGuild guild)
     {
-        this.ID = ID;
+        DiscordGuild = guild;
 
         DirectoryInfo storage = new(Path.Combine(Pawsy.BaseConfigDir, ID.ToString()));
 
