@@ -108,7 +108,7 @@ internal class MeowBoardModule : GuildModule
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)
     {
-        if (message.CleanContent.Contains("meow"))
+        if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
         {
             Settings?.AddUserMeow(message.Author.Id);
             message.AddReactionAsync(PawsySmall);
