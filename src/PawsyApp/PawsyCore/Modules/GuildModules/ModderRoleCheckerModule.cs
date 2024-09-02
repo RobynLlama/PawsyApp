@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Settings;
-using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
@@ -128,7 +127,7 @@ internal class ModderRoleCheckerModule : GuildModule
             }
         }
 
-        await WriteLog.Cutely("Thread created", [
+        await Owner.Pawsy.LogAppendContext(Name, "Thread created", [
                 ("Owner", channel.Owner.DisplayName),
                 ("Needs Role", ownerNeedsRole),
                 ]);

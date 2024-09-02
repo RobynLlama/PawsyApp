@@ -1,6 +1,5 @@
 using System.IO;
 using System.Text.Json;
-using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 internal interface ISettingsOwner
@@ -18,11 +17,6 @@ internal interface ISettingsOwner
                 return Settings;
 
         }
-
-        WriteLog.Cutely("Failed to read settings", [
-            ("Module ", this),
-            ("From", file.FullName)
-        ]);
 
         var config = new T();
         config.Save<T>(this);

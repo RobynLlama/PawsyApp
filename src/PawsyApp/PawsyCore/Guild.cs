@@ -1,6 +1,5 @@
 using System.IO;
 using PawsyApp.PawsyCore.Modules.Settings;
-using PawsyApp.Utils;
 using System.Collections.Concurrent;
 using Discord.WebSocket;
 using System.Threading.Tasks;
@@ -32,14 +31,16 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
     public event GuildMessageHandler? OnGuildMessage;
     public event GuildMessageHandler? OnGuildMessageEdit;
     public event GuildThreadCreatedHandler? OnGuildThreadCreated;
+    public readonly Pawsy Pawsy;
 
     protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
     protected readonly GuildSettings Settings;
     protected readonly ConcurrentBag<IGuildModule> Modules = [];
 
-    public Guild(SocketGuild guild)
+    public Guild(SocketGuild guild, Pawsy pawsy)
     {
         DiscordGuild = guild;
+        Pawsy = pawsy;
 
         DirectoryInfo storage = new(Path.Combine(Pawsy.BaseConfigDir, ID.ToString()));
 
@@ -94,10 +95,10 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild);
 
         //Subscribe to events
-        PawsyProgram.SocketClient.MessageReceived += OnMessage;
-        PawsyProgram.SocketClient.MessageUpdated += OnMessageEdit;
-        PawsyProgram.SocketClient.SlashCommandExecuted += OnSlashCommand;
-        PawsyProgram.SocketClient.ThreadCreated += OnThreadCreated;
+        Pawsy.SocketClient.MessageReceived += OnMessage;
+        Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
+        Pawsy.SocketClient.SlashCommandExecuted += OnSlashCommand;
+        Pawsy.SocketClient.ThreadCreated += OnThreadCreated;
 
         foreach (var item in Modules)
         {
@@ -125,7 +126,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
             if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
             {
-                WriteLog.LineNormal($"Activating {item.Name}");
+                Pawsy.LogAppendLine(Name, $"Activating {item.Name}");
                 item.OnModuleActivation();
             }
         }
@@ -140,7 +141,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         var configOptions = command.Data.Options.First();
         var modName = configOptions.Name;
 
-        await WriteLog.LineNormal($"Config command for {modName}");
+        await Pawsy.LogAppendLine(Name, $"Config command for {modName}");
 
         if (Settings is null)
         {
@@ -193,7 +194,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         {
             case "activate":
                 modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
-                await WriteLog.LineNormal($"Activate a module {modName}");
+                await Pawsy.LogAppendLine(Name, $"Activate a module {modName}");
                 //Already active?
                 if (Settings.EnabledModules.Contains(modName))
                 {
@@ -221,7 +222,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                 return;
             case "deactivate":
                 modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
-                await WriteLog.LineNormal($"Deactivate a module {modName}");
+                await Pawsy.LogAppendLine(Name, $"Deactivate a module {modName}");
 
                 //Check if its active
                 if (!Settings.EnabledModules.Contains(modName))
@@ -260,7 +261,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
                 return;
             default:
-                await WriteLog.LineNormal("Something went very wrong in HandleActivation");
+                await Pawsy.LogAppendLine(Name, "Something went very wrong in HandleActivation");
                 break;
         }
 
@@ -270,8 +271,8 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
     public async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
-        await WriteLog.LineNormal("Registering a command");
-        var sockCommand = await PawsyProgram.SocketClient.GetGuild(ID).CreateApplicationCommandAsync(bundle.BuiltCommand);
+        await Pawsy.LogAppendLine(Name, "Registering a command");
+        var sockCommand = await DiscordGuild.CreateApplicationCommandAsync(bundle.BuiltCommand);
         //var restCommand = await PawsyProgram.RestClient.CreateGuildCommand(bundle.BuiltCommand, ID);
         GuildCommands.TryAdd(sockCommand.Id, bundle);
     }
