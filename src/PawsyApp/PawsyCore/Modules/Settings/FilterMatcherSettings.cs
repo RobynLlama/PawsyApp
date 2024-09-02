@@ -6,7 +6,7 @@ namespace PawsyApp.PawsyCore.Modules.Settings;
 internal class FilterMatcherSettings() : ISettings
 {
     [JsonInclude]
-    internal ConcurrentDictionary<ulong, RuleBundle> RuleList { get; set; } = [];
+    internal ConcurrentDictionary<long, RuleBundle> RuleList { get; set; } = [];
     [JsonInclude]
     internal ulong LoggingChannelID { get; set; } = 0;
     [JsonInclude]
