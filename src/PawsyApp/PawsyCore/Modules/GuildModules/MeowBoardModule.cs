@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Settings;
-using PawsyApp.Utils;
+using System.Collections.Generic;
 
 namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
@@ -61,11 +61,6 @@ internal class MeowBoardModule : GuildModule
 
     public override Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
     {
-        if (Settings is null)
-        {
-            return command.RespondAsync("Config is unavailable in HandleConfig", ephemeral: true);
-        }
-
         var option = options.Options.First();
         var optionName = option.Name;
         var optionValue = option.Value;
@@ -100,17 +95,69 @@ internal class MeowBoardModule : GuildModule
             case "meow":
                 return command.RespondAsync($"Meow!"); ;
             case "display":
-                return Settings.EmbedMeowBoard(command);
+                return EmbedMeowBoard(command);
             default:
                 return command.RespondAsync("Something went wrong in MeowBoardHandler", ephemeral: true); ;
         }
+    }
+
+    private Task EmbedMeowBoard(SocketSlashCommand command)
+    {
+        EmbedBuilder builder = new();
+        //WriteLog.Normally("MeowBoard being built");
+
+        var top5 = Settings.Records.OrderByDescending(kvp => kvp.Value)
+                    .Take(Settings.MeowBoardDisplayLimit)
+                    .ToList();
+
+        static IEnumerable<EmbedFieldBuilder> fields(List<KeyValuePair<ulong, int>> items, SocketGuild guild)
+        {
+            foreach (var item in items)
+            {
+
+                string username;
+
+                if (guild.GetUser(item.Key) is not SocketGuildUser user)
+                    continue;
+                else
+                    username = user.Nickname ?? user.GlobalName ?? user.Username;
+
+
+                //WriteLog.Normally("Adding a field to the MeowBoard");
+                yield return new EmbedFieldBuilder().WithName(username).WithValue(item.Value.ToString());
+            }
+        }
+
+        builder
+            //.WithAuthor("Pawsy!")
+            .WithColor(0, 128, 196)
+            .WithDescription($"Meow Board top {Settings.MeowBoardDisplayLimit}")
+            .WithTitle("Meow Board")
+            .WithThumbnailUrl("https://raw.githubusercontent.com/RobynLlama/PawsyApp/main/Assets/img/Pawsy-small.png")
+            .WithFields(fields(top5, Owner.DiscordGuild))
+            .WithUrl("https://github.com/RobynLlama/PawsyApp")
+            .WithCurrentTimestamp();
+
+        //WriteLog.Normally("Responding");
+
+        return command.RespondAsync(embed: builder.Build());
+    }
+
+    private void AddUserMeow(ulong userID)
+    {
+        if (Settings.Records.TryGetValue(userID, out int amount))
+            Settings.Records[userID] = amount + 1;
+        else
+            Settings.Records.TryAdd(userID, 1);
+
+        (Settings as ISettings).Save<MeowBoardSettings>(this);
     }
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)
     {
         if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
         {
-            Settings?.AddUserMeow(message.Author.Id);
+            AddUserMeow(message.Author.Id);
             message.AddReactionAsync(PawsySmall);
         }
 
