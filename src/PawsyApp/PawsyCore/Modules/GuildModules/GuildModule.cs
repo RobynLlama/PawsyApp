@@ -2,7 +2,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.Utils;
 
 namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
@@ -10,6 +9,7 @@ internal abstract class GuildModule(Guild Owner, string name, bool declaresConfi
 {
     public Guild Owner { get; } = Owner;
     public string Name { get => name; }
+    public string ID => Name;
     public bool ModuleDeclaresConfig { get => declaresConfig; }
     public bool ModuleDeclaresCommands { get => declaresCommands; }
 
