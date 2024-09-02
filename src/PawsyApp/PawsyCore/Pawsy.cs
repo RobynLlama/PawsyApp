@@ -61,7 +61,7 @@ internal class Pawsy : IUniqueCollection<ulong>, IUnique<ulong>
         }
     }
 
-    public Task LogAppendContext(string source, object message, (object ContextName, object ContextValue)[] context) => WriteLogInternal.AppendContext($"Pawsy{ID}->{source}", message, context);
+    public Task LogAppendContext(string source, object message, (object ContextName, object ContextValue)[] context) => WriteLogInternal.AppendContext($"Pawsy~{ID}->{source}", message, context);
     public Task LogAppend(string source, object message) => WriteLogInternal.Append($"Pawsy~{ID}->{source}", message);
     public Task LogAppendLine(string source, object message) => LogAppend(source, message + "\n");
 
