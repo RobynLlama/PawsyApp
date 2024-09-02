@@ -154,7 +154,7 @@ internal class Pawsy : IUniqueCollection<ulong>, IUnique<ulong>
         return;
     }
 
-    public Guild AddOrGetGuild(SocketGuild guild)
+    protected Guild AddOrGetGuild(SocketGuild guild)
     {
         var ID = guild.Id;
         var item = (this as IUniqueCollection<ulong>).GetUniqueItem(ID);
@@ -170,6 +170,7 @@ internal class Pawsy : IUniqueCollection<ulong>, IUnique<ulong>
         if (item is Guild gItem)
         {
             LogAppendLine(Name, $"Returning Guild Instance for {ID}");
+            gItem.GuildSetup();
             return gItem;
         }
 

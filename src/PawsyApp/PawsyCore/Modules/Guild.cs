@@ -53,6 +53,12 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         Modules.Add(new FilterMatcherModule(this));
         Modules.Add(new ModderRoleCheckerModule(this));
 
+        //Subscribe to events
+        Pawsy.SocketClient.MessageReceived += OnMessage;
+        Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
+        Pawsy.SocketClient.SlashCommandExecuted += OnSlashCommand;
+        Pawsy.SocketClient.ThreadCreated += OnThreadCreated;
+
         GuildSetup();
     }
 
@@ -99,12 +105,6 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         .WithName("module-config")
         .WithDescription("Configure Pawsy's modules")
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild);
-
-        //Subscribe to events
-        Pawsy.SocketClient.MessageReceived += OnMessage;
-        Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
-        Pawsy.SocketClient.SlashCommandExecuted += OnSlashCommand;
-        Pawsy.SocketClient.ThreadCreated += OnThreadCreated;
 
         foreach (var item in Modules)
         {
@@ -282,9 +282,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         return;
     }
 
-    public async void RegisterSlashCommand(SlashCommandBundle bundle)
+    protected async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
-        await Pawsy.LogAppendLine(Name, "Registering a command");
+        await Pawsy.LogAppendLine(Name, $"Registering a command from {bundle.ModuleName}");
         var sockCommand = await DiscordGuild.CreateApplicationCommandAsync(bundle.BuiltCommand);
         //var restCommand = await PawsyProgram.RestClient.CreateGuildCommand(bundle.BuiltCommand, ID);
         GuildCommands.TryAdd(sockCommand.Id, bundle);
