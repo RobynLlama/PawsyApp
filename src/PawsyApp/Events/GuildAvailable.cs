@@ -2,7 +2,6 @@ using Discord.WebSocket;
 using System.Threading.Tasks;
 using PawsyApp.Utils;
 using System.Collections.Generic;
-using System.IO;
 
 namespace PawsyApp.Events;
 
@@ -22,7 +21,7 @@ internal class GuildAvailable
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        PawsyProgram.Pawsy.AddGuild(guild.Id);
+        PawsyProgram.Pawsy.AddOrGetGuild(guild.Id);
 
         await Task.WhenAll(tasks);
         return;
