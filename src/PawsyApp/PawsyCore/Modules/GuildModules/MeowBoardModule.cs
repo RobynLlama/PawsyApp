@@ -202,11 +202,31 @@ internal class MeowBoardModule : GuildModule
     protected class TreasureHunter(MeowBoardModule Owner)
     {
         protected MeowBoardModule Owner = Owner;
-        protected ConcurrentBag<ulong> TreasureHunters = new();
+        protected ConcurrentBag<ulong> TreasureHunters = [];
+        protected ulong FirstResponder = 0;
         protected bool GameActive = false;
-        protected DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
+        public object LockRoot = new();
+        internal DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
         protected DateTime GameEndsAt = DateTime.Now.AddSeconds(10f);
         protected RestUserMessage? gameMessage;
+        protected int currentLine = 0;
+
+        protected string[] TreasureMessages = [
+            "A truly meow-tastic treasure has appeared!",
+            "I found a treasure for you!",
+            "Hurry, open up this treasure, nya~",
+            "Meow meow, I found this, open it, okay?",
+            "Pawsitively purr-fect treasure awaits you!",
+            "Look what I dug up for you, nyan-tastic, right?",
+            "A whisker-licking good find just for you!",
+            "Meow-gical treasure discovered! Open it now!",
+            "This gem is the cat's pajamas, hurry and see!",
+            "Purr-haps you'd like to see this shiny surprise?",
+            "I sniffed out something special for you, nya~",
+            "Unleash the meow-velous magic inside this box!",
+            "I've got a _feline_ you'll love this!",
+            "A cat-tastic discovery! Open it up and enjoy!"
+        ];
 
         public async void UpdateGamePhase()
         {
@@ -218,7 +238,7 @@ internal class MeowBoardModule : GuildModule
                 if (DateTime.Now > GameEndsAt)
                 {
                     //Reset
-                    NextGameAt = DateTime.Now.AddSeconds(90f);
+                    NextGameAt = DateTime.Now.AddSeconds(85f);
                     GameActive = false;
 
                     //delete old message
@@ -237,19 +257,29 @@ internal class MeowBoardModule : GuildModule
                         Claimers += $" <@{item}>";
                         account = Owner.GetUserAccount(item);
                         account.MeowMoney += TreasureValue;
+
+                        if (FirstResponder == item)
+                        {
+                            account.MeowMoney += 25;
+                        }
                     }
 
                     (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
-                    await gameChannel.SendMessageAsync($"{Box}\nWorth {TreasureValue} Meows\n{Claimers}");
+                    await gameChannel.SendMessageAsync($"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+25)\n{Claimers}", allowedMentions: AllowedMentions.None);
                 }
             }
             else
             {
                 if (DateTime.Now > NextGameAt)
                 {
+
+                    currentLine++;
+                    currentLine %= TreasureMessages.Length;
+
                     //Send the message and start the countdown
-                    gameMessage = await gameChannel.SendMessageAsync("A truly meow-tastic treasure has appeared!", components: claimButton);
                     TreasureHunters.Clear();
+                    FirstResponder = 0;
+                    gameMessage = await gameChannel.SendMessageAsync(TreasureMessages[currentLine], components: claimButton);
                     GameActive = true;
                     GameEndsAt = DateTime.Now.AddSeconds(10f);
                 }
@@ -265,6 +295,10 @@ internal class MeowBoardModule : GuildModule
             }
             else
             {
+                //First responders
+                if (FirstResponder == 0)
+                    FirstResponder = ID;
+
                 TreasureHunters.Add(ID);
                 await component.RespondAsync("You're opening up this treasure, wait a few seconds to find out what it is!", ephemeral: true);
             }
@@ -321,8 +355,9 @@ internal class MeowBoardModule : GuildModule
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)
     {
-        if (Settings.GameChannelID != 0)
-            TreasureGame.UpdateGamePhase();
+        lock (TreasureGame.LockRoot)
+            if (Settings.GameChannelID != 0)
+                TreasureGame.UpdateGamePhase();
 
         return Task.CompletedTask;
     }
