@@ -4,27 +4,34 @@ using Discord;
 using Discord.WebSocket;
 using PawsyApp.PawsyCore.Modules.Settings;
 using System.Collections.Generic;
+using System;
+using System.Collections.Concurrent;
+using Discord.Rest;
 
 namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
 internal class MeowBoardModule : GuildModule
 {
     protected MeowBoardSettings Settings;
+    protected TreasureHunter TreasureGame;
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
 
     public MeowBoardModule(Guild Owner) : base(Owner, "meow-board", true, true)
     {
         Settings = (this as ISettingsOwner).LoadSettings<MeowBoardSettings>();
+        TreasureGame = new(this);
     }
 
     public override void OnActivate()
     {
         Owner.OnGuildMessage += MessageCallback;
+        Owner.OnGuildButtonClicked += ButtonCallback;
     }
 
     public override void OnDeactivate()
     {
         Owner.OnGuildMessage -= MessageCallback;
+        Owner.OnGuildButtonClicked -= ButtonCallback;
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
@@ -56,6 +63,12 @@ internal class MeowBoardModule : GuildModule
             .WithDescription("The maximum number of users Pawsy will show in the /meowboard embed")
             .WithMaxValue(20)
             .WithMinValue(1)
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.Channel)
+            .WithName("game-channel")
+            .WithDescription("The channel Pawsy will offer games in for Meow Money")
         );
     }
 
@@ -75,7 +88,18 @@ internal class MeowBoardModule : GuildModule
 
                 Settings.MeowBoardDisplayLimit = (int)optionMax;
                 (Settings as ISettings).Save<MeowBoardSettings>(this);
+
                 return command.RespondAsync($"Set max user display for MeowBoard to {optionMax}");
+            case "game-channel":
+                if (optionValue is not SocketTextChannel optionChannel)
+                {
+                    return command.RespondAsync("Text channels only, please and thank mew", ephemeral: true);
+                }
+
+                Settings.GameChannelID = optionChannel.Id;
+                (Settings as ISettings).Save<MeowBoardSettings>(this);
+
+                return command.RespondAsync($"Set game channel to <#{optionChannel.Id}>");
             default:
                 return command.RespondAsync("Something went wrong in HandleConfig", ephemeral: true); ;
         }
@@ -106,11 +130,11 @@ internal class MeowBoardModule : GuildModule
         EmbedBuilder builder = new();
         //WriteLog.Normally("MeowBoard being built");
 
-        var top5 = Settings.Records.OrderByDescending(kvp => kvp.Value)
+        var top5 = Settings.Records.OrderByDescending(kvp => kvp.Value.MeowMoney)
                     .Take(Settings.MeowBoardDisplayLimit)
                     .ToList();
 
-        static IEnumerable<EmbedFieldBuilder> fields(List<KeyValuePair<ulong, ulong>> items, SocketGuild guild)
+        static IEnumerable<EmbedFieldBuilder> fields(List<KeyValuePair<ulong, MeowBank>> items, SocketGuild guild)
         {
             foreach (var item in items)
             {
@@ -124,7 +148,7 @@ internal class MeowBoardModule : GuildModule
 
 
                 //WriteLog.Normally("Adding a field to the MeowBoard");
-                yield return new EmbedFieldBuilder().WithName(username).WithValue(item.Value.ToString());
+                yield return new EmbedFieldBuilder().WithName(username).WithValue(item.Value.MeowMoney.ToString());
             }
         }
 
@@ -143,23 +167,162 @@ internal class MeowBoardModule : GuildModule
         return command.RespondAsync(embed: builder.Build());
     }
 
+    private MeowBank GetUserAccount(ulong userID)
+    {
+        if (Settings.Records.TryGetValue(userID, out MeowBank? account))
+            return account;
+
+        var nAcc = new MeowBank();
+        if (Settings.Records.TryAdd(userID, nAcc))
+        {
+            (Settings as ISettings).Save<MeowBoardSettings>(this);
+            return nAcc;
+        }
+
+        throw new Exception($"Unable to initialize MeowBank for user {userID}");
+    }
+
     private void AddUserMeows(ulong userID, ulong meows)
     {
-        if (Settings.Records.TryGetValue(userID, out ulong amount))
-            Settings.Records[userID] = amount + meows;
-        else
-            Settings.Records.TryAdd(userID, meows);
+        var acc = GetUserAccount(userID);
+        acc.MeowMoney += meows;
 
         (Settings as ISettings).Save<MeowBoardSettings>(this);
     }
 
+    private static readonly MessageComponent claimButton = new ComponentBuilder()
+    .WithButton(
+        new ButtonBuilder()
+        .WithCustomId("meow-board-claim-button")
+        .WithLabel("🎁 Claim Reward 🎁")
+        .WithStyle(ButtonStyle.Success)
+    )
+    .Build();
+
+    protected class TreasureHunter(MeowBoardModule Owner)
+    {
+        protected MeowBoardModule Owner = Owner;
+        protected ConcurrentBag<ulong> TreasureHunters = new();
+        protected bool GameActive = false;
+        protected DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
+        protected DateTime GameEndsAt = DateTime.Now.AddSeconds(10f);
+        protected RestUserMessage? gameMessage;
+
+        public async void UpdateGamePhase()
+        {
+            if (Owner.Owner.DiscordGuild.GetChannel(Owner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
+                return;
+
+            if (GameActive)
+            {
+                if (DateTime.Now > GameEndsAt)
+                {
+                    //Reset
+                    NextGameAt = DateTime.Now.AddSeconds(90f);
+                    GameActive = false;
+
+                    //delete old message
+                    if (gameMessage is not null)
+                        await gameMessage.DeleteAsync();
+
+                    if (TreasureHunters.IsEmpty)
+                        return;
+
+                    string Claimers = "Claimed by:";
+                    var (Box, TreasureValue) = GetTreasureType();
+                    MeowBank account;
+
+                    foreach (var item in TreasureHunters)
+                    {
+                        Claimers += $" <@{item}>";
+                        account = Owner.GetUserAccount(item);
+                        account.MeowMoney += TreasureValue;
+                    }
+
+                    (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
+                    await gameChannel.SendMessageAsync($"{Box}\nWorth {TreasureValue} Meows\n{Claimers}");
+                }
+            }
+            else
+            {
+                if (DateTime.Now > NextGameAt)
+                {
+                    //Send the message and start the countdown
+                    gameMessage = await gameChannel.SendMessageAsync("A truly meow-tastic treasure has appeared!", components: claimButton);
+                    TreasureHunters.Clear();
+                    GameActive = true;
+                    GameEndsAt = DateTime.Now.AddSeconds(10f);
+                }
+            }
+        }
+        public async void AddClicker(SocketMessageComponent component)
+        {
+            var ID = component.User.Id;
+
+            if (TreasureHunters.Contains(ID))
+            {
+                await component.RespondAsync("You're still opening this treasure, be patient meow!", ephemeral: true);
+            }
+            else
+            {
+                TreasureHunters.Add(ID);
+                await component.RespondAsync("You're opening up this treasure, wait a few seconds to find out what it is!", ephemeral: true);
+            }
+
+            UpdateGamePhase();
+        }
+
+        protected static (string BoxType, ulong TreasureAmount) GetTreasureType()
+        {
+            var number = new Random().NextSingle();
+            var Box = "🪙 Some Loose Change 🪙";
+            ulong TreasureAmount = 5;
+
+            if (number > 0.985f)
+            {
+                Box = "🎖️🏦 Meow Treasure Horde 🏦🎖️";
+                TreasureAmount = 1000;
+            }
+            else if (number > 0.94f)
+            {
+                Box = "💰 Pile of Meow Money 💰";
+                TreasureAmount = 350;
+            }
+            else if (number > 0.78f)
+            {
+                Box = "👛 Purse Full of Meows 👛";
+                TreasureAmount = 100;
+            }
+            else if (number > 0.28f)
+            {
+                Box = "💷 Stack of Meow Bills 💷";
+                TreasureAmount = 25;
+            }
+            else
+            {
+                TreasureAmount = 5;
+            }
+
+            return (Box, TreasureAmount);
+        }
+    }
+
+    private Task ButtonCallback(SocketMessageComponent component)
+    {
+        switch (component.Data.CustomId)
+        {
+            case "meow-board-claim-button":
+                TreasureGame.AddClicker(component);
+                return Task.CompletedTask;
+        }
+
+        return Task.CompletedTask;
+    }
+
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)
     {
-        if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
-        {
-            AddUserMeows(message.Author.Id, 1);
-            message.AddReactionAsync(PawsySmall);
-        }
+        if (Settings.GameChannelID != 0)
+            TreasureGame.UpdateGamePhase();
 
         return Task.CompletedTask;
     }
