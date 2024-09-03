@@ -110,7 +110,7 @@ internal class MeowBoardModule : GuildModule
                     .Take(Settings.MeowBoardDisplayLimit)
                     .ToList();
 
-        static IEnumerable<EmbedFieldBuilder> fields(List<KeyValuePair<ulong, int>> items, SocketGuild guild)
+        static IEnumerable<EmbedFieldBuilder> fields(List<KeyValuePair<ulong, ulong>> items, SocketGuild guild)
         {
             foreach (var item in items)
             {
@@ -133,7 +133,7 @@ internal class MeowBoardModule : GuildModule
             .WithColor(0, 128, 196)
             .WithDescription($"Meow Board top {Settings.MeowBoardDisplayLimit}")
             .WithTitle("Meow Board")
-            .WithThumbnailUrl("https://raw.githubusercontent.com/RobynLlama/PawsyApp/main/Assets/img/Pawsy-small.png")
+            .WithThumbnailUrl("https://raw.githubusercontent.com/RobynLlama/PawsyApp/main/Assets/img/Pawsy-small.png?version-2")
             .WithFields(fields(top5, Owner.DiscordGuild))
             .WithUrl("https://github.com/RobynLlama/PawsyApp")
             .WithCurrentTimestamp();
@@ -143,12 +143,12 @@ internal class MeowBoardModule : GuildModule
         return command.RespondAsync(embed: builder.Build());
     }
 
-    private void AddUserMeow(ulong userID)
+    private void AddUserMeows(ulong userID, ulong meows)
     {
-        if (Settings.Records.TryGetValue(userID, out int amount))
-            Settings.Records[userID] = amount + 1;
+        if (Settings.Records.TryGetValue(userID, out ulong amount))
+            Settings.Records[userID] = amount + meows;
         else
-            Settings.Records.TryAdd(userID, 1);
+            Settings.Records.TryAdd(userID, meows);
 
         (Settings as ISettings).Save<MeowBoardSettings>(this);
     }
@@ -157,7 +157,7 @@ internal class MeowBoardModule : GuildModule
     {
         if (message.CleanContent.Contains("meow", System.StringComparison.InvariantCultureIgnoreCase))
         {
-            AddUserMeow(message.Author.Id);
+            AddUserMeows(message.Author.Id, 1);
             message.AddReactionAsync(PawsySmall);
         }
 

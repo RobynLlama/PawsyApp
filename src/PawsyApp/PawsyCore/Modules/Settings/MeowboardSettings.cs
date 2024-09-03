@@ -11,7 +11,7 @@ namespace PawsyApp.PawsyCore.Modules.Settings;
 internal class MeowBoardSettings() : ISettings
 {
     [JsonInclude]
-    internal ConcurrentDictionary<ulong, int> Records { get; set; } = [];
+    internal ConcurrentDictionary<ulong, ulong> Records { get; set; } = [];
 
     [JsonInclude]
     internal int MeowBoardDisplayLimit = 5;
