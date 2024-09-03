@@ -48,6 +48,12 @@ internal class MeowBoardModule : GuildModule
             .WithType(ApplicationCommandOptionType.SubCommand)
             .WithName("display")
             .WithDescription("Pawsy will show you the MeowBoard rankings")
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("my-bank")
+            .WithDescription("Pawsy will show you your meow balance")
         );
 
         return new SlashCommandBundle(MeowBoardHandler, builder.Build(), Name);
@@ -120,6 +126,9 @@ internal class MeowBoardModule : GuildModule
                 return command.RespondAsync($"Meow!"); ;
             case "display":
                 return EmbedMeowBoard(command);
+            case "my-bank":
+                var acc = GetUserAccount(command.User.Id);
+                return command.RespondAsync($"Your balance is {acc.MeowMoney} Meows");
             default:
                 return command.RespondAsync("Something went wrong in MeowBoardHandler", ephemeral: true); ;
         }
