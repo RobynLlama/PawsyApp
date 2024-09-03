@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using PawsyApp.PawsyCore.Modules.GuildModules;
 using System.Collections.Generic;
-using System;
 
 namespace PawsyApp.PawsyCore.Modules;
 
@@ -159,7 +158,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
             if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
             {
-                Pawsy.LogAppendLine(Name, $"Activating {item.Name}");
+                LogAppendLine(Name, $"Activating {item.Name}");
                 item.OnActivate();
             }
         }
@@ -178,7 +177,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         var configOptions = command.Data.Options.First();
         var modName = configOptions.Name;
 
-        await Pawsy.LogAppendLine(Name, $"Config command for {modName}");
+        await LogAppendLine(Name, $"Config command for {modName}");
 
         if (Settings is null)
         {
@@ -231,7 +230,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         {
             case "activate":
                 modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
-                await Pawsy.LogAppendLine(Name, $"Activate a module {modName}");
+                await LogAppendLine(Name, $"Activate a module {modName}");
                 //Already active?
                 if (Settings.EnabledModules.Contains(modName))
                 {
@@ -259,7 +258,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                 return;
             case "deactivate":
                 modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
-                await Pawsy.LogAppendLine(Name, $"Deactivate a module {modName}");
+                await LogAppendLine(Name, $"Deactivate a module {modName}");
 
                 //Check if its active
                 if (!Settings.EnabledModules.Contains(modName))
@@ -298,7 +297,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
                 return;
             default:
-                await Pawsy.LogAppendLine(Name, "Something went very wrong in HandleActivation");
+                await LogAppendLine(Name, "Something went very wrong in HandleActivation");
                 break;
         }
 
@@ -308,11 +307,17 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
     protected async void RegisterSlashCommand(SlashCommandBundle bundle)
     {
-        await Pawsy.LogAppendLine(Name, $"Registering a command from {bundle.ModuleName}");
+        await LogAppendLine(Name, $"Registering a command from {bundle.ModuleName}");
         var sockCommand = await DiscordGuild.CreateApplicationCommandAsync(bundle.BuiltCommand);
         //var restCommand = await PawsyProgram.RestClient.CreateGuildCommand(bundle.BuiltCommand, ID);
         GuildCommands.TryAdd(sockCommand.Id, bundle);
     }
+
+    public override string ToString()
+    {
+        return $"Guild:({ID})";
+    }
+
     private async Task OnThreadCreated(SocketThreadChannel channel)
     {
         if (channel.Guild.Id != ID)
@@ -412,5 +417,23 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                 await OnGuildMessageEdit(uMessage, gChannel);
             }
         }
+    }
+
+    public Task LogAppendContext(string source, object message, (object ContextName, object ContextValue)[] context)
+    {
+        //prepend ourselves to the source
+        source = $"{ToString()}->{source}";
+        //Pass it upstream
+        Pawsy.LogAppendContext(source, message, context);
+        return Task.CompletedTask;
+    }
+
+    public Task LogAppendLine(string source, object message)
+    {
+        //prepend ourselves to the source
+        source = $"{ToString()}->{source}";
+        //Pass it upstream
+        Pawsy.LogAppendLine(source, message);
+        return Task.CompletedTask;
     }
 }

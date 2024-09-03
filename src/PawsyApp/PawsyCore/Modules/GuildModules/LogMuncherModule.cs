@@ -88,7 +88,7 @@ internal class LogMuncherModule : GuildModule
         if (channel.Id != Settings.MunchingChannel)
             return;
 
-        await Owner.Pawsy.LogAppendLine(Name, "Checking for attachments");
+        await LogAppendLine("Checking for attachments");
 
         foreach (var item in message.Attachments)
         {
@@ -99,27 +99,27 @@ internal class LogMuncherModule : GuildModule
                 tasks.Add(GetResourceAsync(item.Url));
             }
 
-            //await Owner.Pawsy.LogAppendLine(Name, "Waiting for downloads...");
+            //await LogAppendLine("Waiting for downloads...");
             await Task.WhenAll(tasks);
-            //await Owner.Pawsy.LogAppendLine(Name, "done downloading");
+            //await LogAppendLine("done downloading");
 
             foreach (var data in tasks)
             {
                 if (data.Result is null)
                     continue;
 
-                await Owner.Pawsy.LogAppendLine(Name, "Muncher called");
+                await LogAppendLine("Muncher called");
 
                 StreamReader reader = new(new MemoryStream(Encoding.UTF8.GetBytes(data.Result)));
 
-                //await Owner.Pawsy.LogAppendLine(Name, "Making a new muncher");
+                //await LogAppendLine("Making a new muncher");
 
                 var munch = new LogMuncher(reader, null!, [], false, false);
 
-                //await Owner.Pawsy.LogAppendLine(Name, "Processing output");
+                //await LogAppendLine("Processing output");
                 var lines = await munch.MunchLog(true);
 
-                //await Owner.Pawsy.LogAppendLine(Name, "Sending results");
+                //await LogAppendLine("Sending results");
                 await message.Channel.SendMessageAsync("I see you posted a log file, let me find the most serious errors for you..");
 
                 var issues = lines.Take(2);
@@ -128,12 +128,12 @@ internal class LogMuncherModule : GuildModule
                 foreach (var thing in issues)
                 {
                     await Task.Delay(750);
-                    //await Owner.Pawsy.LogAppendLine(Name, "Sending a result");
+                    //await LogAppendLine("Sending a result");
                     await message.Channel.SendMessageAsync(thing.ToString(), flags: Discord.MessageFlags.SuppressEmbeds);
                     DidAny = true;
                 }
 
-                //await Owner.Pawsy.LogAppendLine(Name, "Done with results");
+                //await LogAppendLine("Done with results");
 
                 await Task.Delay(750);
                 if (DidAny)
@@ -146,7 +146,7 @@ internal class LogMuncherModule : GuildModule
                 }
 
 
-                //await Owner.Pawsy.LogAppendLine(Name, "Done!");
+                //await LogAppendLine("Done!");
             }
         }
     }
@@ -169,7 +169,7 @@ internal class LogMuncherModule : GuildModule
         catch (HttpRequestException)
         {
             // Handle any exceptions that occur during the request.
-            await Owner.Pawsy.LogAppendLine(Name, "Failed to fetch resource");
+            await LogAppendLine("Failed to fetch resource");
             return null;
         }
     }

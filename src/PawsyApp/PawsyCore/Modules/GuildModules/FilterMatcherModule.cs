@@ -19,7 +19,7 @@ internal class FilterMatcherModule : GuildModule
     {
         Settings = (this as ISettingsOwner).LoadSettings<FilterMatcherSettings>();
 
-        Owner.Pawsy.LogAppendContext(Name, "Filters loaded", [
+        LogAppendContext("Filters loaded", [
             ("Filter Count", Settings.RuleList.Count.ToString())
         ]);
     }
@@ -185,14 +185,14 @@ internal class FilterMatcherModule : GuildModule
         {
             if (gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568)
             {
-                await Owner.Pawsy.LogAppendLine(Name, "User is exempt from filters");
+                await LogAppendLine("User is exempt from filters");
                 return;
             }
         }
 
         if (LastDeletedMessage == message.Id)
         {
-            await Owner.Pawsy.LogAppendLine(Name, "Already deleted this one before..");
+            await LogAppendLine("Already deleted this one before..");
 
             using StreamWriter writer = new("Pawsy.Errors.log", true);
             writer.WriteLine("Pawsy tried to delete a message twice");
@@ -214,7 +214,7 @@ internal class FilterMatcherModule : GuildModule
                 {
                     if (channel.Guild.GetChannel(Settings.LoggingChannelID) is SocketTextChannel logChannel)
                     {
-                        tasks.Add(Owner.Pawsy.LogAppendLine(Name, "Filter is alerting staff about a message"));
+                        tasks.Add(LogAppendLine("Filter is alerting staff about a message"));
                         tasks.Add(SendMessageReport(logChannel, message, item));
                     }
 
@@ -223,14 +223,14 @@ internal class FilterMatcherModule : GuildModule
                 //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
                 if (item.SendResponse)
                 {
-                    tasks.Add(Owner.Pawsy.LogAppendLine(Name, "Filter responding to a message"));
+                    tasks.Add(LogAppendLine("Filter responding to a message"));
                     tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG));
                 }
 
                 if (item.DeleteMessage)
                 {
                     LastDeletedMessage = message.Id;
-                    tasks.Add(Owner.Pawsy.LogAppendLine(Name, "Filter is deleting a message"));
+                    tasks.Add(LogAppendLine("Filter is deleting a message"));
 
                     var m = await message.Channel.GetMessageAsync(message.Id);
                     tasks.Add(m.DeleteAsync());

@@ -43,4 +43,7 @@ internal abstract class GuildModule(Guild Owner, string name, bool declaresConfi
     {
         return command.RespondAsync("This module is not configurable or unavailable", ephemeral: true); ;
     }
+
+    public Task LogAppendContext(object message, (object ContextName, object ContextValue)[] context) => Owner.LogAppendContext(Name, message, context);
+    public Task LogAppendLine(object message) => Owner.LogAppendLine(Name, message);
 }

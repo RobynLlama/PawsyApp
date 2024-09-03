@@ -127,7 +127,7 @@ internal class ModderRoleCheckerModule : GuildModule
             }
         }
 
-        await Owner.Pawsy.LogAppendContext(Name, "Thread created", [
+        await LogAppendContext("Thread created", [
                 ("Owner", channel.Owner.DisplayName),
                 ("Needs Role", ownerNeedsRole),
                 ]);
