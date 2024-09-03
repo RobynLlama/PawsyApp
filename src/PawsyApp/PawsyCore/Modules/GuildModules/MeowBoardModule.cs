@@ -263,7 +263,7 @@ internal class MeowBoardModule : GuildModule
                 if (DateTime.Now > GameEndsAt)
                 {
                     //Reset
-                    NextGameAt = DateTime.Now.AddSeconds(85f);
+                    NextGameAt = DateTime.Now.AddSeconds(65f + (new Random().NextSingle() * 25));
                     GameActive = false;
 
                     //delete old message
