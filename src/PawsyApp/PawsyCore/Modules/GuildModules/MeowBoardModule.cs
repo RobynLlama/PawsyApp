@@ -14,24 +14,40 @@ internal class MeowBoardModule : GuildModule
 {
     protected MeowBoardSettings Settings;
     protected TreasureHunter TreasureGame;
+    private readonly Task UpdateLoop;
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
+    protected bool Enabled = false;
 
     public MeowBoardModule(Guild Owner) : base(Owner, "meow-board", true, true)
     {
         Settings = (this as ISettingsOwner).LoadSettings<MeowBoardSettings>();
         TreasureGame = new(this);
+        UpdateLoop = UpdateGameState();
+    }
+
+    private async Task UpdateGameState()
+    {
+        while (true)
+        {
+            await Task.Delay(2500);
+
+            if (Enabled)
+                TreasureGame.UpdateGamePhase();
+        };
     }
 
     public override void OnActivate()
     {
         Owner.OnGuildMessage += MessageCallback;
         Owner.OnGuildButtonClicked += ButtonCallback;
+        Enabled = true;
     }
 
     public override void OnDeactivate()
     {
         Owner.OnGuildMessage -= MessageCallback;
         Owner.OnGuildButtonClicked -= ButtonCallback;
+        Enabled = false;
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
@@ -364,10 +380,6 @@ internal class MeowBoardModule : GuildModule
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)
     {
-        lock (TreasureGame.LockRoot)
-            if (Settings.GameChannelID != 0)
-                TreasureGame.UpdateGamePhase();
-
         return Task.CompletedTask;
     }
 }
