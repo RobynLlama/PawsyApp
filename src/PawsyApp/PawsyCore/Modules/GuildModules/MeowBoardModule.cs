@@ -321,6 +321,14 @@ internal class MeowBoardModule : GuildModule
             var ID = component.User.Id;
             try
             {
+
+                if (component.Message.Id != gameMessage?.Id)
+                {
+                    await component.RespondAsync("You somehow found an old treasure I should have deleted. Thanks!", ephemeral: true);
+                    await component.Message.DeleteAsync();
+                    return;
+                }
+
                 if (TreasureHunters.Contains(ID))
                 {
                     await component.RespondAsync("You're still opening this treasure, be patient meow!", ephemeral: true);
