@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace PawsyApp.PawsyCore.Modules;
 
-internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>, IActivatable
+internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string, IGuildModule>, IActivatable
 {
     internal static string GetPersistPath(ulong guild)
     {
@@ -22,7 +22,8 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
     public string GetSettingsLocation() =>
     Path.Combine(GetPersistPath(ID), $"{Name}.json");
     public ulong ID { get => DiscordGuild.Id; }
-    public IEnumerable<IUnique<string>> UniqueCollection => Modules;
+    public IEnumerable<IGuildModule> UniqueCollection => Modules;
+    public bool Available = false;
 
     public SocketGuild DiscordGuild;
     public delegate Task GuildMessageHandler(SocketUserMessage message, SocketGuildChannel channel);
@@ -62,7 +63,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
     public void OnActivate()
     {
-        //Subscribe to events
+        /*
         Pawsy.SocketClient.MessageReceived += OnMessage;
         Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
         Pawsy.SocketClient.SlashCommandExecuted += OnSlashCommand;
@@ -70,12 +71,15 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         Pawsy.SocketClient.ModalSubmitted += OnModalSubmit;
         Pawsy.SocketClient.ButtonExecuted += OnButtonClicked;
         Pawsy.SocketClient.SelectMenuExecuted += OnMenuSelected;
+        */
 
         GuildCommandSetup();
+        Available = true;
     }
 
     public void OnDeactivate()
     {
+        /*
         Pawsy.SocketClient.MessageReceived -= OnMessage;
         Pawsy.SocketClient.MessageUpdated -= OnMessageEdit;
         Pawsy.SocketClient.SlashCommandExecuted -= OnSlashCommand;
@@ -83,6 +87,8 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         Pawsy.SocketClient.ModalSubmitted -= OnModalSubmit;
         Pawsy.SocketClient.ButtonExecuted -= OnButtonClicked;
         Pawsy.SocketClient.SelectMenuExecuted -= OnMenuSelected;
+        */
+        Available = false;
     }
 
     public void GuildCommandSetup()
@@ -267,12 +273,12 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
                     return;
                 }
 
-                var uItem = (this as IUniqueCollection<string>).GetUniqueItem(modName);
+                var uItem = (this as IUniqueCollection<string, IGuildModule>).GetUniqueItem(modName);
 
-                if (uItem is IGuildModule mItem)
-                    if (mItem.Name == modName)
+                if (uItem is not null)
+                    if (uItem.Name == modName)
                     {
-                        mItem.OnDeactivate();
+                        uItem.OnDeactivate();
                         Settings.EnabledModules.Remove(modName);
                         (Settings as ISettings).Save<GuildSettings>(this);
                         await command.RespondAsync($"{modName} disabled, meow!");
@@ -318,17 +324,14 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
         return $"Guild:({ID})";
     }
 
-    private async Task OnThreadCreated(SocketThreadChannel channel)
+    public async Task OnThreadCreated(SocketThreadChannel channel)
     {
-        if (channel.Guild.Id != ID)
-            return;
-
         if (OnGuildThreadCreated is not null)
         {
             await OnGuildThreadCreated(channel);
         }
     }
-    private async Task OnModalSubmit(SocketModal modal)
+    public async Task OnModalSubmit(SocketModal modal)
     {
         if (modal.GuildId != DiscordGuild.Id)
             return;
@@ -338,7 +341,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
             await OnGuildModalSubmit(modal);
         }
     }
-    private async Task OnButtonClicked(SocketMessageComponent component)
+    public async Task OnButtonClicked(SocketMessageComponent component)
     {
         if (component.GuildId != DiscordGuild.Id)
             return;
@@ -348,7 +351,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
             await OnGuildButtonClicked(component);
         }
     }
-    private async Task OnMenuSelected(SocketMessageComponent component)
+    public async Task OnMenuSelected(SocketMessageComponent component)
     {
         if (component.GuildId != DiscordGuild.Id)
             return;
@@ -358,14 +361,8 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
             await OnGuildMenuClicked(component);
         }
     }
-    private async Task OnSlashCommand(SocketSlashCommand command)
+    public async Task OnSlashCommand(SocketSlashCommand command)
     {
-        if (command.GuildId is not ulong guild)
-            return;
-
-        if (guild != ID)
-            return;
-
         if (Settings is null || !GuildCommands.TryGetValue(command.CommandId, out SlashCommandBundle bundle))
         {
             await command.RespondAsync("Sowwy, meow. That command is not available", ephemeral: true);
@@ -380,42 +377,29 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string>
 
         await command.RespondAsync($"Sowwy, meow :sob: The {bundle.ModuleName} module is disabled on this guild.", ephemeral: true);
     }
-    private async Task OnMessage(SocketMessage message)
+    public async Task OnMessage(SocketUserMessage message, SocketTextChannel channel)
     {
-        //Filter out bots, system and webhook message
-        if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
-            return;
-
-        if (message is SocketUserMessage uMessage)
+        if (OnGuildMessage is not null)
         {
-            //Guild messages
-            if (OnGuildMessage is not null && message.Channel is SocketGuildChannel gChannel && gChannel.Guild.Id == ID)
-                await OnGuildMessage(uMessage, gChannel);
+            await OnGuildMessage(message, channel);
         }
     }
 
-    private async Task OnMessageEdit(Cacheable<IMessage, ulong> cacheable, SocketMessage message, ISocketMessageChannel channel)
+    public async Task OnMessageEdit(Cacheable<IMessage, ulong> cacheable, SocketUserMessage message, SocketTextChannel channel)
     {
-        //Filter out bots, system and webhook message
-        if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
-            return;
-
-        if (message is SocketUserMessage uMessage)
+        //Guild messages
+        if (OnGuildMessageEdit is not null)
         {
-            //Guild messages
-            if (OnGuildMessageEdit is not null && message.Channel is SocketGuildChannel gChannel && gChannel.Guild.Id == ID)
-            {
-                /*
-                await WriteLog.Cutely("Pawsy heard an update", [
-                ("CacheID", cacheable.Id),
-                ("Cached", cacheable.HasValue),
-                ("Author", uMessage.Author),
-                ("Channel", gChannel.Guild.Name),
-                ]);
-                */
+            /*
+            await WriteLog.Cutely("Pawsy heard an update", [
+            ("CacheID", cacheable.Id),
+            ("Cached", cacheable.HasValue),
+            ("Author", uMessage.Author),
+            ("Channel", gChannel.Guild.Name),
+            ]);
+            */
 
-                await OnGuildMessageEdit(uMessage, gChannel);
-            }
+            await OnGuildMessageEdit(message, channel);
         }
     }
 
