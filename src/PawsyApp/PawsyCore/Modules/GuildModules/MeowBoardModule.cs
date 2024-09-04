@@ -263,7 +263,7 @@ internal class MeowBoardModule : GuildModule
                 if (DateTime.Now > GameEndsAt)
                 {
                     //Reset
-                    NextGameAt = DateTime.Now.AddSeconds(65f + (new Random().NextSingle() * 25));
+                    NextGameAt = DateTime.Now.AddSeconds(150f + (new Random().NextSingle() * 30));
                     GameActive = false;
 
                     //delete old message
@@ -285,12 +285,12 @@ internal class MeowBoardModule : GuildModule
 
                         if (FirstResponder == item)
                         {
-                            account.MeowMoney += 25;
+                            account.MeowMoney += 100;
                         }
                     }
 
                     (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
-                    await gameChannel.SendMessageAsync($"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+25)\n{Claimers}", allowedMentions: AllowedMentions.None);
+                    await gameChannel.SendMessageAsync($"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}", allowedMentions: AllowedMentions.None);
                 }
             }
             else
@@ -306,7 +306,7 @@ internal class MeowBoardModule : GuildModule
                     FirstResponder = 0;
                     gameMessage = await gameChannel.SendMessageAsync(TreasureMessages[currentLine], components: claimButton);
                     GameActive = true;
-                    GameEndsAt = DateTime.Now.AddSeconds(10f);
+                    GameEndsAt = DateTime.Now.AddSeconds(45f);
                 }
             }
         }
@@ -349,26 +349,26 @@ internal class MeowBoardModule : GuildModule
             if (number > 0.985f)
             {
                 Box = "🎖️🏦 Meow Treasure Horde 🏦🎖️";
-                TreasureAmount = 1000;
+                TreasureAmount = 2500;
             }
             else if (number > 0.94f)
             {
                 Box = "💰 Pile of Meow Money 💰";
-                TreasureAmount = 350;
+                TreasureAmount = 800;
             }
             else if (number > 0.78f)
             {
                 Box = "👛 Purse Full of Meows 👛";
-                TreasureAmount = 100;
+                TreasureAmount = 400;
             }
             else if (number > 0.28f)
             {
                 Box = "💷 Stack of Meow Bills 💷";
-                TreasureAmount = 25;
+                TreasureAmount = 100;
             }
             else
             {
-                TreasureAmount = 5;
+                TreasureAmount = 50;
             }
 
             return (Box, TreasureAmount);
