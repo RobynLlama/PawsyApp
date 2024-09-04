@@ -2,11 +2,11 @@ using System.Collections.Generic;
 
 namespace PawsyApp.PawsyCore;
 
-internal interface IUniqueCollection<T>
+internal interface IUniqueCollection<T, W> where W : class, IUnique<T>
 {
-    IEnumerable<IUnique<T>> UniqueCollection { get; }
+    IEnumerable<W> UniqueCollection { get; }
 
-    IUnique<T>? GetUniqueItem(T ID)
+    W? GetUniqueItem(T ID)
     {
         foreach (var item in UniqueCollection)
         {
@@ -17,8 +17,9 @@ internal interface IUniqueCollection<T>
         return null;
     }
 
-    bool UniqueContains(T ID)
+    bool TryGetUniqueItem(T ID, out W? item)
     {
-        return GetUniqueItem(ID) is not null;
+        item = GetUniqueItem(ID);
+        return item is not null;
     }
 }
