@@ -10,7 +10,7 @@
     <Product>PawsyApp</Product>
     <LangVersion>latest</LangVersion>
 
-    <Version>1.22.0</Version>
+    <Version>1.30.0</Version>
 
     <ProjectDepsFileName>$(Product).deps.json</ProjectDepsFileName>
     <RootNamespace>$(Product)</RootNamespace>
