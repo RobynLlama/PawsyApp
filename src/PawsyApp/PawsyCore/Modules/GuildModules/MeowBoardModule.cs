@@ -144,7 +144,7 @@ internal class MeowBoardModule : GuildModule
                 return EmbedMeowBoard(command);
             case "my-bank":
                 var acc = GetUserAccount(command.User.Id);
-                return command.RespondAsync($"Your balance is {acc.MeowMoney} Meows");
+                return command.RespondAsync($"Your balance is {acc.MeowMoney} Meows", ephemeral: true);
             default:
                 return command.RespondAsync("Something went wrong in MeowBoardHandler", ephemeral: true); ;
         }
@@ -266,10 +266,6 @@ internal class MeowBoardModule : GuildModule
                     NextGameAt = DateTime.Now.AddSeconds(150f + (new Random().NextSingle() * 30));
                     GameActive = false;
 
-                    //delete old message
-                    if (gameMessage is not null)
-                        await gameMessage.DeleteAsync();
-
                     if (TreasureHunters.IsEmpty)
                         return;
 
@@ -290,7 +286,11 @@ internal class MeowBoardModule : GuildModule
                     }
 
                     (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
-                    await gameChannel.SendMessageAsync($"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}", allowedMentions: AllowedMentions.None);
+
+                    //delete old message
+                    if (gameMessage is not null)
+                        await gameMessage.ModifyAsync(msg => { msg.Content = $"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}"; msg.Components = null; });
+
                 }
             }
             else
