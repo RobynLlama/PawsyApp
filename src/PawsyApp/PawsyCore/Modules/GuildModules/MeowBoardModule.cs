@@ -312,23 +312,32 @@ internal class MeowBoardModule : GuildModule
         }
         public async void AddClicker(SocketMessageComponent component)
         {
+            if (component.HasResponded)
+                return;
+
             var ID = component.User.Id;
-
-            if (TreasureHunters.Contains(ID))
+            try
             {
-                await component.RespondAsync("You're still opening this treasure, be patient meow!", ephemeral: true);
+                if (TreasureHunters.Contains(ID))
+                {
+                    await component.RespondAsync("You're still opening this treasure, be patient meow!", ephemeral: true);
+                }
+                else
+                {
+                    //First responders
+                    if (FirstResponder == 0)
+                        FirstResponder = ID;
+
+                    TreasureHunters.Add(ID);
+                    await component.RespondAsync("It may take up to a minute to open this treasure box, please wait.", ephemeral: true);
+                }
+
+                UpdateGamePhase();
             }
-            else
+            catch (Exception)
             {
-                //First responders
-                if (FirstResponder == 0)
-                    FirstResponder = ID;
-
-                TreasureHunters.Add(ID);
-                await component.RespondAsync("You're opening up this treasure, wait a few seconds to find out what it is!", ephemeral: true);
+                //Discard
             }
-
-            UpdateGamePhase();
         }
 
         protected static (string BoxType, ulong TreasureAmount) GetTreasureType()
@@ -366,16 +375,28 @@ internal class MeowBoardModule : GuildModule
         }
     }
 
-    private Task ButtonCallback(SocketMessageComponent component)
+    private async Task ButtonCallback(SocketMessageComponent component)
     {
+
         switch (component.Data.CustomId)
         {
             case "meow-board-claim-button":
-                TreasureGame.AddClicker(component);
-                return Task.CompletedTask;
+                {
+                    try
+                    {
+                        TreasureGame.AddClicker(component);
+                    }
+                    catch (Exception)
+                    {
+                        await LogAppendLine("Interaction failed");
+                    }
+
+                    return;
+                }
+
         }
 
-        return Task.CompletedTask;
+        return;
     }
 
     private Task MessageCallback(SocketUserMessage message, SocketGuildChannel channel)
