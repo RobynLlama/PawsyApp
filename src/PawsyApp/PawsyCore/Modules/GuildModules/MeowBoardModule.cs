@@ -266,12 +266,16 @@ internal class MeowBoardModule : GuildModule
                     NextGameAt = DateTime.Now.AddSeconds(150f + (new Random().NextSingle() * 30));
                     GameActive = false;
 
-                    if (TreasureHunters.IsEmpty)
-                        return;
-
                     string Claimers = "Claimed by:";
                     var (Box, TreasureValue) = GetTreasureType();
                     MeowBank account;
+
+                    if (TreasureHunters.IsEmpty)
+                    {
+                        if (gameMessage is not null)
+                            await gameMessage.ModifyAsync(msg => { msg.Content = $"{Box}\nWorth {TreasureValue} Meows\nNobody claimed it, meow.."; msg.Components = null; });
+                        return;
+                    }
 
                     foreach (var item in TreasureHunters)
                     {
@@ -287,7 +291,7 @@ internal class MeowBoardModule : GuildModule
 
                     (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
 
-                    //delete old message
+                    //Modify
                     if (gameMessage is not null)
                         await gameMessage.ModifyAsync(msg => { msg.Content = $"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}"; msg.Components = null; });
 
