@@ -355,31 +355,32 @@ internal class MeowBoardModule : GuildModule
         {
             var number = new Random().NextSingle();
             var Box = "🪙 Some Loose Change 🪙";
-            ulong TreasureAmount = 5;
+            ulong TreasureAmount = 50;
 
             if (number > 0.985f)
             {
                 Box = "🎖️🏦 Meow Treasure Horde 🏦🎖️";
                 TreasureAmount = 2500;
             }
-            else if (number > 0.94f)
+            else if (number > 0.90f)
             {
                 Box = "💰 Pile of Meow Money 💰";
-                TreasureAmount = 800;
+                TreasureAmount = 1000;
             }
-            else if (number > 0.78f)
+            else if (number > 0.75f)
+            {
+                Box = "💳 Robyn's Bank Card 💳";
+                TreasureAmount = 600;
+            }
+            else if (number > 0.55f)
             {
                 Box = "👛 Purse Full of Meows 👛";
-                TreasureAmount = 400;
+                TreasureAmount = 250;
             }
-            else if (number > 0.28f)
+            else if (number > 0.25f)
             {
                 Box = "💷 Stack of Meow Bills 💷";
                 TreasureAmount = 100;
-            }
-            else
-            {
-                TreasureAmount = 50;
             }
 
             return (Box, TreasureAmount);
