@@ -56,11 +56,15 @@ Configuration:
 
 ### Meow Board
 
-Pawsy will keep track of how many times each user says "Meow" and react to each message containing meow with an emote.
+Pawsy will peridiocally send a treasure hunt message to the specified channel and anyone that claims gains meows on the Meow Board.
 
 Use the `/meow-board display` command to view the top ranking meowers in your server
 
 Use the `/meow-board meow` command to have Pawsy meow for you
+
+Configuration:
+
+- *Game Channel* the channel Pawsy will send treasure hunts to
 
 ### Modder Role Checker
 
