@@ -255,62 +255,69 @@ internal class MeowBoardModule : GuildModule
 
         public async void UpdateGamePhase()
         {
-            if (Owner.Owner.DiscordGuild.GetChannel(Owner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
-                return;
-
-            if (GameActive)
+            try
             {
-                if (DateTime.Now > GameEndsAt)
+                if (Owner.Owner.DiscordGuild.GetChannel(Owner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
+                    return;
+
+                if (GameActive)
                 {
-
-                    if (TreasureHunters.IsEmpty)
+                    if (DateTime.Now > GameEndsAt)
                     {
-                        return;
-                    }
 
-                    //Reset
-                    NextGameAt = DateTime.Now.AddSeconds(150f + (new Random().NextSingle() * 30));
-                    GameActive = false;
-
-                    string Claimers = "Claimed by:";
-                    var (Box, TreasureValue) = GetTreasureType();
-                    MeowBank account;
-
-                    foreach (var item in TreasureHunters)
-                    {
-                        Claimers += $" <@{item}>";
-                        account = Owner.GetUserAccount(item);
-                        account.MeowMoney += TreasureValue;
-
-                        if (FirstResponder == item)
+                        if (TreasureHunters.IsEmpty)
                         {
-                            account.MeowMoney += 100;
+                            return;
                         }
+
+                        //Reset
+                        NextGameAt = DateTime.Now.AddSeconds(150f + (new Random().NextSingle() * 30));
+                        GameActive = false;
+
+                        string Claimers = "Claimed by:";
+                        var (Box, TreasureValue) = GetTreasureType();
+                        MeowBank account;
+
+                        foreach (var item in TreasureHunters)
+                        {
+                            Claimers += $" <@{item}>";
+                            account = Owner.GetUserAccount(item);
+                            account.MeowMoney += TreasureValue;
+
+                            if (FirstResponder == item)
+                            {
+                                account.MeowMoney += 100;
+                            }
+                        }
+
+                        (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
+
+                        //Modify
+                        if (gameMessage is not null)
+                            await gameMessage.ModifyAsync(msg => { msg.Content = $"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}"; msg.Components = null; });
+
                     }
+                }
+                else
+                {
+                    if (DateTime.Now > NextGameAt)
+                    {
 
-                    (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
+                        currentLine++;
+                        currentLine %= TreasureMessages.Length;
 
-                    //Modify
-                    if (gameMessage is not null)
-                        await gameMessage.ModifyAsync(msg => { msg.Content = $"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}"; msg.Components = null; });
-
+                        //Send the message and start the countdown
+                        TreasureHunters.Clear();
+                        FirstResponder = 0;
+                        gameMessage = await gameChannel.SendMessageAsync(TreasureMessages[currentLine], components: claimButton);
+                        GameActive = true;
+                        GameEndsAt = DateTime.Now.AddSeconds(45f);
+                    }
                 }
             }
-            else
+            catch (Exception)
             {
-                if (DateTime.Now > NextGameAt)
-                {
-
-                    currentLine++;
-                    currentLine %= TreasureMessages.Length;
-
-                    //Send the message and start the countdown
-                    TreasureHunters.Clear();
-                    FirstResponder = 0;
-                    gameMessage = await gameChannel.SendMessageAsync(TreasureMessages[currentLine], components: claimButton);
-                    GameActive = true;
-                    GameEndsAt = DateTime.Now.AddSeconds(45f);
-                }
+                await Owner.LogAppendLine("Unable to update game phase");
             }
         }
         public async void AddClicker(SocketMessageComponent component)
