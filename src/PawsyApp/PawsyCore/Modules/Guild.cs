@@ -63,31 +63,17 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
     public void OnActivate()
     {
-        /*
-        Pawsy.SocketClient.MessageReceived += OnMessage;
-        Pawsy.SocketClient.MessageUpdated += OnMessageEdit;
-        Pawsy.SocketClient.SlashCommandExecuted += OnSlashCommand;
-        Pawsy.SocketClient.ThreadCreated += OnThreadCreated;
-        Pawsy.SocketClient.ModalSubmitted += OnModalSubmit;
-        Pawsy.SocketClient.ButtonExecuted += OnButtonClicked;
-        Pawsy.SocketClient.SelectMenuExecuted += OnMenuSelected;
-        */
-
         GuildCommandSetup();
         Available = true;
     }
 
     public void OnDeactivate()
     {
-        /*
-        Pawsy.SocketClient.MessageReceived -= OnMessage;
-        Pawsy.SocketClient.MessageUpdated -= OnMessageEdit;
-        Pawsy.SocketClient.SlashCommandExecuted -= OnSlashCommand;
-        Pawsy.SocketClient.ThreadCreated -= OnThreadCreated;
-        Pawsy.SocketClient.ModalSubmitted -= OnModalSubmit;
-        Pawsy.SocketClient.ButtonExecuted -= OnButtonClicked;
-        Pawsy.SocketClient.SelectMenuExecuted -= OnMenuSelected;
-        */
+        foreach (var item in Modules)
+        {
+            item.OnDeactivate();
+        }
+
         Available = false;
     }
 
@@ -326,6 +312,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
     public async Task OnThreadCreated(SocketThreadChannel channel)
     {
+        if (!Available)
+            return;
+
         if (OnGuildThreadCreated is not null)
         {
             await OnGuildThreadCreated(channel);
@@ -333,7 +322,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     }
     public async Task OnModalSubmit(SocketModal modal)
     {
-        if (modal.GuildId != DiscordGuild.Id)
+        if (!Available)
             return;
 
         if (OnGuildModalSubmit is not null)
@@ -343,7 +332,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     }
     public async Task OnButtonClicked(SocketMessageComponent component)
     {
-        if (component.GuildId != DiscordGuild.Id)
+        if (!Available)
             return;
 
         if (OnGuildButtonClicked is not null)
@@ -353,7 +342,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     }
     public async Task OnMenuSelected(SocketMessageComponent component)
     {
-        if (component.GuildId != DiscordGuild.Id)
+        if (!Available)
             return;
 
         if (OnGuildMenuClicked is not null)
@@ -363,6 +352,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     }
     public async Task OnSlashCommand(SocketSlashCommand command)
     {
+        if (!Available)
+            return;
+
         if (Settings is null || !GuildCommands.TryGetValue(command.CommandId, out SlashCommandBundle bundle))
         {
             await command.RespondAsync("Sowwy, meow. That command is not available", ephemeral: true);
@@ -379,6 +371,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     }
     public async Task OnMessage(SocketUserMessage message, SocketTextChannel channel)
     {
+        if (!Available)
+            return;
+
         if (OnGuildMessage is not null)
         {
             await OnGuildMessage(message, channel);
@@ -387,6 +382,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
     public async Task OnMessageEdit(Cacheable<IMessage, ulong> cacheable, SocketUserMessage message, SocketTextChannel channel)
     {
+        if (!Available)
+            return;
+
         //Guild messages
         if (OnGuildMessageEdit is not null)
         {

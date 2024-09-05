@@ -251,7 +251,17 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         };
 
         var pGuild = AddOrGetGuild(guild);
-        pGuild.OnActivate();
+
+        if (pGuild.Available)
+        {
+            await LogAppendContext(Name, "ERROR: Activating Guild with existing hooks!", [
+                ("Guild", pGuild.DiscordGuild.Id)
+            ]);
+        }
+        else
+        {
+            pGuild.OnActivate();
+        }
 
         await Task.WhenAll(tasks);
         return;
