@@ -247,7 +247,7 @@ internal class FilterMatcherModule : GuildModule
     {
         Embed embed = new EmbedBuilder()
         .WithTitle("Detected message")
-        .WithDescription($"{message.Author}({message.Author.Id})\n\nLink: <@{message.Author.Id}>\nContents: {message.CleanContent}")
+        .WithDescription($"{message.Author}(<@{message.Author.Id}>)\nMessage ID:{message.Id}\nContents:\n\n{message.CleanContent}")
         .WithColor(violation.ColorR, violation.ColorG, violation.ColorB)
         .WithFooter($"Rule: {violation.RuleName}")
         .WithCurrentTimestamp()
