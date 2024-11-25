@@ -1,14 +1,21 @@
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
-using PawsyApp.PawsyCore.Modules.Settings;
 using System.Collections.Generic;
-using System;
 using System.Collections.Concurrent;
-using Discord.Rest;
 
-namespace PawsyApp.PawsyCore.Modules.GuildModules;
+using Discord;
+using Discord.Rest;
+using Discord.WebSocket;
+
+using PawsyApp.PawsyCore;
+using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.Settings;
+using PawsyApp.PawsyCore.Modules.GuildModules;
+
+using MeowBoard.Settings;
+
+namespace MeowBoard;
 
 internal class MeowBoardModule : GuildModule
 {

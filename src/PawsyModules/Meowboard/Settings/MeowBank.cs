@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace PawsyApp.PawsyCore.Modules.Settings;
+namespace MeowBoard.Settings;
 
 internal class MeowBank
 {
