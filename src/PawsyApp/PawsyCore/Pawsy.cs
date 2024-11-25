@@ -249,7 +249,7 @@ public class Pawsy
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        var pGuild = AddGuild(guild);
+        var pGuild = AddOrGetGuild(guild);
         pGuild.OnActivate();
 
         await Task.WhenAll(tasks);
@@ -274,10 +274,16 @@ public class Pawsy
         await Task.WhenAll(tasks);
     }
 
-    protected Guild AddGuild(SocketGuild guild)
+    protected Guild AddOrGetGuild(SocketGuild guild)
     {
         var ID = guild.Id;
-        LogAppendLine(Name, $"Creating Guild Instance for {ID}");
+        LogAppendLine(Name, $"Retrieving Guild Instance for {ID}");
+
+        if (Guilds.TryGetValue(ID, out var existingGuild))
+        {
+            return existingGuild;
+        }
+
         Guild newItem = new(guild, this);
         Guilds[ID] = newItem;
         return newItem;
