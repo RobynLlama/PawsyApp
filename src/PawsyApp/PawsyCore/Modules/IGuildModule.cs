@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PawsyApp.PawsyCore.Modules;
 
-internal interface IGuildModule : ISettingsOwner, IUnique<string>, IActivatable
+internal interface IGuildModule : ISettingsOwner, IActivatable
 {
     string Name { get; }
     bool ModuleDeclaresConfig { get; }
