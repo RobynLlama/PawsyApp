@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4EA9B06D-F9F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PawsyApp", "src\PawsyApp\PawsyApp.csproj", "{8EF4CA6B-8AFD-4151-8495-1E0FF803C79E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PawsyModules", "PawsyModules", "{440A979E-BD02-49A4-B4E1-BFB63E65385E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meowboard", "src\PawsyModules\Meowboard\Meowboard.csproj", "{EDC015D6-A49B-4EEE-AE55-8206E9B72506}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +21,18 @@ Global
 		{8EF4CA6B-8AFD-4151-8495-1E0FF803C79E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EF4CA6B-8AFD-4151-8495-1E0FF803C79E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EF4CA6B-8AFD-4151-8495-1E0FF803C79E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDC015D6-A49B-4EEE-AE55-8206E9B72506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDC015D6-A49B-4EEE-AE55-8206E9B72506}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDC015D6-A49B-4EEE-AE55-8206E9B72506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDC015D6-A49B-4EEE-AE55-8206E9B72506}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8EF4CA6B-8AFD-4151-8495-1E0FF803C79E} = {4EA9B06D-F9FE-4451-B3AF-C7E8DAE40127}
+		{440A979E-BD02-49A4-B4E1-BFB63E65385E} = {4EA9B06D-F9FE-4451-B3AF-C7E8DAE40127}
+		{EDC015D6-A49B-4EEE-AE55-8206E9B72506} = {440A979E-BD02-49A4-B4E1-BFB63E65385E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D15D5752-B95E-43C5-818D-420CD684DF4F}
