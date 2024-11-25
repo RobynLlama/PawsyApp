@@ -69,7 +69,7 @@ public class Guild : ISettingsOwner, IActivatable
         foreach (FileInfo fileInfo in modules.GetFiles("*.dll"))
         {
             // Pass the full path of each assembly to the module loader
-            LogAppendLine(Name, $"Loading: {fileInfo.FullName}");
+            LogAppendLine(Name, $"Loading: {fileInfo.Name}");
             var mod = ModuleLoader.LoadAndInstantiateModule(Assembly.LoadFrom(fileInfo.FullName), constructorArgs);
 
             if (mod is not null)
