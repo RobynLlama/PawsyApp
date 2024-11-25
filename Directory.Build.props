@@ -7,7 +7,6 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
 
     <PropertyGroup>

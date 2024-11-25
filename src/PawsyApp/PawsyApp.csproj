@@ -9,6 +9,7 @@
     <Description>Pawsy is a cute cat that helps moderate your Discord</Description>
     <Product>PawsyApp</Product>
     <LangVersion>latest</LangVersion>
+    <PublishSingleFile>true</PublishSingleFile>
 
     <Version>1.30.0</Version>
 
