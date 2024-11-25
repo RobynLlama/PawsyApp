@@ -4,11 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
 
-    <AssemblyName>PawsyApp.MeowboardModule</AssemblyName>
+    <AssemblyName>PawsyApp.FilterMatcherModule</AssemblyName>
     <Authors>Robyn</Authors>
-    <Description>The meowboard module is a silly game where Pawsy rewards players for clicking
-      buttons</Description>
-    <Product>Meowboard</Product>
+    <Description>A regex filter for Pawsy</Description>
+    <Product>FilterMatcher</Product>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
