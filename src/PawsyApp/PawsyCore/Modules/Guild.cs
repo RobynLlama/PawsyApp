@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using PawsyApp.PawsyCore.Modules.GuildModules;
 using System.Collections.Generic;
+using System;
 
 namespace PawsyApp.PawsyCore.Modules;
 
@@ -15,7 +16,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 {
     internal static string GetPersistPath(ulong guild)
     {
-        return Path.Combine(Pawsy.BaseConfigDir, guild.ToString());
+        return Path.Combine(PawsyCore.Pawsy.BaseConfigDir, guild.ToString());
     }
 
     public string Name { get; } = "guild-global";
@@ -37,7 +38,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     public event GuildModalHandler? OnGuildModalSubmit;
     public event GuildButtonHandler? OnGuildButtonClicked;
     public event GuildMenuHandler? OnGuildMenuClicked;
-    public readonly Pawsy Pawsy;
+    protected readonly WeakReference<Pawsy> Pawsy;
 
     protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
     protected readonly GuildSettings Settings;
@@ -46,9 +47,9 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     public Guild(SocketGuild guild, Pawsy pawsy)
     {
         DiscordGuild = guild;
-        Pawsy = pawsy;
+        Pawsy = new(pawsy);
 
-        DirectoryInfo storage = new(Path.Combine(Pawsy.BaseConfigDir, ID.ToString()));
+        DirectoryInfo storage = new(Path.Combine(PawsyCore.Pawsy.BaseConfigDir, ID.ToString()));
 
         if (!storage.Exists)
             storage.Create();
@@ -403,19 +404,25 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
     public Task LogAppendContext(string source, object message, (object ContextName, object ContextValue)[] context)
     {
+        if (!Pawsy.TryGetTarget(out var owner))
+            throw new Exception("Unable to access owner in Guild");
+
         //prepend ourselves to the source
         source = $"{ToString()}->{source}";
         //Pass it upstream
-        Pawsy.LogAppendContext(source, message, context);
+        owner.LogAppendContext(source, message, context);
         return Task.CompletedTask;
     }
 
     public Task LogAppendLine(string source, object message)
     {
+        if (!Pawsy.TryGetTarget(out var owner))
+            throw new Exception("Unable to access owner in Guild");
+
         //prepend ourselves to the source
         source = $"{ToString()}->{source}";
         //Pass it upstream
-        Pawsy.LogAppendLine(source, message);
+        owner.LogAppendLine(source, message);
         return Task.CompletedTask;
     }
 }
