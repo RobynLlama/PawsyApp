@@ -11,7 +11,7 @@ using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.PawsyCore;
 
-internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
+internal class Pawsy
 {
     protected readonly DiscordSocketClient SocketClient = new(new DiscordSocketConfig
     {
@@ -20,12 +20,11 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         AlwaysDownloadUsers = true,
         GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent | GatewayIntents.GuildMembers & ~GatewayIntents.GuildInvites & ~GatewayIntents.GuildScheduledEvents,
     });
-    public IEnumerable<Guild> UniqueCollection => Guilds;
     public ulong ID { get => PawsyID; }
     public string Name { get; } = "Pawsy";
     public static string BaseConfigDir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pawsy");
 
-    protected ConcurrentBag<Guild> Guilds = [];
+    protected ConcurrentDictionary<ulong, Guild> Guilds = [];
     private readonly String? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
     private readonly ulong PawsyID;
     private static ulong NextPawsyID = 0;
@@ -81,9 +80,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         //Find which guild it belongs to
         if (message is SocketUserMessage uMessage && message.Channel is SocketTextChannel tChannel)
         {
-            if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+            if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
             {
-                await guild.OnMessage(uMessage, tChannel);
+                await thisGuild.OnMessage(uMessage, tChannel);
             }
         }
     }
@@ -96,9 +95,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         //Find which guild it belongs to
         if (message is SocketUserMessage uMessage && message.Channel is SocketTextChannel tChannel)
         {
-            if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+            if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
             {
-                await guild.OnMessageEdit(cacheable, uMessage, tChannel);
+                await thisGuild.OnMessageEdit(cacheable, uMessage, tChannel);
             }
         }
     }
@@ -123,9 +122,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         }
 
         //Commands sent in a Guild
-        if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+        if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
         {
-            await guild.OnSlashCommand(command);
+            await thisGuild.OnSlashCommand(command);
             return;
         }
     }
@@ -135,9 +134,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         //Find which guild it belongs to
         if (channel is SocketTextChannel tChannel)
         {
-            if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+            if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
             {
-                await guild.OnThreadCreated(channel);
+                await thisGuild.OnThreadCreated(channel);
             }
         }
     }
@@ -147,9 +146,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         //Find which guild it belongs to
         if (modal.Channel is SocketTextChannel tChannel)
         {
-            if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+            if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
             {
-                await guild.OnModalSubmit(modal);
+                await thisGuild.OnModalSubmit(modal);
             }
         }
     }
@@ -159,9 +158,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         //Find which guild it belongs to
         if (component.Channel is SocketTextChannel tChannel)
         {
-            if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+            if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
             {
-                await guild.OnButtonClicked(component);
+                await thisGuild.OnButtonClicked(component);
             }
         }
     }
@@ -171,9 +170,9 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
         //Find which guild it belongs to
         if (component.Channel is SocketTextChannel tChannel)
         {
-            if ((this as IUniqueCollection<ulong, Guild>).GetUniqueItem(tChannel.Guild.Id) is Guild guild)
+            if (Guilds.TryGetValue(tChannel.Guild.Id, out var thisGuild))
             {
-                await guild.OnMenuSelected(component);
+                await thisGuild.OnMenuSelected(component);
             }
         }
     }
@@ -249,18 +248,8 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
             //guild.DeleteApplicationCommandsAsync()
         };
 
-        var pGuild = AddOrGetGuild(guild);
-
-        if (pGuild.Available)
-        {
-            await LogAppendContext(Name, "ERROR: Activating Guild with existing hooks!", [
-                ("Guild", pGuild.DiscordGuild.Id)
-            ]);
-        }
-        else
-        {
-            pGuild.OnActivate();
-        }
+        var pGuild = AddGuild(guild);
+        pGuild.OnActivate();
 
         await Task.WhenAll(tasks);
         return;
@@ -275,35 +264,22 @@ internal class Pawsy : IUniqueCollection<ulong, Guild>, IUnique<ulong>
             ]),
         };
 
-        var uGuild = (this as IUniqueCollection<ulong, Guild>).GetUniqueItem(guild.Id);
-
-        if (uGuild is Guild gGuild)
+        if (Guilds.TryGetValue(guild.Id, out var thisGuild))
         {
             tasks.Add(LogAppendLine(Name, "Removing Guild hooks"));
-            gGuild.OnDeactivate();
+            thisGuild.OnDeactivate();
         }
 
         await Task.WhenAll(tasks);
     }
 
-    protected Guild AddOrGetGuild(SocketGuild guild)
+    protected Guild AddGuild(SocketGuild guild)
     {
         var ID = guild.Id;
-        var item = (this as IUniqueCollection<ulong, Guild>).GetUniqueItem(ID);
-
-        if (item is null)
-        {
-            LogAppendLine(Name, $"Creating Guild Instance for {ID}");
-            Guild newItem = new(guild, this);
-            Guilds.Add(newItem);
-            return newItem;
-        }
-
-        if (item is Guild gItem)
-        {
-            LogAppendLine(Name, $"Returning Guild Instance for {ID}");
-            return gItem;
-        }
+        LogAppendLine(Name, $"Creating Guild Instance for {ID}");
+        Guild newItem = new(guild, this);
+        Guilds[ID] = newItem;
+        return newItem;
 
         throw new Exception($"Unreachable code in AddOrGetGuild. ID: {ID}");
     }
