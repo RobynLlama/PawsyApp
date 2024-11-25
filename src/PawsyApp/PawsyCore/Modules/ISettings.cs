@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace PawsyApp.PawsyCore.Modules.Settings;
+namespace PawsyApp.PawsyCore.Modules;
 
 public interface ISettings
 {

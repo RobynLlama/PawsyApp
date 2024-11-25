@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace PawsyApp.PawsyCore.Modules.Settings;
+namespace PawsyApp.PawsyCore.Modules;
 
 [method: JsonConstructor]
 public class GuildSettings() : ISettings

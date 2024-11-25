@@ -1,13 +1,10 @@
 using System.IO;
-using PawsyApp.PawsyCore.Modules.Settings;
 using System.Collections.Concurrent;
 using Discord.WebSocket;
 using System.Threading.Tasks;
 using Discord;
 using System.Linq;
 using System.Text;
-using PawsyApp.PawsyCore.Modules.GuildModules;
-using System.Collections.Generic;
 using System;
 using System.Reflection;
 

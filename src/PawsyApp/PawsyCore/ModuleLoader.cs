@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using System.Reflection;
 
 using PawsyApp.PawsyCore.Modules;
-using PawsyApp.PawsyCore.Modules.GuildModules;
 
 namespace PawsyApp.PawsyCore;
 public static class ModuleLoader

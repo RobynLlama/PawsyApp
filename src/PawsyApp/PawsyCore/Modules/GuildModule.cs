@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 
-namespace PawsyApp.PawsyCore.Modules.GuildModules;
+namespace PawsyApp.PawsyCore.Modules;
 
 public abstract class GuildModule(Guild Owner, string name, bool declaresConfig = false, bool declaresCommands = false) : IGuildModule
 {

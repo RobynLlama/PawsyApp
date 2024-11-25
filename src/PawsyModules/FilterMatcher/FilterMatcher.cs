@@ -10,8 +10,6 @@ using Discord.WebSocket;
 
 using PawsyApp.PawsyCore;
 using PawsyApp.PawsyCore.Modules;
-using PawsyApp.PawsyCore.Modules.GuildModules;
-using PawsyApp.PawsyCore.Modules.Settings;
 
 using FilterMatcher.Settings;
 

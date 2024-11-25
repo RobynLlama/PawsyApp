@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
-using PawsyApp.PawsyCore.Modules.Settings;
+
+using PawsyApp.PawsyCore.Modules;
 
 namespace FilterMatcher.Settings;
 

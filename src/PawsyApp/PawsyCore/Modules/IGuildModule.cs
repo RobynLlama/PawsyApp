@@ -1,6 +1,5 @@
 using Discord;
 using Discord.WebSocket;
-using PawsyApp.PawsyCore.Modules.Settings;
 using System.Threading.Tasks;
 
 namespace PawsyApp.PawsyCore.Modules;
