@@ -284,14 +284,14 @@ public class MeowBoardModule : GuildModule
 
                 if (GameActive)
                 {
+
+                    if (TreasureHunters.IsEmpty)
+                    {
+                        return;
+                    }
+
                     if (DateTime.Now > GameEndsAt)
                     {
-
-                        if (TreasureHunters.IsEmpty)
-                        {
-                            return;
-                        }
-
                         //Reset
                         NextGameAt = DateTime.Now.AddSeconds(150f + (new Random().NextSingle() * 30));
                         GameActive = false;
