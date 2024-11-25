@@ -38,16 +38,22 @@ internal class MeowBoardModule : GuildModule
 
     public override void OnActivate()
     {
-        Owner.OnGuildMessage += MessageCallback;
-        Owner.OnGuildButtonClicked += ButtonCallback;
-        Enabled = true;
+        if (Owner.TryGetTarget(out var owner))
+        {
+            owner.OnGuildMessage += MessageCallback;
+            owner.OnGuildButtonClicked += ButtonCallback;
+            Enabled = true;
+        }
     }
 
     public override void OnDeactivate()
     {
-        Owner.OnGuildMessage -= MessageCallback;
-        Owner.OnGuildButtonClicked -= ButtonCallback;
-        Enabled = false;
+        if (Owner.TryGetTarget(out var owner))
+        {
+            owner.OnGuildMessage -= MessageCallback;
+            owner.OnGuildButtonClicked -= ButtonCallback;
+            Enabled = false;
+        }
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
@@ -152,6 +158,10 @@ internal class MeowBoardModule : GuildModule
 
     private Task EmbedMeowBoard(SocketSlashCommand command)
     {
+
+        if (!Owner.TryGetTarget(out var owner))
+            throw new Exception("Owner is null in EmbedMeowBoard");
+
         EmbedBuilder builder = new();
         //WriteLog.Normally("MeowBoard being built");
 
@@ -183,7 +193,7 @@ internal class MeowBoardModule : GuildModule
             .WithDescription($"Meow Board top {Settings.MeowBoardDisplayLimit}")
             .WithTitle("Meow Board")
             .WithThumbnailUrl("https://raw.githubusercontent.com/RobynLlama/PawsyApp/main/Assets/img/Pawsy-small.png?version-2")
-            .WithFields(fields(top5, Owner.DiscordGuild))
+            .WithFields(fields(top5, owner.DiscordGuild))
             .WithUrl("https://github.com/RobynLlama/PawsyApp")
             .WithCurrentTimestamp();
 
@@ -255,9 +265,13 @@ internal class MeowBoardModule : GuildModule
 
         public async void UpdateGamePhase()
         {
+
+            if (!Owner.Owner.TryGetTarget(out var owner))
+                throw new("Owner doesn't real in UpdateGamePhase");
+
             try
             {
-                if (Owner.Owner.DiscordGuild.GetChannel(Owner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
+                if (owner.DiscordGuild.GetChannel(Owner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
                     return;
 
                 if (GameActive)

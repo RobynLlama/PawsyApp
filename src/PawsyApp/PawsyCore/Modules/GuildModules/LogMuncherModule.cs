@@ -29,12 +29,18 @@ internal class LogMuncherModule : GuildModule
 
     public override void OnActivate()
     {
-        Owner.OnGuildMessage += MessageResponse;
+        if (Owner.TryGetTarget(out var owner))
+        {
+            owner.OnGuildMessage += MessageResponse;
+        }
     }
 
     public override void OnDeactivate()
     {
-        Owner.OnGuildMessage -= MessageResponse;
+        if (Owner.TryGetTarget(out var owner))
+        {
+            owner.OnGuildMessage -= MessageResponse;
+        }
     }
 
     public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)

@@ -18,12 +18,14 @@ internal class ModderRoleCheckerModule : GuildModule
 
     public override void OnActivate()
     {
-        Owner.OnGuildThreadCreated += ThreadCreated;
+        if (Owner.TryGetTarget(out var owner))
+            owner.OnGuildThreadCreated += ThreadCreated;
     }
 
     public override void OnDeactivate()
     {
-        Owner.OnGuildThreadCreated -= ThreadCreated;
+        if (Owner.TryGetTarget(out var owner))
+            owner.OnGuildThreadCreated -= ThreadCreated;
     }
 
     public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)

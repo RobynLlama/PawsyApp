@@ -26,14 +26,20 @@ internal class FilterMatcherModule : GuildModule
 
     public override void OnActivate()
     {
-        Owner.OnGuildMessage += MessageCallBack;
-        Owner.OnGuildMessageEdit += MessageCallBack;
+        if (Owner.TryGetTarget(out var owner))
+        {
+            owner.OnGuildMessage += MessageCallBack;
+            owner.OnGuildMessageEdit += MessageCallBack;
+        }
     }
 
     public override void OnDeactivate()
     {
-        Owner.OnGuildMessage -= MessageCallBack;
-        Owner.OnGuildMessageEdit -= MessageCallBack;
+        if (Owner.TryGetTarget(out var owner))
+        {
+            owner.OnGuildMessage -= MessageCallBack;
+            owner.OnGuildMessageEdit -= MessageCallBack;
+        }
     }
 
     public override void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
