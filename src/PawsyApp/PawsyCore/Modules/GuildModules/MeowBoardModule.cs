@@ -236,7 +236,7 @@ internal class MeowBoardModule : GuildModule
 
     protected class TreasureHunter(MeowBoardModule Owner)
     {
-        protected MeowBoardModule Owner = Owner;
+        protected WeakReference<MeowBoardModule> Owner = new(Owner);
         protected ConcurrentBag<ulong> TreasureHunters = [];
         protected ulong FirstResponder = 0;
         protected bool GameActive = false;
@@ -265,13 +265,15 @@ internal class MeowBoardModule : GuildModule
 
         public async void UpdateGamePhase()
         {
+            if (!Owner.TryGetTarget(out var meowOwner))
+                throw new("MeowBoard doesn't real in UpdateGamePhase");
 
-            if (!Owner.Owner.TryGetTarget(out var owner))
+            if (!meowOwner.Owner.TryGetTarget(out var owner))
                 throw new("Owner doesn't real in UpdateGamePhase");
 
             try
             {
-                if (owner.DiscordGuild.GetChannel(Owner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
+                if (owner.DiscordGuild.GetChannel(meowOwner.Settings.GameChannelID) is not SocketTextChannel gameChannel)
                     return;
 
                 if (GameActive)
@@ -295,7 +297,7 @@ internal class MeowBoardModule : GuildModule
                         foreach (var item in TreasureHunters)
                         {
                             Claimers += $" <@{item}>";
-                            account = Owner.GetUserAccount(item);
+                            account = meowOwner.GetUserAccount(item);
                             account.MeowMoney += TreasureValue;
 
                             if (FirstResponder == item)
@@ -304,7 +306,7 @@ internal class MeowBoardModule : GuildModule
                             }
                         }
 
-                        (Owner.Settings as ISettings).Save<MeowBoardSettings>(Owner);
+                        (meowOwner.Settings as ISettings).Save<MeowBoardSettings>(meowOwner);
 
                         //Modify
                         if (gameMessage is not null)
@@ -331,7 +333,7 @@ internal class MeowBoardModule : GuildModule
             }
             catch (Exception)
             {
-                await Owner.LogAppendLine("Unable to update game phase");
+                await meowOwner.LogAppendLine("Unable to update game phase");
             }
         }
         public async void AddClicker(SocketMessageComponent component)
