@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
@@ -7,7 +8,7 @@ namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
 internal abstract class GuildModule(Guild Owner, string name, bool declaresConfig = false, bool declaresCommands = false) : IGuildModule
 {
-    public Guild Owner { get; } = Owner;
+    public WeakReference<Guild> Owner { get; } = new(Owner);
     public string Name { get => name; }
     public string ID => Name;
     public bool ModuleDeclaresConfig { get => declaresConfig; }
@@ -15,12 +16,12 @@ internal abstract class GuildModule(Guild Owner, string name, bool declaresConfi
 
     public string GetSettingsLocation()
     {
-        if (Owner is not null)
+        if (Owner.TryGetTarget(out var owner))
         {
-            return Path.Combine(Guild.GetPersistPath(Owner.ID), $"{Name}.json");
+            return Path.Combine(Guild.GetPersistPath(owner.ID), $"{Name}.json");
         }
 
-        throw new System.SystemException($"GuildSubmodule {Name} has no owner");
+        throw new Exception($"GuildSubmodule {Name} has no owner");
     }
 
     public virtual void OnActivate()
@@ -37,13 +38,25 @@ internal abstract class GuildModule(Guild Owner, string name, bool declaresConfi
     }
     public virtual SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
     {
-        throw new System.Exception("OnModuleDeclareCommands called without a matching body in module, panic!");
+        throw new Exception("OnModuleDeclareCommands called without a matching body in module, panic!");
     }
     public virtual Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
     {
         return command.RespondAsync("This module is not configurable or unavailable", ephemeral: true); ;
     }
 
-    public Task LogAppendContext(object message, (object ContextName, object ContextValue)[] context) => Owner.LogAppendContext(Name, message, context);
-    public Task LogAppendLine(object message) => Owner.LogAppendLine(Name, message);
+    public Task LogAppendContext(object message, (object ContextName, object ContextValue)[] context)
+    {
+        if (Owner.TryGetTarget(out var owner))
+            return owner.LogAppendContext(Name, message, context);
+
+        throw new Exception("Guild does not have an owner in LogAppendContext");
+    }
+    public Task LogAppendLine(object message)
+    {
+        if (Owner.TryGetTarget(out var owner))
+            return owner.LogAppendLine(Name, message);
+
+        throw new Exception("Guild does not have an owner in LogAppendLine");
+    }
 }

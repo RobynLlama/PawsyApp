@@ -7,7 +7,6 @@ namespace PawsyApp.PawsyCore.Modules;
 
 internal interface IGuildModule : ISettingsOwner, IUnique<string>, IActivatable
 {
-    Guild Owner { get; }
     string Name { get; }
     bool ModuleDeclaresConfig { get; }
     bool ModuleDeclaresCommands { get; }
