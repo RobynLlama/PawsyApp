@@ -1,15 +1,22 @@
-using PawsyApp.PawsyCore.Modules.Settings;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using Discord.WebSocket;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.IO;
-using MuncherLib.Muncher;
 using System.Linq;
-using Discord;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace PawsyApp.PawsyCore.Modules.GuildModules;
+using Discord;
+using Discord.WebSocket;
+
+using MuncherLib.Muncher;
+
+using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.GuildModules;
+using PawsyApp.PawsyCore.Modules.Settings;
+
+using MuncherModule.Settings;
+
+namespace MuncherModule;
 
 internal class LogMuncherModule : GuildModule
 {

@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>PawsyApp.MuncherModule</AssemblyName>
+    <Authors>Robyn</Authors>
+    <Description>Tries to read unity log files</Description>
+    <Product>MuncherModule</Product>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../PawsyApp/PawsyApp.csproj" />
+    <PackageReference Include="Discord.Net" Version="3.15.3" />
+    <ProjectReference Include="../../../Submodules/LogMuncher/src/MuncherLib/MuncherLib.csproj" />
+  </ItemGroup>
+
+  <Import Project="$(SolutionDir)Module.Build.user.props"
+    Condition="Exists('$(SolutionDir)Module.Build.user.props')" />
+
+  <Target Name="PostBuildCopy" AfterTargets="Build">
+    <!-- Copy muncher lib to the Modules directory -->
+    <Copy
+      SourceFiles="$(OutputPath)MuncherLib.dll"
+      DestinationFolder="$(ModulesDir)"
+      Condition="Exists('$(OutputPath)MuncherLib.dll')" />
+  </Target>
+
+</Project>
