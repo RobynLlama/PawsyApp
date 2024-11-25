@@ -12,7 +12,7 @@ using System;
 
 namespace PawsyApp.PawsyCore.Modules;
 
-internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string, IGuildModule>, IActivatable
+internal class Guild : ISettingsOwner, IActivatable
 {
     internal static string GetPersistPath(ulong guild)
     {
@@ -23,7 +23,6 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
     public string GetSettingsLocation() =>
     Path.Combine(GetPersistPath(ID), $"{Name}.json");
     public ulong ID { get => DiscordGuild.Id; }
-    public IEnumerable<IGuildModule> UniqueCollection => Modules;
     public bool Available = false;
 
     public SocketGuild DiscordGuild;
@@ -42,7 +41,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
     protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
     protected readonly GuildSettings Settings;
-    protected readonly ConcurrentBag<IGuildModule> Modules = [];
+    protected readonly ConcurrentDictionary<string, IGuildModule> Modules = [];
 
     public Guild(SocketGuild guild, Pawsy pawsy)
     {
@@ -56,10 +55,14 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
         Settings = (this as ISettingsOwner).LoadSettings<GuildSettings>();
 
-        Modules.Add(new MeowBoardModule(this));
-        Modules.Add(new LogMuncherModule(this));
-        Modules.Add(new FilterMatcherModule(this));
-        Modules.Add(new ModderRoleCheckerModule(this));
+        AddModule(new MeowBoardModule(this));
+        AddModule(new LogMuncherModule(this));
+        AddModule(new FilterMatcherModule(this));
+        AddModule(new ModderRoleCheckerModule(this));
+    }
+    protected void AddModule(IGuildModule module)
+    {
+        Modules[module.Name] = module;
     }
 
     public void OnActivate()
@@ -70,7 +73,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
     public void OnDeactivate()
     {
-        foreach (var item in Modules)
+        foreach (var item in Modules.Values)
         {
             item.OnDeactivate();
         }
@@ -122,7 +125,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
         .WithDescription("Configure Pawsy's modules")
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild);
 
-        foreach (var item in Modules)
+        foreach (var item in Modules.Values)
         {
 
             optionAdd.AddChoice(item.Name, item.Name);
@@ -186,7 +189,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
         IGuildModule? module = null;
 
-        foreach (var item in Modules)
+        foreach (var item in Modules.Values)
         {
             if (item.Name == modName)
             {
@@ -233,7 +236,7 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
 
                 bool EnabledAnything = false;
 
-                foreach (var item in Modules)
+                foreach (var item in Modules.Values)
                 {
                     if (item.Name == modName)
                     {
@@ -260,24 +263,21 @@ internal class Guild : IUnique<ulong>, ISettingsOwner, IUniqueCollection<string,
                     return;
                 }
 
-                var uItem = (this as IUniqueCollection<string, IGuildModule>).GetUniqueItem(modName);
-
-                if (uItem is not null)
-                    if (uItem.Name == modName)
-                    {
-                        uItem.OnDeactivate();
-                        Settings.EnabledModules.Remove(modName);
-                        (Settings as ISettings).Save<GuildSettings>(this);
-                        await command.RespondAsync($"{modName} disabled, meow!");
-                        return;
-                    }
-
-                await command.RespondAsync("Error: module is in the active list but does not exist.", ephemeral: true);
+                if (Modules.TryGetValue(modName, out var uItem))
+                {
+                    uItem.OnDeactivate();
+                    Settings.EnabledModules.Remove(modName);
+                    (Settings as ISettings).Save<GuildSettings>(this);
+                    await command.RespondAsync($"{modName} disabled, meow!");
+                    return;
+                }
+                else
+                    await command.RespondAsync("Error: module is in the active list but does not exist.", ephemeral: true);
                 return;
             case "list":
                 StringBuilder sb = new("All Modules:\n");
 
-                foreach (var item in Modules)
+                foreach (var item in Modules.Values)
                 {
                     var enabled = Settings.EnabledModules.Contains(item.Name);
 
