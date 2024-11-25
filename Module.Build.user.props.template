@@ -1,0 +1,26 @@
+<Project>
+    <PropertyGroup>
+        <!-- 
+          Modules directory is under your system's local data folder
+          Linux: ~/.config/Pawsy/Modules
+          Windows %appdata%/Pawsy/Modules (?)
+            - This should be under AppdataRoaming
+            see: https://learn.microsoft.com/en-us/dotnet/api/system.environment.specialfolder?view=net-8.0
+
+          Copy this file to Module.Build.user.props and modify the ModulesDir
+         -->
+        <ModulesDir>full/path/to/modules/directory</ModulesDir>
+        <FinalAssemblyName>$(AssemblyName).dll</FinalAssemblyName>
+    </PropertyGroup>
+
+    <Target Name="PostBuildCopy" AfterTargets="Build">
+        <!-- Ensure the Modules directory exists -->
+        <MakeDir Directories="$(ModulesDir)" />
+
+        <!-- Copy the final assembly to the Modules directory -->
+        <Copy
+            SourceFiles="$(OutputPath)$(FinalAssemblyName)"
+            DestinationFolder="$(ModulesDir)"
+            Condition="Exists('$(OutputPath)$(FinalAssemblyName)')" />
+    </Target>
+</Project>
