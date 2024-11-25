@@ -73,11 +73,6 @@
           "Discord.Net.Rest": "3.15.3"
         }
       },
-      "Markdig": {
-        "type": "Transitive",
-        "resolved": "0.37.0",
-        "contentHash": "biiu4MTPFjW55qw6v5Aphtj0MjDLJ14x8ndZwkJUHIeqvaSGKeqhLY7S7Vu/S3k7/c9KwhhnaCDP9hdFNUhcNA=="
-      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "6.0.0",
@@ -215,21 +210,10 @@
         "resolved": "4.5.0",
         "contentHash": "okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ=="
       },
-      "dev.mamallama.checkrunnerlib": {
-        "type": "Project"
-      },
-      "muncherlib": {
-        "type": "Project",
-        "dependencies": {
-          "Markdig": "[0.37.0, )",
-          "dev.mamallama.checkrunnerlib": "[2.1.0, )"
-        }
-      },
       "pawsyapp": {
         "type": "Project",
         "dependencies": {
           "Discord.Net": "[3.15.3, )",
-          "MuncherLib": "[3.2.1, )",
           "OpenAI": "[1.11.0, )"
         }
       }
