@@ -1,15 +1,23 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Discord;
 using Discord.WebSocket;
+
+using PawsyApp.PawsyCore;
+using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.GuildModules;
 using PawsyApp.PawsyCore.Modules.Settings;
 
-namespace PawsyApp.PawsyCore.Modules.GuildModules;
+using FilterMatcher.Settings;
 
+namespace FilterMatcher;
+
+[PawsyModule]
 internal class FilterMatcherModule : GuildModule
 {
     protected FilterMatcherSettings Settings;

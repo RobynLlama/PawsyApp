@@ -1,4 +1,4 @@
-namespace PawsyApp.PawsyCore.Modules.Settings;
+namespace FilterMatcher.Settings;
 
 public enum FilterType
 {

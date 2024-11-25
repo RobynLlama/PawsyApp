@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
 
-namespace PawsyApp.PawsyCore.Modules.Settings;
+namespace FilterMatcher.Settings;
 
 //new( new("""smelly""", RegexOptions.IgnoreCase | RegexOptions.Compiled, new(0, 0, 1)), "Test Rule")
 public class RuleBundle
