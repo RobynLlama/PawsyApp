@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>PawsyApp.ModderRoleChecker</AssemblyName>
+    <Authors>Robyn</Authors>
+    <Description>Checks users for a specific role for Pawsy</Description>
+    <Product>ModderRoleChecker</Product>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../PawsyApp/PawsyApp.csproj" />
+    <PackageReference Include="Discord.Net" Version="3.15.3" />
+  </ItemGroup>
+
+  <Import Project="$(SolutionDir)Module.Build.user.props"
+    Condition="Exists('$(SolutionDir)Module.Build.user.props')" />
+
+</Project>

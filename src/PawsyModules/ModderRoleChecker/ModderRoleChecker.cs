@@ -1,12 +1,19 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 using Discord;
 using Discord.WebSocket;
+
+using PawsyApp.PawsyCore.Modules;
+using PawsyApp.PawsyCore.Modules.GuildModules;
 using PawsyApp.PawsyCore.Modules.Settings;
 
-namespace PawsyApp.PawsyCore.Modules.GuildModules;
+using ModderRoleChecker.Settings;
 
+namespace ModderRoleChecker;
+
+[PawsyModule]
 internal class ModderRoleCheckerModule : GuildModule
 {
     protected ModderRoleCheckerSettings Settings;
