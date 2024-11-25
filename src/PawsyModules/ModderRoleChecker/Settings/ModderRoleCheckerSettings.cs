@@ -4,7 +4,7 @@ using PawsyApp.PawsyCore.Modules.Settings;
 namespace ModderRoleChecker.Settings;
 
 [method: JsonConstructor]
-internal class ModderRoleCheckerSettings() : ISettings
+public class ModderRoleCheckerSettings() : ISettings
 {
     [JsonInclude]
     public ulong ModdingChannel { get; set; } = 0;

@@ -4,7 +4,7 @@ using PawsyApp.PawsyCore.Modules.Settings;
 
 namespace FilterMatcher.Settings;
 
-internal class FilterMatcherSettings() : ISettings
+public class FilterMatcherSettings() : ISettings
 {
     [JsonInclude]
     internal ConcurrentDictionary<long, RuleBundle> RuleList { get; set; } = [];

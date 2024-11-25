@@ -4,7 +4,7 @@ using PawsyApp.PawsyCore.Modules.Settings;
 
 namespace MeowBoard.Settings;
 
-internal class MeowBoardSettings() : ISettings
+public class MeowBoardSettings() : ISettings
 {
     [JsonInclude]
     internal ConcurrentDictionary<ulong, MeowBank> Records { get; set; } = [];

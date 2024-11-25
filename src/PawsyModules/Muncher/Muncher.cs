@@ -18,7 +18,7 @@ using MuncherModule.Settings;
 
 namespace MuncherModule;
 
-internal class LogMuncherModule : GuildModule
+public class LogMuncherModule : GuildModule
 {
     protected LogMuncherSettings Settings;
     protected static bool RulesInit = false;

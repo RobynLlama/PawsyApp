@@ -18,7 +18,7 @@ using FilterMatcher.Settings;
 namespace FilterMatcher;
 
 [PawsyModule]
-internal class FilterMatcherModule : GuildModule
+public class FilterMatcherModule : GuildModule
 {
     protected FilterMatcherSettings Settings;
     protected ulong LastDeletedMessage = 0;

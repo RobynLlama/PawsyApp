@@ -14,7 +14,7 @@ using ModderRoleChecker.Settings;
 namespace ModderRoleChecker;
 
 [PawsyModule]
-internal class ModderRoleCheckerModule : GuildModule
+public class ModderRoleCheckerModule : GuildModule
 {
     protected ModderRoleCheckerSettings Settings;
 

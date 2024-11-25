@@ -18,7 +18,7 @@ using MeowBoard.Settings;
 namespace MeowBoard;
 
 [PawsyModule]
-internal class MeowBoardModule : GuildModule
+public class MeowBoardModule : GuildModule
 {
     protected MeowBoardSettings Settings;
     protected TreasureHunter TreasureGame;
