@@ -9,6 +9,7 @@ using System.Text;
 using PawsyApp.PawsyCore.Modules.GuildModules;
 using System.Collections.Generic;
 using System;
+using System.Reflection;
 
 namespace PawsyApp.PawsyCore.Modules;
 
@@ -55,14 +56,28 @@ public class Guild : ISettingsOwner, IActivatable
 
         Settings = (this as ISettingsOwner).LoadSettings<GuildSettings>();
 
-        AddModule(new MeowBoardModule(this));
-        AddModule(new LogMuncherModule(this));
-        AddModule(new FilterMatcherModule(this));
-        AddModule(new ModderRoleCheckerModule(this));
+        SetupModules();
     }
     protected void AddModule(IGuildModule module)
     {
         Modules[module.Name] = module;
+    }
+
+    protected void SetupModules()
+    {
+
+        DirectoryInfo modules = new(PawsyCore.Pawsy.BaseModuleDir);
+        object[] constructorArgs = [this];  // Example constructor arguments
+
+        foreach (FileInfo fileInfo in modules.GetFiles("*.dll"))
+        {
+            // Pass the full path of each assembly to the module loader
+            LogAppendLine(Name, $"Loading: {fileInfo.FullName}");
+            var mod = ModuleLoader.LoadAndInstantiateModule(Assembly.LoadFrom(fileInfo.FullName), constructorArgs);
+
+            if (mod is not null)
+                AddModule(mod);
+        }
     }
 
     public void OnActivate()
