@@ -18,6 +18,7 @@ using MuncherModule.Settings;
 
 namespace MuncherModule;
 
+[PawsyModule]
 public class LogMuncherModule : GuildModule
 {
     protected LogMuncherSettings Settings;

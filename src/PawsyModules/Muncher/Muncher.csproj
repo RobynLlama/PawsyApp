@@ -17,15 +17,19 @@
     <ProjectReference Include="../../../Submodules/LogMuncher/src/MuncherLib/MuncherLib.csproj" />
   </ItemGroup>
 
-  <Import Project="$(SolutionDir)Module.Build.user.props"
-    Condition="Exists('$(SolutionDir)Module.Build.user.props')" />
-
-  <Target Name="PostBuildCopy" AfterTargets="Build">
+  <Target Name="PostBuildCopy_Libs" AfterTargets="Build">
     <!-- Copy muncher lib to the Modules directory -->
     <Copy
       SourceFiles="$(OutputPath)MuncherLib.dll"
       DestinationFolder="$(ModulesDir)"
       Condition="Exists('$(OutputPath)MuncherLib.dll')" />
+    <Copy
+      SourceFiles="$(OutputPath)dev.mamallama.checkrunnerlib.dll"
+      DestinationFolder="$(ModulesDir)"
+      Condition="Exists('$(OutputPath)dev.mamallama.checkrunnerlib.dll')" />
   </Target>
+
+  <Import Project="$(SolutionDir)Module.Build.user.props"
+    Condition="Exists('$(SolutionDir)Module.Build.user.props')" />
 
 </Project>
