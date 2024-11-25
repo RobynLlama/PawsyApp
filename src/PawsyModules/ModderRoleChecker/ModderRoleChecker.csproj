@@ -9,6 +9,8 @@
     <Description>Checks users for a specific role for Pawsy</Description>
     <Product>ModderRoleChecker</Product>
     <LangVersion>latest</LangVersion>
+
+    <Version>1.30.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

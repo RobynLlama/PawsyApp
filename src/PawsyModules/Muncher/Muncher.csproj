@@ -9,6 +9,8 @@
     <Description>Tries to read unity log files</Description>
     <Product>MuncherModule</Product>
     <LangVersion>latest</LangVersion>
+
+    <Version>1.30.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,6 +9,8 @@
     <Description>A regex filter for Pawsy</Description>
     <Product>FilterMatcher</Product>
     <LangVersion>latest</LangVersion>
+
+    <Version>1.30.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
