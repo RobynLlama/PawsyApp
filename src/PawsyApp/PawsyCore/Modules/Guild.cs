@@ -12,7 +12,7 @@ using System;
 
 namespace PawsyApp.PawsyCore.Modules;
 
-internal class Guild : ISettingsOwner, IActivatable
+public class Guild : ISettingsOwner, IActivatable
 {
     internal static string GetPersistPath(ulong guild)
     {

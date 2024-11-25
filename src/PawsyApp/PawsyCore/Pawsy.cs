@@ -11,7 +11,7 @@ using PawsyApp.PawsyCore.Modules;
 
 namespace PawsyApp.PawsyCore;
 
-internal class Pawsy
+public class Pawsy
 {
     protected readonly DiscordSocketClient SocketClient = new(new DiscordSocketConfig
     {

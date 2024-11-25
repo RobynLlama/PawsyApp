@@ -6,7 +6,7 @@ using Discord.WebSocket;
 
 namespace PawsyApp.PawsyCore.Modules.GuildModules;
 
-internal abstract class GuildModule(Guild Owner, string name, bool declaresConfig = false, bool declaresCommands = false) : IGuildModule
+public abstract class GuildModule(Guild Owner, string name, bool declaresConfig = false, bool declaresCommands = false) : IGuildModule
 {
     public WeakReference<Guild> Owner { get; } = new(Owner);
     public string Name { get => name; }
