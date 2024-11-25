@@ -17,6 +17,7 @@ using MeowBoard.Settings;
 
 namespace MeowBoard;
 
+[PawsyModule]
 internal class MeowBoardModule : GuildModule
 {
     protected MeowBoardSettings Settings;
