@@ -4,7 +4,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using Discord.WebSocket;
-using Discord.Rest;
 using Discord;
 using System.Threading.Tasks;
 using PawsyApp.KittyColors;
