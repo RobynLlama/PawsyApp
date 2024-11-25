@@ -25,7 +25,7 @@ internal class Pawsy
     public static string BaseConfigDir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pawsy");
 
     protected ConcurrentDictionary<ulong, Guild> Guilds = [];
-    private readonly String? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
+    private readonly string? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
     private readonly ulong PawsyID;
     private static ulong NextPawsyID = 0;
 
