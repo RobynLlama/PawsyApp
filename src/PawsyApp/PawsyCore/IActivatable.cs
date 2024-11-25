@@ -1,6 +1,6 @@
 namespace PawsyApp.PawsyCore;
 
-internal interface IActivatable
+public interface IActivatable
 {
     public void OnActivate();
     public void OnDeactivate();

@@ -2,7 +2,7 @@ using System.IO;
 using System.Text.Json;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
-internal interface ISettingsOwner
+public interface ISettingsOwner
 {
     string GetSettingsLocation();
 

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace PawsyApp.PawsyCore.Modules.Settings;
 
-internal interface ISettings
+public interface ISettings
 {
     internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
     void Save<T>(ISettingsOwner owner) where T : class
