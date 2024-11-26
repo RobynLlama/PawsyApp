@@ -17,7 +17,7 @@ Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives 
 - Filter Matcher*
 - Log Muncher
 - Meow Board
-- Modder Role Checker
+- Forum Role Checker
 
 \* Not fully configurable
 
@@ -66,12 +66,17 @@ Configuration:
 
 - *Game Channel* the channel Pawsy will send treasure hunts to
 
-### Modder Role Checker
+### Forum Role Checker
 
 This feature is tailor made for the Lethal Company Modding server. Pawsy will notify staff when a new thread is made in a specific forum and the user does *not* have a specific role.
 
 Configuration:
 
-- *Modding Channel* The channel to check for new threads
 - *Alert Channel* The channel to send alerts to staff in
-- *Modding Role ID* The role to look for on each new post
+
+#### Commands
+
+- `forum-role-checker` `add-watch-channel`
+  - Used to add a specific forum channel and role combo to the watch list. Pawsy will alert you when somebody posts in this forum and doesn't have the role you select. Uses handy drop-down selectors to make setting up really easy!
+- `forum-role-checker` `remove-watch-channel`
+  - Removes a channel from the watch list. Make absolutely sure you do not delete channels that Pawsy is watching or they will be stuck on the list since this uses a handy drop-down selector that only shows existing channels!
