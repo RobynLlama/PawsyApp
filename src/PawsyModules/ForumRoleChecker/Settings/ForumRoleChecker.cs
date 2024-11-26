@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
 using PawsyApp.PawsyCore.Modules;
 
@@ -7,7 +8,6 @@ namespace ForumRoleChecker.Settings;
 public class ForumRoleCheckerSettings() : ISettings
 {
     [JsonInclude]
-    public ulong ModdingChannel { get; set; } = 0;
+    public ConcurrentDictionary<ulong, ulong> WatchList = [];
     public ulong AlertChannel { get; set; } = 0;
-    public ulong ModderRoleID { get; set; } = 0;
 }
