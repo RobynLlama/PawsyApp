@@ -4,13 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
 
-    <AssemblyName>PawsyApp.ModderRoleChecker</AssemblyName>
     <Authors>Robyn</Authors>
-    <Description>Checks users for a specific role for Pawsy</Description>
-    <Product>ModderRoleChecker</Product>
+    <Description>Checks users as they post in a forum channel for a specific Role</Description>
+    <Product>ForumRoleChecker</Product>
+    <AssemblyName>PawsyApp.$(Product)</AssemblyName>
     <LangVersion>latest</LangVersion>
 
-    <Version>1.30.0</Version>
+    <Version>1.4.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

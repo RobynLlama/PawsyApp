@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 using PawsyApp.PawsyCore.Modules;
 
-namespace ModderRoleChecker.Settings;
+namespace ForumRoleChecker.Settings;
 
 [method: JsonConstructor]
-public class ModderRoleCheckerSettings() : ISettings
+public class ForumRoleCheckerSettings() : ISettings
 {
     [JsonInclude]
     public ulong ModdingChannel { get; set; } = 0;

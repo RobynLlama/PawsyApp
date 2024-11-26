@@ -7,18 +7,18 @@ using Discord.WebSocket;
 
 using PawsyApp.PawsyCore.Modules;
 
-using ModderRoleChecker.Settings;
+using ForumRoleChecker.Settings;
 
-namespace ModderRoleChecker;
+namespace ForumRoleChecker;
 
 [PawsyModule]
-public class ModderRoleCheckerModule : GuildModule
+public class ForumRoleCheckerModule : GuildModule
 {
-    protected ModderRoleCheckerSettings Settings;
+    protected ForumRoleCheckerSettings Settings;
 
-    public ModderRoleCheckerModule(Guild Owner) : base(Owner, "modder-role", declaresConfig: true)
+    public ForumRoleCheckerModule(Guild Owner) : base(Owner, "forum-role-checker", declaresConfig: true)
     {
-        Settings = (this as ISettingsOwner).LoadSettings<ModderRoleCheckerSettings>();
+        Settings = (this as ISettingsOwner).LoadSettings<ForumRoleCheckerSettings>();
     }
 
     public override void OnActivate()
@@ -77,7 +77,7 @@ public class ModderRoleCheckerModule : GuildModule
                     }
 
                     Settings.AlertChannel = alertChannel.Id;
-                    (Settings as ISettings).Save<ModderRoleCheckerSettings>(this);
+                    (Settings as ISettings).Save<ForumRoleCheckerSettings>(this);
                     return $"Set alert channel to <#{alertChannel.Id}>";
                 case "watch-channel":
                     if (optionValue is not SocketGuildChannel watchChannel)
@@ -86,7 +86,7 @@ public class ModderRoleCheckerModule : GuildModule
                     }
 
                     Settings.ModdingChannel = watchChannel.Id;
-                    (Settings as ISettings).Save<ModderRoleCheckerSettings>(this);
+                    (Settings as ISettings).Save<ForumRoleCheckerSettings>(this);
                     return $"Set watch channel to <#{watchChannel.Id}>";
                 case "modding-role":
                     if (optionValue is not SocketRole modderRole)
@@ -95,7 +95,7 @@ public class ModderRoleCheckerModule : GuildModule
                     }
 
                     Settings.ModderRoleID = modderRole.Id;
-                    (Settings as ISettings).Save<ModderRoleCheckerSettings>(this);
+                    (Settings as ISettings).Save<ForumRoleCheckerSettings>(this);
                     return $"Set modder role to <@&{modderRole.Id}>";
                 default:
                     return "Something went wrong in HandleConfig";
