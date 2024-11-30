@@ -48,6 +48,8 @@ public class Pawsy
         if (!config.Exists)
             config.Create();
 
+        LoadModuleTypes();
+
         //Client Events
         SocketClient.GuildAvailable += GuildAvailable;
         SocketClient.GuildUnavailable += GuildUnavailable;
@@ -73,6 +75,54 @@ public class Pawsy
         {
             LogAppendLine(Name, "Token not found");
         }
+    }
+
+    public bool TryInstantiateModuleFromName(string from, object[] constructorArgs, out IGuildModule output)
+    {
+
+        if (!ModuleRegistry.TryGetValue(from, out var foundType))
+        {
+            output = null!;
+            return false;
+        }
+
+        // Check if the type implements IModule
+        if (typeof(GuildModule).IsAssignableFrom(foundType))
+        {
+            try
+            {
+                // Create an instance of the type using constructor arguments
+                object? moduleInstance = Activator.CreateInstance(foundType, constructorArgs);
+
+                if (moduleInstance is IGuildModule gm)
+                {
+                    output = gm;
+                    return true;
+                }
+
+                Console.WriteLine($"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
+                output = null!;
+                return false;
+            }
+            catch (MissingMethodException)
+            {
+                Console.WriteLine($"Unable to instance a module from {foundType.Name} due to missing method");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while attempting to instance {foundType.Name}\nStack: {ex}");
+            }
+            finally
+            {
+                output = null!;
+            }
+
+            return false;
+        }
+
+        Console.WriteLine($"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
+        output = null!;
+        return false;
     }
 
     protected void LoadModuleTypes()

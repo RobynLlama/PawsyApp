@@ -34,46 +34,4 @@ public static class ModuleLoader
         output = (null, null)!;
         return false;
     }
-
-    internal static bool TryInstantiateModuleFromType(Type from, object[] constructorArgs, out IGuildModule output)
-    {
-
-        // Check if the type implements IModule
-        if (typeof(GuildModule).IsAssignableFrom(from))
-        {
-            try
-            {
-                // Create an instance of the type using constructor arguments
-                object? moduleInstance = Activator.CreateInstance(from, constructorArgs);
-
-                if (moduleInstance is IGuildModule gm)
-                {
-                    output = gm;
-                    return true;
-                }
-
-                Console.WriteLine($"Unable to instance a module from {from.Name} due to not conforming to module standard or object is null");
-                output = null!;
-                return false;
-            }
-            catch (MissingMethodException)
-            {
-                Console.WriteLine($"Unable to instance a module from {from.Name} due to missing method");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred while attempting to instance {from.Name}\nStack: {ex}");
-            }
-            finally
-            {
-                output = null!;
-            }
-
-            return false;
-        }
-
-        Console.WriteLine($"Unable to instance a module from {from.Name} due to not conforming to module standard or object is null");
-        output = null!;
-        return false;
-    }
 }
