@@ -15,16 +15,17 @@ using MeowBoard.Settings;
 
 namespace MeowBoard;
 
-[PawsyModule]
+[PawsyModule(ModuleName)]
 public class MeowBoardModule : GuildModule
 {
+    public const string ModuleName = "meow-board";
     protected MeowBoardSettings Settings;
     protected TreasureHunter TreasureGame;
     private readonly Task UpdateLoop;
     internal static Emote PawsySmall = new(1277935719805096066, "pawsysmall");
     protected bool Enabled = false;
 
-    public MeowBoardModule(Guild Owner) : base(Owner, "meow-board", true, true)
+    public MeowBoardModule(Guild Owner) : base(Owner, ModuleName, true, true)
     {
         Settings = (this as ISettingsOwner).LoadSettings<MeowBoardSettings>();
         TreasureGame = new(this);

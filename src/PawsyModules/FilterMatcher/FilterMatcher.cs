@@ -15,13 +15,14 @@ using FilterMatcher.Settings;
 
 namespace FilterMatcher;
 
-[PawsyModule]
+[PawsyModule(ModuleName)]
 public class FilterMatcherModule : GuildModule
 {
+    public const string ModuleName = "filter-matcher";
     protected FilterMatcherSettings Settings;
     protected ulong LastDeletedMessage = 0;
 
-    public FilterMatcherModule(Guild Owner) : base(Owner, "filter-matcher", true, true)
+    public FilterMatcherModule(Guild Owner) : base(Owner, ModuleName, true, true)
     {
         Settings = (this as ISettingsOwner).LoadSettings<FilterMatcherSettings>();
 

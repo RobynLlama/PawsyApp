@@ -13,12 +13,13 @@ using System.Linq;
 
 namespace ForumRoleChecker;
 
-[PawsyModule]
+[PawsyModule(ModuleName)]
 public class ForumRoleCheckerModule : GuildModule
 {
+    public const string ModuleName = "forum-role-checker";
     protected ForumRoleCheckerSettings Settings;
 
-    public ForumRoleCheckerModule(Guild Owner) : base(Owner, "forum-role-checker", declaresConfig: true, declaresCommands: true)
+    public ForumRoleCheckerModule(Guild Owner) : base(Owner, ModuleName, declaresConfig: true, declaresCommands: true)
     {
         Settings = (this as ISettingsOwner).LoadSettings<ForumRoleCheckerSettings>();
     }

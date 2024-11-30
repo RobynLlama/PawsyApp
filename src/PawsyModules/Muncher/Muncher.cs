@@ -16,13 +16,14 @@ using MuncherModule.Settings;
 
 namespace MuncherModule;
 
-[PawsyModule]
+[PawsyModule(ModuleName)]
 public class LogMuncherModule : GuildModule
 {
+    public const string ModuleName = "log-muncher";
     protected LogMuncherSettings Settings;
     protected static bool RulesInit = false;
 
-    public LogMuncherModule(Guild Owner) : base(Owner, "log-muncher", declaresConfig: true)
+    public LogMuncherModule(Guild Owner) : base(Owner, ModuleName, declaresConfig: true)
     {
         Settings = (this as ISettingsOwner).LoadSettings<LogMuncherSettings>();
 
