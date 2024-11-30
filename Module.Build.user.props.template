@@ -17,6 +17,8 @@
         <!-- Ensure the Modules directory exists -->
         <MakeDir Directories="$(ModulesDir)" />
 
+        <Message Text="Deploy -> $(FinalAssemblyName)" Importance="High" />
+
         <!-- Copy the final assembly to the Modules directory -->
         <Copy
             SourceFiles="$(OutputPath)$(FinalAssemblyName)"
