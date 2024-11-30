@@ -6,41 +6,74 @@ using PawsyApp.PawsyCore.Modules;
 namespace PawsyApp.PawsyCore;
 public static class ModuleLoader
 {
-    internal static IGuildModule? LoadAndInstantiateModule(Assembly from, object[] constructorArgs)
+    internal static bool TryLoadModuleType(Assembly from, out (string Name, Type type) output)
     {
 
         // Iterate through types in the assembly
         foreach (Type type in from.GetTypes())
         {
             // Check if the type has the "LoadMe" attribute
-            if (type.GetCustomAttributes(typeof(PawsyModuleAttribute), true).Length > 0)
+            var attrib = type.GetCustomAttributes(typeof(PawsyModuleAttribute), true);
+
+            if (attrib.Length > 0)
             {
-                // Check if the type implements IModule
-                if (typeof(GuildModule).IsAssignableFrom(type))
+
+                if (attrib[0] is PawsyModuleAttribute Meta)
                 {
-                    try
+                    // Check if the type implements IModule
+                    if (typeof(GuildModule).IsAssignableFrom(type))
                     {
-                        // Create an instance of the type using constructor arguments
-                        object? moduleInstance = Activator.CreateInstance(type, constructorArgs);
-
-                        if (moduleInstance is IGuildModule gm)
-                        {
-                            return gm;
-                        }
-
-                        Console.WriteLine($"Unable to load a module from {from.FullName} due to not conforming to module standard or object is null");
-                        return null;
-                    }
-                    catch (MissingMethodException)
-                    {
-                        Console.WriteLine($"Unable to load a module from {from.FullName} due to missing method");
-                        return null;
+                        output = (Meta.ModuleName, type);
+                        return true;
                     }
                 }
             }
         }
 
         Console.WriteLine($"Skipping {from.FullName} due to no modules present");
-        return null;
+        output = (null, null)!;
+        return false;
+    }
+
+    internal static bool TryInstantiateModuleFromType(Type from, object[] constructorArgs, out IGuildModule output)
+    {
+
+        // Check if the type implements IModule
+        if (typeof(GuildModule).IsAssignableFrom(from))
+        {
+            try
+            {
+                // Create an instance of the type using constructor arguments
+                object? moduleInstance = Activator.CreateInstance(from, constructorArgs);
+
+                if (moduleInstance is IGuildModule gm)
+                {
+                    output = gm;
+                    return true;
+                }
+
+                Console.WriteLine($"Unable to instance a module from {from.Name} due to not conforming to module standard or object is null");
+                output = null!;
+                return false;
+            }
+            catch (MissingMethodException)
+            {
+                Console.WriteLine($"Unable to instance a module from {from.Name} due to missing method");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while attempting to instance {from.Name}\nStack: {ex}");
+            }
+            finally
+            {
+                output = null!;
+            }
+
+            return false;
+        }
+
+        Console.WriteLine($"Unable to instance a module from {from.Name} due to not conforming to module standard or object is null");
+        output = null!;
+        return false;
     }
 }
