@@ -257,7 +257,10 @@ public class Pawsy
         };
 
         var pGuild = AddOrGetGuild(guild);
-        pGuild.OnActivate();
+
+        //Only become available if we previously were not available
+        if (!pGuild.Available)
+            pGuild.OnActivate();
 
         await Task.WhenAll(tasks);
         return;
