@@ -134,12 +134,42 @@ public class Pawsy
         {
             // Pass the full path of each assembly to the module loader
             LogAppendLine(Name, $"Loading Module(s) from: {fileInfo.Name}");
-            if (ModuleLoader.TryLoadModuleType(Assembly.LoadFrom(fileInfo.FullName), out var info))
+            if (TryLoadModuleType(Assembly.LoadFrom(fileInfo.FullName), out var info))
             {
                 LogAppendLine(Name, $"Added a module from type {info.type.Name}");
                 ModuleRegistry[info.Name] = info.type;
             }
         }
+    }
+
+    protected bool TryLoadModuleType(Assembly from, out (string Name, Type type) output)
+    {
+
+        // Iterate through types in the assembly
+        foreach (Type type in from.GetTypes())
+        {
+            // Check if the type has the "LoadMe" attribute
+            var attrib = type.GetCustomAttributes(typeof(PawsyModuleAttribute), true);
+
+            if (attrib.Length > 0)
+            {
+
+                if (attrib[0] is PawsyModuleAttribute Meta)
+                {
+                    // Check if the type implements IModule
+                    if (typeof(GuildModule).IsAssignableFrom(type))
+                    {
+                        output = (Meta.ModuleName, type);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        LogAppendLine(Name, $"Skipping {from.GetName().Name} due to no modules present");
+
+        output = (null, null)!;
+        return false;
     }
     private async Task MessageReceived(SocketMessage message)
     {
@@ -258,7 +288,7 @@ public class Pawsy
     public Task LogAppend(string source, object message) => WriteLogInternal.Append($"Pawsy~{ID}->{source}", message);
     public Task LogAppendLine(string source, object message) => LogAppend(source, message + "\n");
 
-    private static class WriteLogInternal
+    internal static class WriteLogInternal
     {
         public static Task AppendContext(string source, object msg, (object ContextName, object ContextValue)[] context)
         {
