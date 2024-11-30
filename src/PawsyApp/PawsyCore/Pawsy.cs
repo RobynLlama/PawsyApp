@@ -22,8 +22,9 @@ public class Pawsy
     });
     public ulong ID { get => PawsyID; }
     public string Name { get; } = "Pawsy";
-    public static string BaseConfigDir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pawsy");
-    public static string BaseModuleDir { get; } = Path.Combine(BaseConfigDir, "Modules");
+    public static string BasePawsyDir { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pawsy");
+    public static string BaseConfigDir { get; } = Path.Combine(BasePawsyDir, "Config");
+    public static string BaseModuleDir { get; } = Path.Combine(BasePawsyDir, "Modules");
 
     protected ConcurrentDictionary<ulong, Guild> Guilds = [];
     private readonly string? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
