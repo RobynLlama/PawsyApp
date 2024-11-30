@@ -8,6 +8,7 @@ using Discord;
 using System.Threading.Tasks;
 using PawsyApp.KittyColors;
 using PawsyApp.PawsyCore.Modules;
+using System.Reflection;
 
 namespace PawsyApp.PawsyCore;
 
@@ -27,6 +28,7 @@ public class Pawsy
     public static string BaseModuleDir { get; } = Path.Combine(BasePawsyDir, "Modules");
 
     protected ConcurrentDictionary<ulong, Guild> Guilds = [];
+    protected ConcurrentDictionary<string, Type> ModuleRegistry = [];
     private readonly string? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
     private readonly ulong PawsyID;
     private static ulong NextPawsyID = 0;
@@ -70,6 +72,23 @@ public class Pawsy
         else
         {
             LogAppendLine(Name, "Token not found");
+        }
+    }
+
+    protected void LoadModuleTypes()
+    {
+
+        DirectoryInfo modules = new(BaseModuleDir);
+
+        foreach (FileInfo fileInfo in modules.GetFiles("*.dll"))
+        {
+            // Pass the full path of each assembly to the module loader
+            LogAppendLine(Name, $"Loading Module(s) from: {fileInfo.Name}");
+            if (ModuleLoader.TryLoadModuleType(Assembly.LoadFrom(fileInfo.FullName), out var info))
+            {
+                LogAppendLine(Name, $"Added a module from type {info.type.Name}");
+                ModuleRegistry[info.Name] = info.type;
+            }
         }
     }
     private async Task MessageReceived(SocketMessage message)
