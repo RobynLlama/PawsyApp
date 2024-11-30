@@ -55,25 +55,23 @@ public class Guild : ISettingsOwner, IActivatable
 
         SetupModules();
     }
-    protected void AddModule(IGuildModule module)
-    {
-        Modules[module.Name] = module;
-    }
 
     protected void SetupModules()
     {
-
-        DirectoryInfo modules = new(PawsyCore.Pawsy.BaseModuleDir);
         object[] constructorArgs = [this];  // Example constructor arguments
 
-        foreach (FileInfo fileInfo in modules.GetFiles("*.dll"))
+        foreach (var name in Settings.EnabledModules)
         {
-            // Pass the full path of each assembly to the module loader
-            LogAppendLine(Name, $"Loading: {fileInfo.Name}");
-            var mod = ModuleLoader.LoadAndInstantiateModule(Assembly.LoadFrom(fileInfo.FullName), constructorArgs);
+            if (!Pawsy.TryGetTarget(out var owner))
+                return;
 
-            if (mod is not null)
-                AddModule(mod);
+            if (!owner.TryInstantiateModuleFromName(name, [this], out var module))
+            {
+                LogAppendLine(Name, $"Unable to load module {name}");
+                return;
+            }
+
+            Modules[module.Name] = module;
         }
     }
 
