@@ -36,6 +36,12 @@ public class Pawsy
 
         PawsyID = GetNextID();
 
+        //Create config dirs
+
+        DirectoryInfo PawsyDir = new(BasePawsyDir);
+        if (!PawsyDir.Exists)
+            PawsyDir.Create();
+
         DirectoryInfo config = new(BaseConfigDir);
         if (!config.Exists)
             config.Create();
