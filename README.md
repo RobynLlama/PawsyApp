@@ -1,12 +1,11 @@
 # Pawsy App
 
-Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives helpful advice
-
-![Pawsy](Assets/img/Pawsy-small.png)
-
+![Pawsy-banner](Assets/img/Pawsy-banner.png)
 > Pawsy:
 >
 > Hewwo! I'm Pawsy, the cutie kitty app here to keep you safe and sound! ≧◡≦ I use special patterns (like magic!) to sniff out bad words and scams, making sure your online adventures are purrfectly paw-sitive and fun! Meow-nificent protection, just for you~ (▰˘◡˘▰)
+
+Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives helpful advice
 
 ## Features
 
@@ -27,6 +26,10 @@ Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives 
 - *module-manage* Activate or Deactivate a specific module. Use `/module-manage list` to see all available modules for your Pawsy instance
 
 ### Filter Matcher
+
+> *Note*
+>
+> Pawsy's Filter Matcher module is not yet configurable by end-users. Please be patient while she's updated :3
 
 The primary feature of Pawsy, the filter matcher uses DotNet regex to match matches against patterns of your choosing and then perform a configurable action.
 
