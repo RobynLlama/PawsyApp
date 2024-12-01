@@ -60,18 +60,37 @@ public class Guild : ISettingsOwner, IActivatable
     {
         object[] constructorArgs = [this];  // Example constructor arguments
 
-        foreach (var name in Settings.EnabledModules)
+        foreach (string name in Settings.EnabledModules)
         {
             if (!Pawsy.TryGetTarget(out var owner))
                 return;
 
-            if (!owner.TryInstantiateModuleFromName(name, [this], out var module))
+            if (owner.InstantiateModuleByName(name, [this]) is var module && module is not null)
             {
-                LogAppendLine(Name, $"Unable to load module {name}");
-                return;
+                try
+                {
+                    if (module.Name is null)
+                    {
+                        LogAppendLine(Name, $"The returned module name is null for {name}!");
+                        break;
+                    }
+
+                    LogAppendLine(Name, $"Loading and activating {module}");
+
+                    Modules[module.Name] = module;
+
+                    LogAppendLine(Name, $"Done with {module.Name}!");
+                }
+                catch (Exception ex)
+                {
+                    LogAppendLine(Name, $"An error happened while loading {name}\nStack:\n{ex}\n");
+                }
+            }
+            else
+            {
+                LogAppendLine(Name, $"Something went very wrong while loading module: {name}");
             }
 
-            Modules[module.Name] = module;
         }
     }
 

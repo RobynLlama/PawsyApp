@@ -77,32 +77,33 @@ public class Pawsy
         }
     }
 
-    public bool TryInstantiateModuleFromName(string from, object[] constructorArgs, out IGuildModule output)
+    public IGuildModule? InstantiateModuleByName(string from, object[] constructorArgs)
     {
 
         if (!ModuleRegistry.TryGetValue(from, out var foundType))
         {
-            output = null!;
-            return false;
+            return null;
         }
 
         // Check if the type implements IModule
         if (typeof(GuildModule).IsAssignableFrom(foundType))
         {
+
+            LogAppendLine(Name, $"Found the type for {from}, {foundType.Name}");
+
             try
             {
                 // Create an instance of the type using constructor arguments
                 object? moduleInstance = Activator.CreateInstance(foundType, constructorArgs);
 
-                if (moduleInstance is IGuildModule gm)
+                if (moduleInstance is not null && moduleInstance is IGuildModule gm)
                 {
-                    output = gm;
-                    return true;
+                    LogAppendLine(Name, $"Returning a valid Module {gm.Name}");
+                    return gm;
                 }
 
                 Console.WriteLine($"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
-                output = null!;
-                return false;
+                return null;
             }
             catch (MissingMethodException)
             {
@@ -112,17 +113,12 @@ public class Pawsy
             {
                 Console.WriteLine($"An error occurred while attempting to instance {foundType.Name}\nStack: {ex}");
             }
-            finally
-            {
-                output = null!;
-            }
 
-            return false;
+            return null;
         }
 
         Console.WriteLine($"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
-        output = null!;
-        return false;
+        return null;
     }
 
     protected void LoadModuleTypes()
@@ -133,13 +129,15 @@ public class Pawsy
         foreach (FileInfo fileInfo in modules.GetFiles("*.dll"))
         {
             // Pass the full path of each assembly to the module loader
-            LogAppendLine(Name, $"Loading Module(s) from: {fileInfo.Name}");
+            LogAppendLine(Name, $"Loading Module from: {fileInfo.Name}");
             if (TryLoadModuleType(Assembly.LoadFrom(fileInfo.FullName), out var info))
             {
                 LogAppendLine(Name, $"Added a module from type {info.type.Name}");
                 ModuleRegistry[info.Name] = info.type;
             }
         }
+
+        LogAppendLine(Name, $"Loaded {ModuleRegistry.Count} types into registry");
     }
 
     protected bool TryLoadModuleType(Assembly from, out (string Name, Type type) output)
