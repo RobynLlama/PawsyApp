@@ -62,35 +62,39 @@ public class Guild : ISettingsOwner, IActivatable
 
         foreach (string name in Settings.EnabledModules)
         {
-            if (!Pawsy.TryGetTarget(out var owner))
-                return;
+            LoadModuleByName(name);
+        }
+    }
 
-            if (owner.InstantiateModuleByName(name, [this]) is var module && module is not null)
+    protected void LoadModuleByName(string name)
+    {
+        if (!Pawsy.TryGetTarget(out var owner))
+            return;
+
+        if (owner.InstantiateModuleByName(name, [this]) is var module && module is not null)
+        {
+            try
             {
-                try
+                if (module.Name is null)
                 {
-                    if (module.Name is null)
-                    {
-                        LogAppendLine(Name, $"The returned module name is null for {name}!");
-                        break;
-                    }
-
-                    LogAppendLine(Name, $"Loading and activating {module}");
-
-                    Modules[module.Name] = module;
-
-                    LogAppendLine(Name, $"Done with {module.Name}!");
+                    LogAppendLine(Name, $"The returned module name is null for {name}!");
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    LogAppendLine(Name, $"An error happened while loading {name}\nStack:\n{ex}\n");
-                }
+
+                LogAppendLine(Name, $"Loading and activating {module}");
+
+                Modules[module.Name] = module;
+
+                LogAppendLine(Name, $"Done with {module.Name}!");
             }
-            else
+            catch (Exception ex)
             {
-                LogAppendLine(Name, $"Something went very wrong while loading module: {name}");
+                LogAppendLine(Name, $"An error happened while loading {name}\nStack:\n{ex}\n");
             }
-
+        }
+        else
+        {
+            LogAppendLine(Name, $"Something went very wrong while loading module: {name}");
         }
     }
 
@@ -112,6 +116,10 @@ public class Guild : ISettingsOwner, IActivatable
 
     public void GuildCommandSetup()
     {
+
+        if (!Pawsy.TryGetTarget(out var owner))
+            return;
+
         var optionAdd = new SlashCommandOptionBuilder()
         .WithName("name")
         .WithType(ApplicationCommandOptionType.String)
@@ -154,11 +162,14 @@ public class Guild : ISettingsOwner, IActivatable
         .WithDescription("Configure Pawsy's modules")
         .WithDefaultMemberPermissions(GuildPermission.ManageGuild);
 
+        foreach (var thing in owner.GetRegistry)
+        {
+            optionAdd.AddChoice(thing, thing);
+            optionRemove.AddChoice(thing, thing);
+        }
+
         foreach (var item in Modules.Values)
         {
-
-            optionAdd.AddChoice(item.Name, item.Name);
-            optionRemove.AddChoice(item.Name, item.Name);
 
             //add a config option for each module
             if (item.ModuleDeclaresConfig)
@@ -239,6 +250,9 @@ public class Guild : ISettingsOwner, IActivatable
     private async Task ModuleActivator(SocketSlashCommand command)
     {
 
+        if (!Pawsy.TryGetTarget(out var owner))
+            return;
+
         if (Settings is null)
         {
             await command.RespondAsync("This guild's config is unavailable, something really went wrong.", ephemeral: true);
@@ -263,22 +277,16 @@ public class Guild : ISettingsOwner, IActivatable
                     return;
                 }
 
-                bool EnabledAnything = false;
-
-                foreach (var item in Modules.Values)
+                if (Modules.TryGetValue(modName, out var module))
                 {
-                    if (item.Name == modName)
-                    {
-                        EnabledAnything = true;
-                        item.OnActivate();
-                        Settings.EnabledModules.Add(modName);
-                        (Settings as ISettings).Save<GuildSettings>(this);
-                        await command.RespondAsync($"{modName} enabled, meow!");
-                    }
+                    await command.RespondAsync("That module is already active", ephemeral: true);
+                    return;
                 }
 
-                if (!EnabledAnything)
-                    await command.RespondAsync("Sorry, meow! I couldn't find that module (and I looked really hard, too)", ephemeral: true);
+                LoadModuleByName(modName);
+                Settings.EnabledModules.Add(modName);
+                GuildCommandSetup();
+                await command.RespondAsync($"Activating {modName}");
 
                 return;
             case "deactivate":
@@ -297,6 +305,8 @@ public class Guild : ISettingsOwner, IActivatable
                     uItem.OnDeactivate();
                     Settings.EnabledModules.Remove(modName);
                     (Settings as ISettings).Save<GuildSettings>(this);
+                    Modules.TryRemove(modName, out var _);
+                    GuildCommandSetup();
                     await command.RespondAsync($"{modName} disabled, meow!");
                     return;
                 }

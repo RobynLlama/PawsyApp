@@ -29,6 +29,7 @@ public class Pawsy
 
     protected ConcurrentDictionary<ulong, Guild> Guilds = [];
     protected ConcurrentDictionary<string, Type> ModuleRegistry = [];
+    public ICollection<string> GetRegistry => ModuleRegistry.Keys;
     private readonly string? token = Environment.GetEnvironmentVariable("PAWSY_AUTH");
     private readonly ulong PawsyID;
     private static ulong NextPawsyID = 0;
