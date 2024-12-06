@@ -12,6 +12,7 @@ using PawsyApp.PawsyCore;
 using PawsyApp.PawsyCore.Modules;
 
 using FilterMatcher.Settings;
+using System.Text.RegularExpressions;
 
 namespace FilterMatcher;
 
@@ -192,14 +193,54 @@ public class FilterMatcherModule : GuildModule
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
             case "edit":
-                await command.RespondAsync("Not implemented yet, meow", ephemeral: true);
+                if (subOpts.First().Value is long ruleID1 && Settings.RuleList.TryGetValue(ruleID1, out RuleBundle bundle))
+                {
+                   Guild owner;
+                    foreach (var item in subOpts)
+                    {
+                        switch (item.Name)
+                        {
+                            case "name":
+                                bundle.RuleName = (string)item.Value;
+                                break;
+                            case "regex":
+                                bundle.reg = (Regex)item.Value;
+                                break;
+                            case "channel":
+                                ulong id = ((SocketTextChannel)item.Value).Id;
+                                if (bundle.FilteredChannels.Contains(id))
+                                {
+                                    bundle.FilteredChannels.Remove(id);
+                                    break;
+                                }
+                                bundle.FilteredChannels.Add(id);
+                                break;
+                            case "delete":
+                                bundle.DeleteMessage = (bool)item.Value;
+                                break;
+                            case "reply":
+                                if ((string)item.Value == "") bundle.SendResponse = false;
+                                else bundle.SendResponse = true;
+                                bundle.ResponseMSG = (string)item.Value;
+                                break;
+                            case "warn-staff":
+                                bundle.WarnStaff = (bool)item.Value;
+                                break;
+                            case "warn-color":
+                                break;
+
+                        }
+                    }
+                    await command.RespondAsync($"Modified {bundle.RuleName}, meow!", ephemeral: true);
+                }
+                await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
             case "remove":
-                if (subOpts.First().Value is long ruleID)
+                if (subOpts.First().Value is long ruleID2)
                 {
-                    Settings.RuleList.Remove(ruleID, out _);
+                    Settings.RuleList.Remove(ruleID2, out _);
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
-                    await command.RespondAsync($"Rule {ruleID} deleted, meow", ephemeral: true);
+                    await command.RespondAsync($"Rule {ruleID2} deleted, meow", ephemeral: true);
                     return;
                 }
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
@@ -273,7 +314,7 @@ public class FilterMatcherModule : GuildModule
 
         if (message.Author is SocketGuildUser gUser)
         {
-            if (gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568)
+            if (/*gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568*/false)
             {
                 await LogAppendLine("User is exempt from filters");
                 return;
