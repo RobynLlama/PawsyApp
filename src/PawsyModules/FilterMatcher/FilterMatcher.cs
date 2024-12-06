@@ -74,6 +74,20 @@ public class FilterMatcherModule : GuildModule
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .WithName("add")
                 .WithDescription("Add a new filter")
+                .AddOption(
+                    new SlashCommandOptionBuilder()
+                    .WithName("name")
+                    .WithType(ApplicationCommandOptionType.String)
+                    .WithDescription("The name for the rule")
+                    .WithRequired(true)
+                )
+                .AddOption(
+                    new SlashCommandOptionBuilder()
+                    .WithName("regex")
+                    .WithType(ApplicationCommandOptionType.String)
+                    .WithDescription("The REGEX for the rule")
+                    .WithRequired(true)
+                )
             )
             .AddOption(
                 new SlashCommandOptionBuilder()
