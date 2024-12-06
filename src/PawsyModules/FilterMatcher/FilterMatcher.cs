@@ -172,12 +172,25 @@ public class FilterMatcherModule : GuildModule
     private async Task FilterMatcherHandler(SocketSlashCommand command)
     {
         var option = command.Data.Options.First().Options.First();
-        var subOpts = option.Options;
+        var subOpts = option.Options.ToList();
         var optionName = option.Name;
 
         switch (optionName)
         {
             case "add":
+                if (subOpts[0].Value is string ruleName && subOpts[1].Value is string ruleRegex)
+                {
+                    Settings.RuleList.TryAdd(Enumerable.Range(0, int.MaxValue)
+                                                                .Select(i => (long)i)
+                                                                .First(i => !Settings.RuleList.Keys.Contains(i)),
+                                                                new(ruleName,
+                                                                ruleName));
+                    (Settings as ISettings).Save<FilterMatcherSettings>(this);
+                    await command.RespondAsync($"Rule {ruleName} added, meow", ephemeral: true);
+                    return;
+                }
+                await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
+                return;
             case "edit":
                 await command.RespondAsync("Not implemented yet, meow", ephemeral: true);
                 return;
