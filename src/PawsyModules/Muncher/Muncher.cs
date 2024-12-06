@@ -13,6 +13,7 @@ using MuncherLib.Muncher;
 using PawsyApp.PawsyCore.Modules;
 
 using MuncherModule.Settings;
+using System;
 
 namespace MuncherModule;
 
@@ -128,11 +129,20 @@ public class LogMuncherModule : GuildModule
                 //await LogAppendLine("Making a new muncher");
 
                 var munch = new LogMuncher(reader, null!, [], false, false);
+                List<LineData> lines;
 
-                //await LogAppendLine("Processing output");
-                var lines = await munch.MunchLog(true);
+                await LogAppendLine("Processing output");
+                try
+                {
+                    lines = await munch.MunchLog(true);
+                }
+                catch (Exception ex)
+                {
+                    await LogAppendLine($"Exception Happened: {ex}");
+                    return;
+                }
 
-                //await LogAppendLine("Sending results");
+                await LogAppendLine("Sending results");
                 await message.Channel.SendMessageAsync("I see you posted a log file, let me find the most serious errors for you..");
 
                 var issues = lines.Take(2);
@@ -142,7 +152,26 @@ public class LogMuncherModule : GuildModule
                 {
                     await Task.Delay(750);
                     //await LogAppendLine("Sending a result");
-                    await message.Channel.SendMessageAsync(thing.ToString(), flags: Discord.MessageFlags.SuppressEmbeds);
+
+                    string output = thing.ToString();
+                    if (output.Length > 1500)
+                    {
+                        await LogAppendLine("Trimming a large result");
+                        output = output[..1500];
+                        await message.Channel.SendMessageAsync("This message was too large, trimming to 1500 characters its gonna look ugly, meow!");
+                        await Task.Delay(350);
+                    }
+
+                    try
+                    {
+                        await message.Channel.SendMessageAsync(output, flags: Discord.MessageFlags.SuppressEmbeds);
+                    }
+                    catch (Exception ex)
+                    {
+                        await LogAppendLine($"Exception Happened: {ex}");
+                        return;
+                    }
+
                     DidAny = true;
                 }
 
