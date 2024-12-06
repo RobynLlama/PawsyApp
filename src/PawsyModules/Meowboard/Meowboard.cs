@@ -61,6 +61,9 @@ public class MeowBoardModule : GuildModule
             owner.OnGuildButtonClicked -= ButtonCallback;
             Enabled = false;
         }
+
+        if (!TreasureGame.GameActive || TreasureGame.gameMessage is null) return;
+        TreasureGame.gameMessage.DeleteAsync();
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
@@ -246,11 +249,11 @@ public class MeowBoardModule : GuildModule
         protected WeakReference<MeowBoardModule> Owner = new(Owner);
         protected ConcurrentBag<ulong> TreasureHunters = [];
         protected ulong FirstResponder = 0;
-        protected bool GameActive = false;
+        public bool GameActive = false;
         public object LockRoot = new();
         internal DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
         protected DateTime GameEndsAt = DateTime.Now.AddSeconds(10f);
-        protected RestUserMessage? gameMessage;
+        public RestUserMessage? gameMessage;
         protected int currentLine = 0;
 
         protected string[] TreasureMessages = [
