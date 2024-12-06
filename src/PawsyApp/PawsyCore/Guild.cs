@@ -285,6 +285,7 @@ public class Guild : ISettingsOwner, IActivatable
 
                 LoadModuleByName(modName);
                 Settings.EnabledModules.Add(modName);
+                (Settings as ISettings).Save<GuildSettings>(this);
                 GuildCommandSetup();
                 await command.RespondAsync($"Activating {modName}");
 
