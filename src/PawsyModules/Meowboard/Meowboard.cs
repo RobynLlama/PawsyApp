@@ -249,11 +249,11 @@ public class MeowBoardModule : GuildModule
         protected WeakReference<MeowBoardModule> Owner = new(Owner);
         protected ConcurrentBag<ulong> TreasureHunters = [];
         protected ulong FirstResponder = 0;
-        public bool GameActive = false;
+        internal bool GameActive = false;
         public object LockRoot = new();
         internal DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
         protected DateTime GameEndsAt = DateTime.Now.AddSeconds(10f);
-        public RestUserMessage? gameMessage;
+        internal RestUserMessage? gameMessage;
         protected int currentLine = 0;
 
         protected string[] TreasureMessages = [
