@@ -11,6 +11,7 @@
     <LangVersion>latest</LangVersion>
 
     <Version>1.30.0</Version>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,12 +24,13 @@
     <!-- Copy muncher lib to the Modules directory -->
     <Copy
       SourceFiles="$(OutputPath)MuncherLib.dll"
-      DestinationFolder="$(ModulesDir)"
-      Condition="Exists('$(OutputPath)MuncherLib.dll')" />
+      DestinationFolder="$(ModulesDir)" />
     <Copy
       SourceFiles="$(OutputPath)dev.mamallama.checkrunnerlib.dll"
-      DestinationFolder="$(ModulesDir)"
-      Condition="Exists('$(OutputPath)dev.mamallama.checkrunnerlib.dll')" />
+      DestinationFolder="$(ModulesDir)" />
+    <Copy
+      SourceFiles="$(OutputPath)Markdig.dll"
+      DestinationFolder="$(ModulesDir)" />
   </Target>
 
   <Import Project="$(SolutionDir)Module.Build.user.props"
