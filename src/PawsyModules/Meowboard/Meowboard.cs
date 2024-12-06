@@ -53,7 +53,7 @@ public class MeowBoardModule : GuildModule
         }
     }
 
-    public override async void OnDeactivate()
+    public override void OnDeactivate()
     {
         if (Owner.TryGetTarget(out var owner))
         {
@@ -62,8 +62,10 @@ public class MeowBoardModule : GuildModule
             Enabled = false;
         }
 
-        if (!TreasureGame.GameActive || TreasureGame.gameMessage is null) return;
-        await TreasureGame.gameMessage.DeleteAsync();
+        if (!TreasureGame.GameActive || TreasureGame.gameMessage is null)
+            return;
+
+        TreasureGame.gameMessage.DeleteAsync();
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
