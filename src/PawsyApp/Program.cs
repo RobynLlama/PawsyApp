@@ -17,6 +17,9 @@ public class PawsyProgram
         Console.WriteLine($"Pawsy version {informationalVersion}");
 
         Pawsy pawsy = new();
+
+        Console.CancelKeyPress += pawsy.OnCloseApp;
+
         await Task.Delay(-1);
     }
 }
