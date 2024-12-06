@@ -398,4 +398,15 @@ public class Pawsy
 
         throw new Exception($"Unreachable code in AddOrGetGuild. ID: {ID}");
     }
+
+    public void OnCloseApp(object? sender, ConsoleCancelEventArgs args)
+    {
+        LogAppendLine(Name, $"Deactivating {Guilds.Count} guilds");
+        foreach (var item in Guilds.Values)
+        {
+            item.OnDeactivate();
+        }
+
+        LogAppendLine(Name, "Closing Pawsy");
+    }
 }
