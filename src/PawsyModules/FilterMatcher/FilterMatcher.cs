@@ -227,6 +227,15 @@ public class FilterMatcherModule : GuildModule
                                 bundle.WarnStaff = (bool)item.Value;
                                 break;
                             case "warn-color":
+                                (int r, int g, int b) = HexToRGB((string)item.Value);
+                                if (r == -1)
+                                {
+                                    await command.RespondAsync($"Pwease input a valid hexadecimal color value :3", ephemeral: true);
+                                    return;
+                                }
+                                bundle.WarnColorRed = r; 
+                                bundle.WarnColorGreen = g; 
+                                bundle.WarnColorBlue = b;
                                 break;
 
                         }
@@ -387,5 +396,20 @@ public class FilterMatcherModule : GuildModule
         .WithCurrentTimestamp()
         .Build();
         return channel.SendMessageAsync(embed: embed);
+    }
+
+    public static (int r, int g, int b) HexToRGB(string hex)
+    {
+        if (hex.StartsWith("#"))
+            hex = hex.Substring(1);
+
+        if (hex.Length != 6)
+            return (-1,-1,-1);
+
+        int r = Convert.ToInt32(hex.Substring(0, 2), 16);
+        int g = Convert.ToInt32(hex.Substring(2, 2), 16);
+        int b = Convert.ToInt32(hex.Substring(4, 2), 16);
+
+        return (r, g, b);
     }
 }
