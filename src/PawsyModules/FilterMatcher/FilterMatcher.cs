@@ -201,38 +201,38 @@ public class FilterMatcherModule : GuildModule
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
             case "edit":
-                if (subOpts.First().Value is long ruleID1 && Settings.RuleList.TryGetValue(ruleID1, out RuleBundle? bundle))
+                if (subOpts.First().Value is long ruleID1 && Settings.RuleList.TryGetValue(ruleID1, out RuleBundle? bundle1))
                 {
                     foreach (var item in subOpts)
                     {
                         switch (item.Name)
                         {
                             case "name":
-                                bundle.RuleName = (string)item.Value;
+                                bundle1.RuleName = (string)item.Value;
                                 break;
                             case "regex":
-                                bundle.Regex = (string)item.Value;
-                                bundle.reg = new(bundle.Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
+                                bundle1.Regex = (string)item.Value;
+                                bundle1.reg = new(bundle1.Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
                                 break;
                             case "channel":
                                 ulong id = ((SocketTextChannel)item.Value).Id;
-                                if (bundle.FilteredChannels.Contains(id))
+                                if (bundle1.FilteredChannels.Contains(id))
                                 {
-                                    bundle.FilteredChannels.Remove(id);
+                                    bundle1.FilteredChannels.Remove(id);
                                     break;
                                 }
-                                bundle.FilteredChannels.Add(id);
+                                bundle1.FilteredChannels.Add(id);
                                 break;
                             case "delete":
-                                bundle.DeleteMessage = (bool)item.Value;
+                                bundle1.DeleteMessage = (bool)item.Value;
                                 break;
                             case "reply":
-                                if ((string)item.Value == "null") bundle.SendResponse = false;
-                                else bundle.SendResponse = true;
-                                bundle.ResponseMSG = (string)item.Value;
+                                if ((string)item.Value == "null") bundle1.SendResponse = false;
+                                else bundle1.SendResponse = true;
+                                bundle1.ResponseMSG = (string)item.Value;
                                 break;
                             case "warn-staff":
-                                bundle.WarnStaff = (bool)item.Value;
+                                bundle1.WarnStaff = (bool)item.Value;
                                 break;
                             case "warn-color":
                                 (int r, int g, int b) = HexToRGB((string)item.Value);
@@ -241,17 +241,17 @@ public class FilterMatcherModule : GuildModule
                                     await command.RespondAsync($"Pwease input a valid hexadecimal color value :3", ephemeral: true);
                                     return;
                                 }
-                                bundle.WarnColorRed = r; 
-                                bundle.WarnColorGreen = g; 
-                                bundle.WarnColorBlue = b;
+                                bundle1.WarnColorRed = r; 
+                                bundle1.WarnColorGreen = g; 
+                                bundle1.WarnColorBlue = b;
                                 break;
 
                         }
                     }
-                    Settings.RuleList[ruleID1] = bundle;
+                    Settings.RuleList[ruleID1] = bundle1;
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
 
-                    await command.RespondAsync($"Modified {bundle.RuleName}, meow!", ephemeral: true);
+                    await command.RespondAsync($"Modified {bundle1.RuleName}, meow!", ephemeral: true);
                 }
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
