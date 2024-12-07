@@ -232,6 +232,9 @@ public class FilterMatcherModule : GuildModule
 
                         }
                     }
+                    Settings.RuleList[ruleID1] = bundle;
+                    (Settings as ISettings).Save<FilterMatcherSettings>(this);
+
                     await command.RespondAsync($"Modified {bundle.RuleName}, meow!", ephemeral: true);
                 }
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
