@@ -395,7 +395,7 @@ public class FilterMatcherModule : GuildModule
                 if (item.SendResponse)
                 {
                     tasks.Add(LogAppendLine("Filter responding to a message"));
-                    tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG));
+                    tasks.Add(message.ReplyAsync(text: item.ResponseMSG));
                 }
 
                 if (item.DeleteMessage)
