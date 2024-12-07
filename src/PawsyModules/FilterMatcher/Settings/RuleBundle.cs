@@ -64,7 +64,7 @@ public class RuleBundle
         if ((FilterStyle == FilterType.BlackList && isOnList) || (FilterStyle == FilterType.WhiteList && !isOnList))
             return false;
 
-        reg ??= new(Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
+        reg = new(Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
         return reg.Match(content).Success;
     }
 }
