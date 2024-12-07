@@ -165,6 +165,13 @@ public class FilterMatcherModule : GuildModule
                 .WithType(ApplicationCommandOptionType.SubCommand)
                 .WithName("list")
                 .WithDescription("list existing filters")
+                .AddOption(
+                    new SlashCommandOptionBuilder()
+                    .WithName("rule-id")
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .WithDescription("The ID of the rule to list")
+                    .WithMinValue(0)
+                )
             )
         );
 
@@ -259,7 +266,28 @@ public class FilterMatcherModule : GuildModule
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
             case "list":
-                StringBuilder sb = new("## Rules:\n");
+                StringBuilder sb ;
+                if (subOpts.Count >= 1 && subOpts[0].Value is long ruleID3 && Settings.RuleList.TryGetValue(ruleID3, out RuleBundle? bundle2))
+                {
+                    sb = new($"## Rule: {bundle2.RuleName}\n");
+                    sb.Append($"Regex: ");
+                    sb.AppendLine(bundle2.Regex);
+                    sb.Append($"Channels: ");
+                    bundle2.FilteredChannels.ForEach(channel => sb.Append($"<#{channel}>, "));
+                    sb.AppendLine();
+                    sb.Append("Reply: ");
+                    sb.AppendLine(bundle2.SendResponse ? bundle2.ResponseMSG : "None");
+                    sb.Append("Delete Message: ");
+                    sb.AppendLine(bundle2.DeleteMessage.ToString());
+                    sb.Append("Warn Staff: ");
+                    sb.AppendLine(bundle2.WarnStaff.ToString());
+                    sb.Append("Warn Color: ");
+                    sb.AppendLine($"R: {bundle2.WarnColorRed}, G: {bundle2.WarnColorGreen}, B: {bundle2.WarnColorBlue},");
+
+                    await command.RespondAsync(sb.ToString(), ephemeral: true);
+                    return;
+                }
+                sb = new("## Rules:\n");
                 foreach (var item in Settings.RuleList)
                 {
                     sb.Append("- ");
