@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -73,6 +73,12 @@ public class MeowBoardModule : GuildModule
             .WithType(ApplicationCommandOptionType.SubCommand)
             .WithName("meow")
             .WithDescription("Pawsy will meow for you")
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("restart-game")
+            .WithDescription("If Pawsy has lost track of the treasure game this will send a new message")
         )
         .AddOption(
             new SlashCommandOptionBuilder()
@@ -157,6 +163,18 @@ public class MeowBoardModule : GuildModule
                 return command.RespondAsync($"Meow!"); ;
             case "display":
                 return EmbedMeowBoard(command);
+            case "restart-game":
+                if (command.User is SocketGuildUser user && command.Channel is SocketGuildChannel channel)
+                {
+                    if (user.GetPermissions(channel).ManageMessages)
+                    {
+                        TreasureGame.ResetTreasureGame();
+                        return command.RespondAsync("Resetting treasure game", ephemeral: true);
+                    }
+
+                    return command.RespondAsync("You must at least be a moderator to run this command, meow", ephemeral: true);
+                }
+                return command.RespondAsync("Invalid command state in restart-game, sorry, this is a bug!", ephemeral: true);
             case "my-bank":
                 var acc = GetUserAccount(command.User.Id);
                 return command.RespondAsync($"Your balance is {acc.MeowMoney} Meows", ephemeral: true);
