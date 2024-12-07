@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -247,7 +247,7 @@ public class MeowBoardModule : GuildModule
     {
         protected WeakReference<MeowBoardModule> Owner = new(Owner);
         protected ConcurrentBag<ulong> TreasureHunters = [];
-        protected ulong FirstResponder = 0;
+        protected ulong FirstResponder = 0u;
         protected bool GameActive = false;
         public object LockRoot = new();
         internal DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
@@ -261,6 +261,17 @@ public class MeowBoardModule : GuildModule
                 return;
 
             gameMessage.DeleteAsync();
+            gameMessage = null;
+        }
+
+        internal void ResetTreasureGame()
+        {
+            TreasureHunters = [];
+            DeleteCurrentTreasureMessage();
+            GameActive = false;
+            NextGameAt = DateTime.Now.AddSeconds(10f);
+            GameEndsAt = DateTime.Now.AddSeconds(10f);
+            FirstResponder = 0u;
         }
 
         protected string[] TreasureMessages = [
