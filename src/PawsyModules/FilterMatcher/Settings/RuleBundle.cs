@@ -14,7 +14,10 @@ public class RuleBundle
     public string Regex { get; set; }
     public string? ResponseMSG { get; set; }
     public string RuleName { get; set; }
-    public Color WarnColor { get; set; } = Color.Red;
+
+    public int WarnColorRed { get; set; } = 255;
+    public int WarnColorGreen { get; set; } = 0;
+    public int WarnColorBlue { get; set; } = 0;
     public bool DeleteMessage { get; set; } = false;
     public bool WarnStaff { get; set; } = true;
     public FilterType FilterStyle { get; set; } = FilterType.BlackList;
