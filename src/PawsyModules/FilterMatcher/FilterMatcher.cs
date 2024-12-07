@@ -205,6 +205,7 @@ public class FilterMatcherModule : GuildModule
                                 break;
                             case "regex":
                                 bundle.Regex = (string)item.Value;
+                                bundle.reg = new(bundle.Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
                                 break;
                             case "channel":
                                 ulong id = ((SocketTextChannel)item.Value).Id;
