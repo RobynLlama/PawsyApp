@@ -62,10 +62,7 @@ public class MeowBoardModule : GuildModule
             Enabled = false;
         }
 
-        if (!TreasureGame.GameActive || TreasureGame.gameMessage is null)
-            return;
-
-        TreasureGame.gameMessage.DeleteAsync();
+        TreasureGame.DeleteCurrentTreasureMessage();
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
@@ -251,12 +248,20 @@ public class MeowBoardModule : GuildModule
         protected WeakReference<MeowBoardModule> Owner = new(Owner);
         protected ConcurrentBag<ulong> TreasureHunters = [];
         protected ulong FirstResponder = 0;
-        internal bool GameActive = false;
+        protected bool GameActive = false;
         public object LockRoot = new();
         internal DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
         protected DateTime GameEndsAt = DateTime.Now.AddSeconds(10f);
-        internal RestUserMessage? gameMessage;
+        protected RestUserMessage? gameMessage;
         protected int currentLine = 0;
+
+        internal void DeleteCurrentTreasureMessage()
+        {
+            if (!GameActive || gameMessage is null)
+                return;
+
+            gameMessage.DeleteAsync();
+        }
 
         protected string[] TreasureMessages = [
             "A truly meow-tastic treasure has appeared!",
