@@ -220,7 +220,7 @@ public class FilterMatcherModule : GuildModule
                                 bundle.DeleteMessage = (bool)item.Value;
                                 break;
                             case "reply":
-                                if ((string)item.Value == "") bundle.SendResponse = false;
+                                if ((string)item.Value == "null") bundle.SendResponse = false;
                                 else bundle.SendResponse = true;
                                 bundle.ResponseMSG = (string)item.Value;
                                 break;
