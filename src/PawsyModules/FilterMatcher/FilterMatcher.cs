@@ -379,7 +379,7 @@ public class FilterMatcherModule : GuildModule
         Embed embed = new EmbedBuilder()
         .WithTitle("Detected message")
         .WithDescription($"{message.Author}(<@{message.Author.Id}>)\nMessage ID:{message.Id}\nChannel: <#{message.Channel.Id}>\nContents:\n\n{message.CleanContent}")
-        .WithColor(violation.ColorR, violation.ColorG, violation.ColorB)
+        .WithColor(violation.WarnColor.R, violation.WarnColor.G, violation.WarnColor.B)
         .WithFooter($"Rule: {violation.RuleName}")
         .WithCurrentTimestamp()
         .Build();

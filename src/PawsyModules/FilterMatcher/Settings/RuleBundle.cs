@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
@@ -13,9 +14,7 @@ public class RuleBundle
     public string Regex { get; set; }
     public string? ResponseMSG { get; set; }
     public string RuleName { get; set; }
-    public int ColorR { get; set; } = 255;
-    public int ColorG { get; set; } = 0;
-    public int ColorB { get; set; } = 0;
+    public Color WarnColor { get; set; } = Color.Red;
     public bool DeleteMessage { get; set; } = false;
     public bool WarnStaff { get; set; } = true;
     public FilterType FilterStyle { get; set; } = FilterType.BlackList;
