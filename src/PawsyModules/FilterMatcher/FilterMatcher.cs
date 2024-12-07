@@ -13,6 +13,7 @@ using PawsyApp.PawsyCore.Modules;
 
 using FilterMatcher.Settings;
 using System.Text.RegularExpressions;
+using System.Reflection.Emit;
 
 namespace FilterMatcher;
 
@@ -419,7 +420,21 @@ public class FilterMatcherModule : GuildModule
     {
         Embed embed = new EmbedBuilder()
         .WithTitle("Detected message")
-        .WithDescription($"{message.Author}(<@{message.Author.Id}>)\nMessage ID:{message.Id}\nChannel: <#{message.Channel.Id}>\nContents:\n\n{message.CleanContent}")
+        .WithFields(new EmbedFieldBuilder()
+                    .WithName("Author")
+                    .WithValue($"{message.Author.Mention}")
+                    .WithIsInline(true),
+                    new EmbedFieldBuilder()
+                    .WithName($"Message {(violation.DeleteMessage ? "ID" : "")}")
+                    .WithValue($"{(violation.DeleteMessage ? message.Id : message.GetJumpUrl())}")
+                    .WithIsInline(true),
+                    new EmbedFieldBuilder()
+                    .WithName("Channel")
+                    .WithValue($"<#{message.Channel.Id}>")
+                    .WithIsInline(true),
+                    new EmbedFieldBuilder()
+                    .WithName("Content")
+                    .WithValue($"{message.CleanContent}"))
         .WithColor(violation.WarnColorRed, violation.WarnColorGreen, violation.WarnColorBlue)
         .WithFooter($"Rule: {violation.RuleName}")
         .WithCurrentTimestamp()
