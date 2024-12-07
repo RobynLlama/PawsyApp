@@ -186,7 +186,7 @@ public class FilterMatcherModule : GuildModule
                                                                 .Select(i => (long)i)
                                                                 .First(i => !Settings.RuleList.Keys.Contains(i)),
                                                                 new(ruleName,
-                                                                ruleName));
+                                                                ruleRegex));
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
                     await command.RespondAsync($"Rule {ruleName} added, meow", ephemeral: true);
                     return;
