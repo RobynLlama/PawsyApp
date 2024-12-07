@@ -194,9 +194,8 @@ public class FilterMatcherModule : GuildModule
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
             case "edit":
-                if (subOpts.First().Value is long ruleID1 && Settings.RuleList.TryGetValue(ruleID1, out RuleBundle bundle))
+                if (subOpts.First().Value is long ruleID1 && Settings.RuleList.TryGetValue(ruleID1, out RuleBundle? bundle))
                 {
-                   Guild owner;
                     foreach (var item in subOpts)
                     {
                         switch (item.Name)
