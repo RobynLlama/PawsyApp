@@ -20,7 +20,7 @@ public class RuleBundle
     public int WarnColorBlue { get; set; } = 0;
     public bool DeleteMessage { get; set; } = false;
     public bool WarnStaff { get; set; } = true;
-    public FilterType FilterStyle { get; set; } = FilterType.BlackList;
+    public FilterType FilterStyle { get; set; } = FilterType.WhiteList;
     public List<ulong> FilteredChannels { get; set; } = [];
     public bool SendResponse
     {
