@@ -62,10 +62,7 @@ public class MeowBoardModule : GuildModule
             Enabled = false;
         }
 
-        if (!TreasureGame.GameActive || TreasureGame.gameMessage is null)
-            return;
-
-        TreasureGame.gameMessage.DeleteAsync();
+        TreasureGame.DeleteCurrentTreasureMessage();
     }
 
     public override SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder builder)
@@ -76,6 +73,12 @@ public class MeowBoardModule : GuildModule
             .WithType(ApplicationCommandOptionType.SubCommand)
             .WithName("meow")
             .WithDescription("Pawsy will meow for you")
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("restart-game")
+            .WithDescription("If Pawsy has lost track of the treasure game this will send a new message")
         )
         .AddOption(
             new SlashCommandOptionBuilder()
@@ -160,6 +163,18 @@ public class MeowBoardModule : GuildModule
                 return command.RespondAsync($"Meow!"); ;
             case "display":
                 return EmbedMeowBoard(command);
+            case "restart-game":
+                if (command.User is SocketGuildUser user && command.Channel is SocketGuildChannel channel)
+                {
+                    if (user.GetPermissions(channel).ManageMessages)
+                    {
+                        TreasureGame.ResetTreasureGame();
+                        return command.RespondAsync("Resetting treasure game", ephemeral: true);
+                    }
+
+                    return command.RespondAsync("You must at least be a moderator to run this command, meow", ephemeral: true);
+                }
+                return command.RespondAsync("Invalid command state in restart-game, sorry, this is a bug!", ephemeral: true);
             case "my-bank":
                 var acc = GetUserAccount(command.User.Id);
                 return command.RespondAsync($"Your balance is {acc.MeowMoney} Meows", ephemeral: true);
@@ -250,13 +265,32 @@ public class MeowBoardModule : GuildModule
     {
         protected WeakReference<MeowBoardModule> Owner = new(Owner);
         protected ConcurrentBag<ulong> TreasureHunters = [];
-        protected ulong FirstResponder = 0;
-        internal bool GameActive = false;
+        protected ulong FirstResponder = 0u;
+        protected bool GameActive = false;
         public object LockRoot = new();
         internal DateTime NextGameAt = DateTime.Now.AddSeconds(10f);
         protected DateTime GameEndsAt = DateTime.Now.AddSeconds(10f);
-        internal RestUserMessage? gameMessage;
+        protected RestUserMessage? gameMessage;
         protected int currentLine = 0;
+
+        internal void DeleteCurrentTreasureMessage()
+        {
+            if (!GameActive || gameMessage is null)
+                return;
+
+            gameMessage.DeleteAsync();
+            gameMessage = null;
+        }
+
+        internal void ResetTreasureGame()
+        {
+            TreasureHunters = [];
+            DeleteCurrentTreasureMessage();
+            GameActive = false;
+            NextGameAt = DateTime.Now.AddSeconds(10f);
+            GameEndsAt = DateTime.Now.AddSeconds(10f);
+            FirstResponder = 0u;
+        }
 
         protected string[] TreasureMessages = [
             "A truly meow-tastic treasure has appeared!",
