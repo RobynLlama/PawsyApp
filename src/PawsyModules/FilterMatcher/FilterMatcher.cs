@@ -245,13 +245,13 @@ public class FilterMatcherModule : GuildModule
                                 bundle1.WarnColorGreen = g; 
                                 bundle1.WarnColorBlue = b;
                                 break;
-
                         }
                     }
                     Settings.RuleList[ruleID1] = bundle1;
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
 
                     await command.RespondAsync($"Modified {bundle1.RuleName}, meow!", ephemeral: true);
+                    return;
                 }
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
