@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -204,7 +205,7 @@ public class FilterMatcherModule : GuildModule
                                 bundle.RuleName = (string)item.Value;
                                 break;
                             case "regex":
-                                bundle.reg = (Regex)item.Value;
+                                bundle.Regex = (string)item.Value;
                                 break;
                             case "channel":
                                 ulong id = ((SocketTextChannel)item.Value).Id;
