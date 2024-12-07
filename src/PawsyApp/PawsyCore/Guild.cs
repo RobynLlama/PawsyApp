@@ -101,6 +101,18 @@ public class Guild : ISettingsOwner, IActivatable
     public void OnActivate()
     {
         GuildCommandSetup();
+
+        foreach (var item in Modules.Values)
+        {
+            //this might not be required to check given that if
+            //we've instanced a module it must be by user action
+            if (Settings.EnabledModules.Contains(item.Name))
+            {
+                LogAppendLine(Name, $"Activating {item.Name}");
+                item.OnActivate();
+            }
+        }
+
         Available = true;
     }
 
@@ -192,11 +204,6 @@ public class Guild : ISettingsOwner, IActivatable
                 RegisterSlashCommand(item.OnCommandsDeclared(commandRoot));
             }
 
-            if (Settings is not null && Settings.EnabledModules.Contains(item.Name))
-            {
-                LogAppendLine(Name, $"Activating {item.Name}");
-                item.OnActivate();
-            }
         }
 
         RegisterSlashCommand(
@@ -286,9 +293,16 @@ public class Guild : ISettingsOwner, IActivatable
                 LoadModuleByName(modName);
                 Settings.EnabledModules.Add(modName);
                 (Settings as ISettings).Save<GuildSettings>(this);
-                GuildCommandSetup();
-                await command.RespondAsync($"Activating {modName}");
 
+                if (Modules.TryGetValue(modName, out var newMod))
+                {
+                    newMod.OnActivate();
+                    GuildCommandSetup();
+                    await command.RespondAsync($"Activating {modName}");
+                    return;
+                }
+
+                await command.RespondAsync($"Something went wrong activating {modName}");
                 return;
             case "deactivate":
                 modName = subCommand.Options.First().Value.ToString() ?? string.Empty;
