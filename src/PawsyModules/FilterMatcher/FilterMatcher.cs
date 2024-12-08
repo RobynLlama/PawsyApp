@@ -430,8 +430,6 @@ public class FilterMatcherModule : GuildModule
 
                     tasks.Add(message.DeleteAsync());
                 }
-
-                break;
             }
         }
 
