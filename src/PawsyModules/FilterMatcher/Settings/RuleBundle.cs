@@ -23,7 +23,7 @@ public class RuleBundle
     public bool WarnStaff { get; set; } = true;
     public FilterType FilterStyle { get; set; } = FilterType.WhiteList;
     public List<ulong> FilteredChannels { get; set; } = [];
-    public int cooldown { get; set; } = 0;
+    public int Cooldown { get; set; } = 0;
 
     [JsonIgnore]
     public long lastMatchTime { get; set; }

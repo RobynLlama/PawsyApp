@@ -254,7 +254,7 @@ public class FilterMatcherModule : GuildModule
                                 break;
                             case "cooldown":
                                 int cooldown = (int)(long)item.Value;
-                                bundle1.cooldown = cooldown;
+                                bundle1.Cooldown = cooldown;
                                 break;
                         }
                     }
@@ -295,7 +295,7 @@ public class FilterMatcherModule : GuildModule
                     sb.Append("Warn Color: ");
                     sb.AppendLine($"{new Color(bundle2.WarnColorRed, bundle2.WarnColorGreen, bundle2.WarnColorBlue).ToString()}");
                     sb.Append("Cooldown: ");
-                    sb.AppendLine($"{bundle2.cooldown}s");
+                    sb.AppendLine($"{bundle2.Cooldown}s");
 
                     await command.RespondAsync(sb.ToString(), ephemeral: true);
                     return;
@@ -407,7 +407,7 @@ public class FilterMatcherModule : GuildModule
                 }
 
                 //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
-                if (item.SendResponse && DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.cooldown))
+                if (item.SendResponse && DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.Cooldown))
                 {
                     item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
