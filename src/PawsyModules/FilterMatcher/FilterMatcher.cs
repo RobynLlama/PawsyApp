@@ -398,12 +398,12 @@ public class FilterMatcherModule : GuildModule
                     tasks.Add(LogAppendLine("Filter responding to a message"));
                     if (item.DeleteMessage)
                     {
-                        tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG?.Replace("{author}", $"<@{message.Author.Id}>")));
+                        tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
 
                     }
                     else
                     { 
-                        tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"<@{message.Author.Id}>")));
+                        tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
                     }
                 }
 
@@ -412,8 +412,7 @@ public class FilterMatcherModule : GuildModule
                     LastDeletedMessage = message.Id;
                     tasks.Add(LogAppendLine("Filter is deleting a message"));
 
-                    var m = await message.Channel.GetMessageAsync(message.Id);
-                    tasks.Add(m.DeleteAsync());
+                    tasks.Add(message.DeleteAsync());
                 }
 
                 break;
