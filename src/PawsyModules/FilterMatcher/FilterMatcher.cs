@@ -368,7 +368,7 @@ public class FilterMatcherModule : GuildModule
 
         if (message.Author is SocketGuildUser gUser)
         {
-            if (/*gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568*/false)
+            if (gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568 && gUser.Id != 792068317962567720)
             {
                 await LogAppendLine("User is exempt from filters");
                 return;
