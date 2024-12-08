@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.Json.Serialization;
@@ -22,6 +23,10 @@ public class RuleBundle
     public bool WarnStaff { get; set; } = true;
     public FilterType FilterStyle { get; set; } = FilterType.WhiteList;
     public List<ulong> FilteredChannels { get; set; } = [];
+    public int cooldown { get; set; } = 0;
+
+    [JsonIgnore]
+    public long lastMatchTime { get; set; }
     public bool SendResponse
     {
         get

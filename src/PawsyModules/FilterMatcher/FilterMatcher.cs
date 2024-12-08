@@ -146,6 +146,13 @@ public class FilterMatcherModule : GuildModule
                     .WithType(ApplicationCommandOptionType.String)
                     .WithDescription("The color of the message report embeded")
                 )
+                .AddOption(
+                    new SlashCommandOptionBuilder()
+                    .WithName("cooldown")
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .WithDescription("The cooldown (in seconds) before this rule can be triggered again")
+                    .WithMinValue(0)
+                )
             )
             .AddOption(
                 new SlashCommandOptionBuilder()
@@ -245,6 +252,10 @@ public class FilterMatcherModule : GuildModule
                                 bundle1.WarnColorGreen = g; 
                                 bundle1.WarnColorBlue = b;
                                 break;
+                            case "cooldown":
+                                int cooldown = (int)(long)item.Value;
+                                bundle1.cooldown = cooldown;
+                                break;
                         }
                     }
                     Settings.RuleList[ruleID1] = bundle1;
@@ -283,6 +294,8 @@ public class FilterMatcherModule : GuildModule
                     sb.AppendLine(bundle2.WarnStaff.ToString());
                     sb.Append("Warn Color: ");
                     sb.AppendLine($"R: {bundle2.WarnColorRed}, G: {bundle2.WarnColorGreen}, B: {bundle2.WarnColorBlue},");
+                    sb.Append("Cooldown: ");
+                    sb.AppendLine($"{bundle2.cooldown}s");
 
                     await command.RespondAsync(sb.ToString(), ephemeral: true);
                     return;
@@ -380,8 +393,10 @@ public class FilterMatcherModule : GuildModule
 
         foreach (var item in Settings.RuleList.Values)
         {
-            if (item.Match(message.CleanContent, channel))
+            if (DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.cooldown) && item.Match(message.CleanContent, channel))
             {
+                item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
                 if (item.WarnStaff)
                 {
                     if (channel.Guild.GetChannel(Settings.LoggingChannelID) is SocketTextChannel logChannel)
