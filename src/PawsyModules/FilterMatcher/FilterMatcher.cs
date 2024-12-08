@@ -395,7 +395,6 @@ public class FilterMatcherModule : GuildModule
         {
             if (item.Match(message.CleanContent, channel))
             {
-                item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
                 if (item.WarnStaff)
                 {
@@ -410,6 +409,8 @@ public class FilterMatcherModule : GuildModule
                 //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
                 if (item.SendResponse && DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.cooldown))
                 {
+                    item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
                     tasks.Add(LogAppendLine("Filter responding to a message"));
                     if (item.DeleteMessage)
                     {
