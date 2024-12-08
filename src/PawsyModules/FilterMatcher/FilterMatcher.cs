@@ -293,7 +293,7 @@ public class FilterMatcherModule : GuildModule
                     sb.Append("Warn Staff: ");
                     sb.AppendLine(bundle2.WarnStaff.ToString());
                     sb.Append("Warn Color: ");
-                    sb.AppendLine($"R: {bundle2.WarnColorRed}, G: {bundle2.WarnColorGreen}, B: {bundle2.WarnColorBlue},");
+                    sb.AppendLine($"{new Color(bundle2.WarnColorRed, bundle2.WarnColorGreen, bundle2.WarnColorBlue).ToString()}");
                     sb.Append("Cooldown: ");
                     sb.AppendLine($"{bundle2.cooldown}s");
 
