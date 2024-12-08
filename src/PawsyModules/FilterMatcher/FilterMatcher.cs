@@ -153,6 +153,14 @@ public class FilterMatcherModule : GuildModule
                     .WithDescription("The cooldown (in seconds) before this rule can be triggered again")
                     .WithMinValue(0)
                 )
+                .AddOption(
+                    new SlashCommandOptionBuilder()
+                    .WithName("type")
+                    .WithType(ApplicationCommandOptionType.Integer)
+                    .WithDescription("The type of filter")
+                    .AddChoice("Blacklist", 0)
+                    .AddChoice("Whitelist", 1)
+                )
             )
             .AddOption(
                 new SlashCommandOptionBuilder()
@@ -255,6 +263,10 @@ public class FilterMatcherModule : GuildModule
                             case "cooldown":
                                 int cooldown = (int)(long)item.Value;
                                 bundle1.Cooldown = cooldown;
+                                break;
+                            case "type":
+                                int type = (int)(long)item.Value;
+                                bundle1.FilterStyle = (FilterType)type;
                                 break;
                         }
                     }
