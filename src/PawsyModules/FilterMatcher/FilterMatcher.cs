@@ -393,7 +393,7 @@ public class FilterMatcherModule : GuildModule
 
         foreach (var item in Settings.RuleList.Values)
         {
-            if (DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.cooldown) && item.Match(message.CleanContent, channel))
+            if (item.Match(message.CleanContent, channel))
             {
                 item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
@@ -408,7 +408,7 @@ public class FilterMatcherModule : GuildModule
                 }
 
                 //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
-                if (item.SendResponse)
+                if (item.SendResponse && DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.cooldown))
                 {
                     tasks.Add(LogAppendLine("Filter responding to a message"));
                     if (item.DeleteMessage)
