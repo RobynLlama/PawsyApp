@@ -396,8 +396,15 @@ public class FilterMatcherModule : GuildModule
                 if (item.SendResponse)
                 {
                     tasks.Add(LogAppendLine("Filter responding to a message"));
-                    if (item.DeleteMessage) tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG?.Replace("{author}", $"<@{message.Author.Id}>")));
-                    else tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"<@{message.Author.Id}>")));
+                    if (item.DeleteMessage)
+                    {
+                        tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG?.Replace("{author}", $"<@{message.Author.Id}>")));
+
+                    }
+                    else
+                    { 
+                        tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"<@{message.Author.Id}>")));
+                    }
                 }
 
                 if (item.DeleteMessage)
