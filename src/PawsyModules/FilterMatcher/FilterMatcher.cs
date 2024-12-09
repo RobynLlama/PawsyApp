@@ -308,6 +308,8 @@ public class FilterMatcherModule : GuildModule
                     sb.AppendLine($"{new Color(bundle2.WarnColorRed, bundle2.WarnColorGreen, bundle2.WarnColorBlue).ToString()}");
                     sb.Append("Cooldown: ");
                     sb.AppendLine($"{bundle2.Cooldown}s");
+                    sb.Append("Type: ");
+                    sb.AppendLine($"{bundle2.FilterStyle}");
 
                     await command.RespondAsync(sb.ToString(), ephemeral: true);
                     return;
