@@ -153,14 +153,7 @@ public class LogMuncherModule : GuildModule
                     await Task.Delay(750);
                     //await LogAppendLine("Sending a result");
 
-                    string output = thing.ToString();
-                    if (output.Length > 1500)
-                    {
-                        await LogAppendLine("Trimming a large result");
-                        output = output[..1500];
-                        await message.Channel.SendMessageAsync("This message was too large, trimming to 1500 characters its gonna look ugly, meow!");
-                        await Task.Delay(350);
-                    }
+                    string output = thing.ToStringLimited(500);
 
                     try
                     {
