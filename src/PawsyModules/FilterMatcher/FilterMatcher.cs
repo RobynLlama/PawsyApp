@@ -14,6 +14,7 @@ using PawsyApp.PawsyCore.Modules;
 using FilterMatcher.Settings;
 using System.Text.RegularExpressions;
 using System.Reflection.Emit;
+using System.Data;
 
 namespace FilterMatcher;
 
@@ -204,9 +205,15 @@ public class FilterMatcherModule : GuildModule
             case "add":
                 if (subOpts[0].Value is string ruleName && subOpts[1].Value is string ruleRegex)
                 {
+                    if (!RuleBundle.isValid(ruleRegex))
+                    {
+                        await command.RespondAsync($"Please input a valid regex pattern :3", ephemeral: true);
+                        return;
+                    }
+
                     Settings.RuleList.TryAdd(Enumerable.Range(0, int.MaxValue)
                                                                 .Select(i => (long)i)
-                                                                .First(i => !Settings.RuleList.Keys.Contains(i)),
+                                                                .First(i => !Settings.RuleList.ContainsKey(i)),
                                                                 new(ruleName,
                                                                 ruleRegex));
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
@@ -226,6 +233,12 @@ public class FilterMatcherModule : GuildModule
                                 bundle1.RuleName = (string)item.Value;
                                 break;
                             case "regex":
+                                if (!RuleBundle.isValid((string)item.Value))
+                                {
+                                    await command.RespondAsync($"Please input a valid regex pattern :3", ephemeral: true);
+                                    return;
+                                }
+
                                 bundle1.Regex = (string)item.Value;
                                 bundle1.reg = new(bundle1.Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
                                 break;
