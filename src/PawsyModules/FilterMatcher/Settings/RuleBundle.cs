@@ -58,6 +58,7 @@ public class RuleBundle
 
     public bool Match(string content, SocketGuildChannel channel)
     {
+        
 
         var channelID = channel.Id;
 
@@ -74,5 +75,20 @@ public class RuleBundle
 
         reg ??= new(Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
         return reg.Match(content).Success;
+    }
+
+    public static bool isValid(string regex)
+    {
+        if (string.IsNullOrWhiteSpace(regex)) return false;
+
+        try
+        {
+            System.Text.RegularExpressions.Regex.IsMatch("", regex);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
