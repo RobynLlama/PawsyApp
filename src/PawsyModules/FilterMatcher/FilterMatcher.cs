@@ -145,7 +145,7 @@ public class FilterMatcherModule : GuildModule
                     new SlashCommandOptionBuilder()
                     .WithName("warn-color")
                     .WithType(ApplicationCommandOptionType.String)
-                    .WithDescription("The color of the message report embeded")
+                    .WithDescription("The color of the embed in hex notation RRGGBB")
                 )
                 .AddOption(
                     new SlashCommandOptionBuilder()
