@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Discord.WebSocket;
@@ -13,13 +15,18 @@ public class RuleBundle
     public string Regex { get; set; }
     public string? ResponseMSG { get; set; }
     public string RuleName { get; set; }
-    public int ColorR { get; set; } = 255;
-    public int ColorG { get; set; } = 0;
-    public int ColorB { get; set; } = 0;
+
+    public int WarnColorRed { get; set; } = 255;
+    public int WarnColorGreen { get; set; } = 0;
+    public int WarnColorBlue { get; set; } = 0;
     public bool DeleteMessage { get; set; } = false;
     public bool WarnStaff { get; set; } = true;
-    public FilterType FilterStyle { get; set; } = FilterType.BlackList;
+    public FilterType FilterStyle { get; set; } = FilterType.WhiteList;
     public List<ulong> FilteredChannels { get; set; } = [];
+    public int Cooldown { get; set; } = 0;
+
+    [JsonIgnore]
+    public long lastMatchTime { get; set; }
     public bool SendResponse
     {
         get
@@ -51,6 +58,7 @@ public class RuleBundle
 
     public bool Match(string content, SocketGuildChannel channel)
     {
+        
 
         var channelID = channel.Id;
 
@@ -67,5 +75,20 @@ public class RuleBundle
 
         reg ??= new(Regex, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Multiline, new(0, 0, 1));
         return reg.Match(content).Success;
+    }
+
+    public static bool isValid(string regex)
+    {
+        if (string.IsNullOrWhiteSpace(regex)) return false;
+
+        try
+        {
+            System.Text.RegularExpressions.Regex.IsMatch("", regex);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
