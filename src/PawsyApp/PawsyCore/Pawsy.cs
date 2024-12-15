@@ -377,6 +377,8 @@ public class Pawsy
         {
             tasks.Add(LogAppendLine(Name, "Removing Guild hooks"));
             thisGuild.OnDeactivate();
+            tasks.Add(LogAppendLine(Name, "Destroying Guild instance"));
+            Guilds.Remove(thisGuild.ID, out var _);
         }
 
         await Task.WhenAll(tasks);
