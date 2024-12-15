@@ -94,7 +94,9 @@ public class Guild : ISettingsOwner, IActivatable
         }
         else
         {
-            LogAppendLine(Name, $"Something went very wrong while loading module: {name}");
+            LogAppendLine(Name, $"Failed to load : {name}, removing from active list");
+            Settings.EnabledModules.Remove(name);
+            (Settings as ISettings).Save<GuildSettings>(this);
         }
     }
 
