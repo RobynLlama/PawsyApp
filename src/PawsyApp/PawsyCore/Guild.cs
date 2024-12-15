@@ -129,6 +129,17 @@ public class Guild : ISettingsOwner, IActivatable
         Available = false;
     }
 
+    public void Destroy()
+    {
+        foreach (IGuildModule module in Modules.Values)
+        {
+            LogAppendLine(Name, $"Destroying: {module.Name}");
+            module.Destroy();
+        }
+
+        Modules.Clear();
+    }
+
     public void GuildCommandSetup()
     {
 

@@ -32,6 +32,10 @@ public abstract class GuildModule(Guild Owner, string name, bool declaresConfig 
     {
         return;
     }
+    public virtual void Destroy()
+    {
+        return;
+    }
     public virtual void OnConfigDeclared(SlashCommandOptionBuilder rootConfig)
     {
         return;
