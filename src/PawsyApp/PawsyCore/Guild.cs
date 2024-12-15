@@ -120,6 +120,7 @@ public class Guild : ISettingsOwner, IActivatable
     {
         foreach (var item in Modules.Values)
         {
+            LogAppendLine(Name, $"Deactivating: {item.Name}");
             item.OnDeactivate();
         }
 
