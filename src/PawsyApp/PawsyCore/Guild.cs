@@ -58,9 +58,9 @@ public class Guild : ISettingsOwner, IActivatable
 
     protected void SetupModules()
     {
-        object[] constructorArgs = [this];  // Example constructor arguments
+        var names = Settings.EnabledModules.ToArray();
 
-        foreach (string name in Settings.EnabledModules)
+        foreach (string name in names)
         {
             LoadModuleByName(name);
         }
