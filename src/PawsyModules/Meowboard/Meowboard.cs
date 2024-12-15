@@ -183,6 +183,11 @@ public class MeowBoardModule : GuildModule
         }
     }
 
+    public override void Destroy()
+    {
+        TreasureGame.DeleteCurrentTreasureMessage();
+    }
+
     private Task EmbedMeowBoard(SocketSlashCommand command)
     {
 

@@ -15,4 +15,5 @@ public interface IGuildModule : ISettingsOwner, IActivatable
     abstract void OnConfigDeclared(SlashCommandOptionBuilder rootConfig);
     abstract Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options);
     abstract SlashCommandBundle OnCommandsDeclared(SlashCommandBuilder rootCommand);
+    abstract void Destroy();
 }

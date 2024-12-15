@@ -83,6 +83,7 @@ public class Pawsy
 
         if (!ModuleRegistry.TryGetValue(from, out var foundType))
         {
+            LogAppendLine(Name, $"Module {from} doesn't exist in the registry");
             return null;
         }
 
@@ -103,22 +104,23 @@ public class Pawsy
                     return gm;
                 }
 
-                Console.WriteLine($"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
+                LogAppendLine(Name, $"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
                 return null;
             }
             catch (MissingMethodException)
             {
-                Console.WriteLine($"Unable to instance a module from {foundType.Name} due to missing method");
+                LogAppendLine(Name, $"Unable to instance a module from {foundType.Name} due to missing method");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred while attempting to instance {foundType.Name}\nStack: {ex}");
+                LogAppendLine(Name, $"An error occurred while attempting to instance {foundType.Name}\nStack: {ex}");
             }
 
+            LogAppendLine(Name, "returning null for an unspecified reason");
             return null;
         }
 
-        Console.WriteLine($"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
+        LogAppendLine(Name, $"Unable to instance a module from {foundType.Name} due to not conforming to module standard or object is null");
         return null;
     }
 
@@ -377,6 +379,9 @@ public class Pawsy
         {
             tasks.Add(LogAppendLine(Name, "Removing Guild hooks"));
             thisGuild.OnDeactivate();
+            tasks.Add(LogAppendLine(Name, "Destroying Guild instance"));
+            thisGuild.Destroy();
+            Guilds.Remove(thisGuild.ID, out var _);
         }
 
         await Task.WhenAll(tasks);
@@ -385,15 +390,16 @@ public class Pawsy
     protected Guild AddOrGetGuild(SocketGuild guild)
     {
         var ID = guild.Id;
-        LogAppendLine(Name, $"Retrieving Guild Instance for {ID}");
 
         if (Guilds.TryGetValue(ID, out var existingGuild))
         {
+            LogAppendLine(Name, $"Retrieving Guild Instance for {ID}");
             return existingGuild;
         }
 
         Guild newItem = new(guild, this);
         Guilds[ID] = newItem;
+        LogAppendLine(Name, $"Creating new instance for {ID}");
         return newItem;
 
         throw new Exception($"Unreachable code in AddOrGetGuild. ID: {ID}");
@@ -401,10 +407,11 @@ public class Pawsy
 
     public void OnCloseApp(object? sender, ConsoleCancelEventArgs args)
     {
-        LogAppendLine(Name, $"Deactivating {Guilds.Count} guilds");
+        LogAppendLine(Name, $"Destroying {Guilds.Count} guilds");
         foreach (var item in Guilds.Values)
         {
             item.OnDeactivate();
+            item.Destroy();
         }
 
         LogAppendLine(Name, "Closing Pawsy");

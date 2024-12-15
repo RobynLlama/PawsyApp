@@ -58,9 +58,9 @@ public class Guild : ISettingsOwner, IActivatable
 
     protected void SetupModules()
     {
-        object[] constructorArgs = [this];  // Example constructor arguments
+        var names = Settings.EnabledModules.ToArray();
 
-        foreach (string name in Settings.EnabledModules)
+        foreach (string name in names)
         {
             LoadModuleByName(name);
         }
@@ -94,7 +94,9 @@ public class Guild : ISettingsOwner, IActivatable
         }
         else
         {
-            LogAppendLine(Name, $"Something went very wrong while loading module: {name}");
+            LogAppendLine(Name, $"Failed to load : {name}, removing from active list");
+            Settings.EnabledModules.Remove(name);
+            (Settings as ISettings).Save<GuildSettings>(this);
         }
     }
 
@@ -120,10 +122,22 @@ public class Guild : ISettingsOwner, IActivatable
     {
         foreach (var item in Modules.Values)
         {
+            LogAppendLine(Name, $"Deactivating: {item.Name}");
             item.OnDeactivate();
         }
 
         Available = false;
+    }
+
+    public void Destroy()
+    {
+        foreach (IGuildModule module in Modules.Values)
+        {
+            LogAppendLine(Name, $"Destroying: {module.Name}");
+            module.Destroy();
+        }
+
+        Modules.Clear();
     }
 
     public void GuildCommandSetup()
