@@ -17,9 +17,24 @@ public class PawsyProgram
         Console.WriteLine($"Pawsy version {informationalVersion}");
 
         Pawsy pawsy = new();
+        bool running = true;
 
-        Console.CancelKeyPress += pawsy.OnCloseApp;
+        while (running)
+        {
+            await Task.Delay(100);
 
-        await Task.Delay(-1);
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(intercept: true);
+
+                if (key.Key == ConsoleKey.Q && key.Modifiers == ConsoleModifiers.Control)
+                {
+                    pawsy.Destroy();
+                    running = false;
+                }
+            }
+        }
+
+        Console.WriteLine("Program exit");
     }
 }
