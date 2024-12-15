@@ -405,15 +405,15 @@ public class Pawsy
         throw new Exception($"Unreachable code in AddOrGetGuild. ID: {ID}");
     }
 
-    public void OnCloseApp(object? sender, ConsoleCancelEventArgs args)
+    public void Destroy()
     {
-        LogAppendLine(Name, $"Destroying {Guilds.Count} guilds");
+        LogAppendLine(Name, "Pawsy is shutting down");
+
         foreach (var item in Guilds.Values)
         {
-            item.OnDeactivate();
             item.Destroy();
         }
 
-        LogAppendLine(Name, "Closing Pawsy");
+        LogAppendLine(Name, $"Pawsy has shut down {Guilds.Count} guilds safely");
     }
 }
