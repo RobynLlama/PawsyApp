@@ -280,9 +280,13 @@ public class MeowBoardModule : GuildModule
 
         internal void DeleteCurrentTreasureMessage()
         {
-            if (!GameActive || gameMessage is null)
+            if (gameMessage is null)
                 return;
 
+            if (!Owner.TryGetTarget(out var owner))
+                return;
+
+            owner.LogAppendLine("Deleting a treasure game message");
             gameMessage.DeleteAsync();
             gameMessage = null;
         }
@@ -362,6 +366,9 @@ public class MeowBoardModule : GuildModule
                         //Modify
                         if (gameMessage is not null)
                             await gameMessage.ModifyAsync(msg => { msg.Content = $"{Box}\nWorth {TreasureValue} Meows\nFirst Clicker Bonus <@{FirstResponder}> (+100)\n{Claimers}"; msg.Components = null; });
+
+                        //clear the message either way
+                        gameMessage = null;
 
                     }
                 }
