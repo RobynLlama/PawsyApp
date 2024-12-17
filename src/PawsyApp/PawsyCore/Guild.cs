@@ -147,16 +147,6 @@ public class Guild : ISettingsOwner, IActivatable
     {
         if (!Pawsy.TryGetTarget(out var owner))
             return;
-    }
-
-    /// <summary>
-    /// This method adds the specific commands from each module
-    /// </summary>
-    public void BuildGuildCommands()
-    {
-
-        if (!Pawsy.TryGetTarget(out var owner))
-            return;
 
         var optionAdd = new SlashCommandOptionBuilder()
         .WithName("name")
@@ -203,11 +193,11 @@ public class Guild : ISettingsOwner, IActivatable
         foreach (var thing in owner.GetRegistry)
         {
             optionAdd.AddChoice(thing, thing);
-            optionRemove.AddChoice(thing, thing);
         }
 
         foreach (var item in Modules.Values)
         {
+            optionRemove.AddChoice(item.Name, item.Name);
 
             //add a config option for each module
             if (item.ModuleDeclaresConfig)
@@ -221,15 +211,6 @@ public class Guild : ISettingsOwner, IActivatable
                 ModuleConfigurationRoot.AddOption(configRoot);
             }
 
-            if (item.ModuleDeclaresCommands)
-            {
-                var commandRoot = new SlashCommandBuilder()
-                .WithName(item.Name)
-                .WithDescription($"Run a command from {item.Name}");
-
-                RegisterSlashCommand(item.OnCommandsDeclared(commandRoot));
-            }
-
         }
 
         RegisterSlashCommand(
@@ -239,6 +220,27 @@ public class Guild : ISettingsOwner, IActivatable
         RegisterSlashCommand(
             new(GuildConfigurationEvent, ModuleConfigurationRoot.Build(), Name)
         );
+    }
+
+    /// <summary>
+    /// This method adds the specific commands from each module
+    /// </summary>
+    public void BuildGuildCommands()
+    {
+        if (!Pawsy.TryGetTarget(out var owner))
+            return;
+
+        foreach (var item in Modules.Values)
+        {
+            if (item.ModuleDeclaresCommands)
+            {
+                var commandRoot = new SlashCommandBuilder()
+                .WithName(item.Name)
+                .WithDescription($"Run a command from {item.Name}");
+
+                RegisterSlashCommand(item.OnCommandsDeclared(commandRoot));
+            }
+        }
     }
 
     private async Task GuildConfigurationEvent(SocketSlashCommand command)
