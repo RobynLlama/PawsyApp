@@ -366,7 +366,7 @@ public class Guild : ISettingsOwner, IActivatable
         return;
     }
 
-    protected async void RegisterSlashCommand(SlashCommandBundle bundle)
+    protected bool RegisterSlashCommand(SlashCommandBundle bundle)
     {
         await LogAppendLine(Name, $"Registering a command from {bundle.ModuleName}");
         var sockCommand = await DiscordGuild.CreateApplicationCommandAsync(bundle.BuiltCommand);
