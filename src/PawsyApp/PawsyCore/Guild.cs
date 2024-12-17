@@ -102,7 +102,7 @@ public class Guild : ISettingsOwner, IActivatable
 
     public void OnActivate()
     {
-        GuildCommandSetup();
+        BuildGuildCommands();
 
         foreach (var item in Modules.Values)
         {
@@ -140,7 +140,19 @@ public class Guild : ISettingsOwner, IActivatable
         Modules.Clear();
     }
 
-    public void GuildCommandSetup()
+    /// <summary>
+    /// This method adds the global commands such as /module-manage /module-config
+    /// </summary>
+    public void BuildGlobalGuildCommands()
+    {
+        if (!Pawsy.TryGetTarget(out var owner))
+            return;
+    }
+
+    /// <summary>
+    /// This method adds the specific commands from each module
+    /// </summary>
+    public void BuildGuildCommands()
     {
 
         if (!Pawsy.TryGetTarget(out var owner))
@@ -311,7 +323,7 @@ public class Guild : ISettingsOwner, IActivatable
                 if (Modules.TryGetValue(modName, out var newMod))
                 {
                     newMod.OnActivate();
-                    GuildCommandSetup();
+                    BuildGuildCommands();
                     await command.RespondAsync($"Activating {modName}");
                     return;
                 }
@@ -335,7 +347,7 @@ public class Guild : ISettingsOwner, IActivatable
                     Settings.EnabledModules.Remove(modName);
                     (Settings as ISettings).Save<GuildSettings>(this);
                     Modules.TryRemove(modName, out var _);
-                    GuildCommandSetup();
+                    BuildGuildCommands();
                     await command.RespondAsync($"{modName} disabled, meow!");
                     return;
                 }
