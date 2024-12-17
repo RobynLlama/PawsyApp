@@ -368,10 +368,24 @@ public class Guild : ISettingsOwner, IActivatable
 
     protected bool RegisterSlashCommand(SlashCommandBundle bundle)
     {
-        await LogAppendLine(Name, $"Registering a command from {bundle.ModuleName}");
-        var sockCommand = await DiscordGuild.CreateApplicationCommandAsync(bundle.BuiltCommand);
-        //var restCommand = await PawsyProgram.RestClient.CreateGuildCommand(bundle.BuiltCommand, ID);
-        GuildCommands.TryAdd(sockCommand.Id, bundle);
+        try
+        {
+            var sockCommand = DiscordGuild.CreateApplicationCommandAsync(bundle.BuiltCommand).Result;
+            LogAppendLine(Name, $"Registering a command from {bundle.ModuleName}");
+            GuildCommands.TryAdd(sockCommand.Id, bundle);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            LogAppendContext(Name, "Failed to create a guild command", [
+                ("Module",bundle.ModuleName),
+                ("Entry", bundle.Handler.GetType().Name),
+                ("Exception", ex.GetType().Name)
+            ]
+            );
+        }
+
+        return false;
     }
 
     public override string ToString()
