@@ -102,7 +102,8 @@ public class Guild : ISettingsOwner, IActivatable
 
     public void OnActivate()
     {
-        BuildGuildCommands();
+        //BuildGuildCommands();
+        BuildGlobalGuildCommands();
 
         foreach (var item in Modules.Values)
         {
@@ -326,6 +327,7 @@ public class Guild : ISettingsOwner, IActivatable
                 {
                     newMod.OnActivate();
                     BuildGuildCommands();
+                    BuildGlobalGuildCommands();
                     await command.RespondAsync($"Activating {modName}");
                     return;
                 }
@@ -350,6 +352,7 @@ public class Guild : ISettingsOwner, IActivatable
                     (Settings as ISettings).Save<GuildSettings>(this);
                     Modules.TryRemove(modName, out var _);
                     BuildGuildCommands();
+                    BuildGlobalGuildCommands();
                     await command.RespondAsync($"{modName} disabled, meow!");
                     return;
                 }
