@@ -57,7 +57,7 @@ public class Pawsy
         SocketClient.Log += SocketLog;
 
         //Guild Events
-        SocketClient.MessageReceived += MessageReceived;
+        SocketClient.MessageReceived += OnMessageReceived;
         SocketClient.MessageUpdated += OnMessageEdit;
         SocketClient.SlashCommandExecuted += OnSlashCommand;
         SocketClient.ThreadCreated += OnThreadCreated;
@@ -172,7 +172,7 @@ public class Pawsy
         output = (null, null)!;
         return false;
     }
-    private async Task MessageReceived(SocketMessage message)
+    private async Task OnMessageReceived(SocketMessage message)
     {
         //Filter out bots, system and webhook message
         if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
