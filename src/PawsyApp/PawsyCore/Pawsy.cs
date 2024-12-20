@@ -64,6 +64,7 @@ public class Pawsy
         SocketClient.ModalSubmitted += OnModalSubmit;
         SocketClient.ButtonExecuted += OnButtonClicked;
         SocketClient.SelectMenuExecuted += OnMenuSelected;
+        SocketClient.Connected += OnConnected;
 
         if (token is not null)
         {
@@ -76,6 +77,12 @@ public class Pawsy
         {
             LogAppendLine(Name, "Token not found");
         }
+    }
+
+    private async Task OnConnected()
+    {
+        await LogAppendLine(Name, "Pawsy Connected to Gateway");
+
     }
 
     public IGuildModule? InstantiateModuleByName(string from, object[] constructorArgs)
