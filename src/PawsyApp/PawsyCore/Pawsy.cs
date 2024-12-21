@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using PawsyApp.KittyColors;
 using PawsyApp.PawsyCore.Modules;
 using System.Reflection;
+using System.Linq;
 
 namespace PawsyApp.PawsyCore;
 
@@ -83,6 +84,39 @@ public class Pawsy
     {
         await LogAppendLine(Name, "Pawsy Connected to Gateway");
 
+        var meow = new SlashCommandBuilder()
+        .WithName("meow-meow")
+        .WithDescription("Pawsy will meow for you")
+        .Build();
+
+        var pSay = new SlashCommandBuilder()
+        .WithName("pawsy-say")
+        .WithDescription("Pawsy says something (Restricted)")
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithName("server-id")
+            .WithDescription("The server to send the message to")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithName("channel-id")
+            .WithDescription("The channel to send the message to")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithName("message")
+            .WithDescription("The message")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+        )
+        .Build();
+
+        await SocketClient.CreateGlobalApplicationCommandAsync(meow);
+        await SocketClient.CreateGlobalApplicationCommandAsync(pSay);
     }
 
     public IGuildModule? InstantiateModuleByName(string from, object[] constructorArgs)
@@ -217,17 +251,73 @@ public class Pawsy
         }
     }
 
+    private bool HandleGlobalCommands(SocketSlashCommand command)
+    {
+        switch (command.CommandName)
+        {
+            case "meow-meow":
+                command.RespondAsync("Meow!", ephemeral: true);
+                return true;
+            case "pawsy-say":
+                if (command.User.Id != 156515680353517568)
+                {
+                    command.RespondAsync("This command is restricted", ephemeral: true);
+                    return true;
+                }
+
+                var opts = command.Data.Options.ToArray();
+
+                LogAppendLine(Name, $"Options array size {opts.Length}");
+
+                if (opts[0].Value is string rawServer && opts[1].Value is string rawChannel && opts[2].Value is string message)
+                {
+                    LogAppendContext(Name, "pawsy-say", [
+                        ("Server", rawServer),
+                        ("Channel", rawChannel),
+                        ("message", message)
+                    ]);
+
+                    if (!ulong.TryParse(rawServer, out var server))
+                    {
+                        command.RespondAsync("Unable to parse server", ephemeral: true);
+                        return true;
+                    }
+
+                    if (!ulong.TryParse(rawChannel, out var channel))
+                    {
+                        command.RespondAsync("Unable to parse channel", ephemeral: true);
+                        return true;
+                    }
+
+                    if (!Guilds.TryGetValue(server, out var sayGuild))
+                    {
+                        command.RespondAsync("Unable to locate that guild", ephemeral: true);
+                        return true;
+                    }
+
+                    if (sayGuild.DiscordGuild.GetChannel(channel) is var thisChannel && thisChannel != null && thisChannel is SocketTextChannel textChannel)
+                    {
+                        command.RespondAsync("Sent!", ephemeral: true);
+                        textChannel.SendMessageAsync(message);
+                        return true;
+                    }
+                }
+
+                command.RespondAsync("Failed to send message", ephemeral: true);
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private async Task OnSlashCommand(SocketSlashCommand command)
     {
 
         await LogAppendLine(Name, $"Command {command.CommandName}");
 
-        //Meow
-        if (command.CommandName == "meow-meow")
-        {
-            await command.RespondAsync("Meow!", ephemeral: true);
+        //Global commands
+        if (HandleGlobalCommands(command))
             return;
-        }
 
         //Commands sent in a DM
         if (command.Channel is not SocketTextChannel tChannel)
