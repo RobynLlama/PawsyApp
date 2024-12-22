@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>PawsyApp.NewModule</AssemblyName>
+    <Authors>Robyn</Authors>
+    <Description>Describe the module here</Description>
+    <Product>NewModule</Product>
+    <LangVersion>latest</LangVersion>
+
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../PawsyApp/PawsyApp.csproj" />
+    <PackageReference Include="Discord.Net" Version="3.15.3" />
+  </ItemGroup>
+
+  <Import Project="$(SolutionDir)Module.Build.user.props"
+    Condition="Exists('$(SolutionDir)Module.Build.user.props')" />
+
+</Project>
