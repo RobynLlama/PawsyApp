@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -87,18 +87,18 @@ public class PinBot : GuildModule
         switch (optionName)
         {
             case "pin-role":
-                if (optionValue is not ulong roleID)
+                if (optionValue is not SocketRole role)
                     return command.RespondAsync("Somehow that role is invalid");
 
-                if (Settings.RolesWithPerms.ContainsKey(roleID))
+                if (Settings.RolesWithPerms.ContainsKey(role.Id))
                 {
-                    Settings.RolesWithPerms.Remove(roleID, out var _);
-                    command.RespondAsync($"Removed permissions from <@&{roleID}>");
+                    Settings.RolesWithPerms.Remove(role.Id, out var _);
+                    command.RespondAsync($"Removed permissions from <@&{role.Id}>");
                 }
                 else
                 {
-                    Settings.RolesWithPerms.TryAdd(roleID, true);
-                    command.RespondAsync($"Added permissions to <@&{roleID}>");
+                    Settings.RolesWithPerms.TryAdd(role.Id, true);
+                    command.RespondAsync($"Added permissions to <@&{role.Id}>");
                 }
 
                 (Settings as ISettings).Save<PinBotSettings>(this);
