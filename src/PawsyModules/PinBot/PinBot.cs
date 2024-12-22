@@ -154,7 +154,7 @@ public class PinBot : GuildModule
             return command.RespondAsync("Unable to locate module owner in command handler", ephemeral: true);
 
         var options = command.Data.Options.First();
-        var link = options.Options.First().Value.ToString();
+        var link = options.Value.ToString();
 
         if (link is null)
             return command.RespondAsync("Invalid link in command handler");
