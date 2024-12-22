@@ -218,7 +218,7 @@ public class PinBot : GuildModule
                     return command.RespondAsync($"Exception encountered while pinning message {ex.GetType().Name}", ephemeral: true);
                 }
 
-                return command.RespondAsync("Done, message pinned", ephemeral: true);
+                return command.RespondAsync("Done, message unpinned", ephemeral: true);
             default:
                 return command.RespondAsync("Something went wrong in command handler", ephemeral: true); ;
         }
