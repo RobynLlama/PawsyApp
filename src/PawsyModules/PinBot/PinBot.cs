@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +16,7 @@ namespace PinBot;
 [PawsyModule(ModuleName)]
 public class PinBot : GuildModule
 {
-    public const string ModuleName = "PinBot";
+    public const string ModuleName = "pin-bot";
     protected PinBotSettings Settings;
 
     public PinBot(Guild Owner) : base(Owner, ModuleName, true, true)
