@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Discord;
@@ -47,8 +47,16 @@ public class PinBot : GuildModule
         .AddOption(
             new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.SubCommand)
-            .WithName("meow")
-            .WithDescription("Pawsy will meow for you")
+            .WithName("pin")
+            .WithDescription("pin a message (by message link)")
+            .WithType(ApplicationCommandOptionType.String)
+        )
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .WithName("unpin")
+            .WithDescription("unpin a message (by message link)")
+            .WithType(ApplicationCommandOptionType.String)
         );
 
         return new SlashCommandBundle(ModuleCommandHandler, builder.Build(), Name);
