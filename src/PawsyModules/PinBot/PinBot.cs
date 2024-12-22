@@ -111,7 +111,26 @@ public class PinBot : GuildModule
 
     protected (ulong ChannelID, ulong MessageID) ParseMessageLink(string link)
     {
-        return (0u, 0u);
+        //https://discord.com/channels/1168655651455639582/1169069074572116041/1320527286348415006
+        //server: 1168655651455639582
+        //channel: 1169069074572116041
+        //message: 1320527286348415006
+        var mLink = link.Replace("https://discord.com/channels/", string.Empty);
+
+        int sCount = mLink.Count(thing => thing == '/');
+
+        if (sCount != 2)
+            return (0u, 0u);
+
+        var values = mLink.Split('/');
+
+        if (!ulong.TryParse(values[1], out var cID))
+            return (0u, 0u);
+
+        if (!ulong.TryParse(values[2], out var mID))
+            return (0u, 0u);
+
+        return (cID, mID);
     }
 
     protected bool HasPermissions(SocketGuildUser user)
