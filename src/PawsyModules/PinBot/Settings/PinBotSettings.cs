@@ -7,5 +7,5 @@ namespace PinBot.Settings;
 public class PinBotSettings() : ISettings
 {
     [JsonInclude]
-    internal int MeowLimit = 0;
+    internal ConcurrentDictionary<ulong, bool> RolesWithPerms = [];
 }
