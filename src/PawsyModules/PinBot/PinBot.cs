@@ -88,7 +88,7 @@ public class PinBot : GuildModule
         {
             case "pin-role":
                 if (optionValue is not SocketRole role)
-                    return command.RespondAsync("Somehow that role is invalid");
+                    return command.RespondAsync("Somehow that role is invalid", ephemeral: true);
 
                 if (Settings.RolesWithPerms.ContainsKey(role.Id))
                 {
