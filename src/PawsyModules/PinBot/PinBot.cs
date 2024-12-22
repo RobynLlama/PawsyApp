@@ -70,11 +70,9 @@ public class PinBot : GuildModule
         rootConfig
         .AddOption(
             new SlashCommandOptionBuilder()
-            .WithType(ApplicationCommandOptionType.Integer)
-            .WithName("meow-limit")
-            .WithDescription("Pawsy will meow this many times")
-            .WithMaxValue(20)
-            .WithMinValue(1)
+            .WithType(ApplicationCommandOptionType.Role)
+            .WithName("pin-role")
+            .WithDescription("Add or remove a role's permission to use pin commands")
         );
     }
 
