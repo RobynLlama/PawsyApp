@@ -144,6 +144,19 @@ public class PinBot : GuildModule
         return false;
     }
 
+    protected bool CanPinMessage(SocketGuildUser user, SocketTextChannel channel)
+    {
+        if (HasPermissions(user)) return true;
+
+        if (channel is not SocketThreadChannel tChannel)
+            return false;
+
+        if (tChannel.Owner.GuildUser != user)
+            return false;
+
+        return true;
+    }
+
     private Task ModuleCommandHandler(SocketSlashCommand command)
     {
 
@@ -184,7 +197,7 @@ public class PinBot : GuildModule
             ("MessageID", MessageID)
         ]);
 
-        if (!HasPermissions(gUser))
+        if (!CanPinMessage(gUser, tChannel))
             return command.RespondAsync("You don't have permission to use this command, meow", ephemeral: true);
 
         switch (commandName)
