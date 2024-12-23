@@ -133,8 +133,10 @@ public class PinBot : GuildModule
         return (cID, mID);
     }
 
-    protected bool HasPermissions(SocketGuildUser user)
+    protected bool HasPermissions(SocketGuildUser user, SocketTextChannel channel)
     {
+        if (user.GetPermissions(channel).ManageMessages) return true;
+
         foreach (var role in user.Roles)
         {
             if (Settings.RolesWithPerms.ContainsKey(role.Id))
@@ -146,7 +148,7 @@ public class PinBot : GuildModule
 
     protected bool CanPinMessage(SocketGuildUser user, SocketTextChannel channel)
     {
-        if (HasPermissions(user)) return true;
+        if (HasPermissions(user, channel)) return true;
 
         if (channel is not SocketThreadChannel tChannel)
             return false;
