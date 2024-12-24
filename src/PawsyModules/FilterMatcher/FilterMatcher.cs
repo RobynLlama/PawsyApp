@@ -211,13 +211,14 @@ public class FilterMatcherModule : GuildModule
                         return;
                     }
 
-                    Settings.RuleList.TryAdd(Enumerable.Range(0, int.MaxValue)
-                                                                .Select(i => (long)i)
-                                                                .First(i => !Settings.RuleList.ContainsKey(i)),
-                                                                new(ruleRegex,
-                                                                ruleName));
+                    var nextRuleID = Enumerable.Range(0, int.MaxValue)
+                    .Select(i => (long)i)
+                    .First(i => !Settings.RuleList.ContainsKey(i));
+
+                    Settings.RuleList.TryAdd(nextRuleID, new(ruleRegex, ruleName));
+
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
-                    await command.RespondAsync($"Rule {ruleName} added, meow", ephemeral: true);
+                    await command.RespondAsync($"Rule {ruleName} added with ID {nextRuleID}, meow", ephemeral: true);
                     return;
                 }
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
@@ -294,9 +295,14 @@ public class FilterMatcherModule : GuildModule
             case "remove":
                 if (subOpts.First().Value is long ruleID2)
                 {
-                    Settings.RuleList.Remove(ruleID2, out _);
-                    (Settings as ISettings).Save<FilterMatcherSettings>(this);
-                    await command.RespondAsync($"Rule {ruleID2} deleted, meow", ephemeral: true);
+                    if (Settings.RuleList.Remove(ruleID2, out var oldRule))
+                    {
+                        (Settings as ISettings).Save<FilterMatcherSettings>(this);
+                        await command.RespondAsync($"Rule {oldRule.RuleName} deleted, meow", ephemeral: true);
+                        return;
+                    }
+
+                    await command.RespondAsync("That rule doesn't appear to exist, meow", ephemeral: true);
                     return;
                 }
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
