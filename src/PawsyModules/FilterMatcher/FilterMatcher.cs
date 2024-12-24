@@ -115,7 +115,7 @@ public class FilterMatcherModule : GuildModule
                     new SlashCommandOptionBuilder()
                     .WithName("regex")
                     .WithType(ApplicationCommandOptionType.String)
-                    .WithDescription("The new REGEX for the rule")                    
+                    .WithDescription("The new REGEX for the rule")
                 )
                 .AddOption(
                     new SlashCommandOptionBuilder()
@@ -214,8 +214,8 @@ public class FilterMatcherModule : GuildModule
                     Settings.RuleList.TryAdd(Enumerable.Range(0, int.MaxValue)
                                                                 .Select(i => (long)i)
                                                                 .First(i => !Settings.RuleList.ContainsKey(i)),
-                                                                new(ruleName,
-                                                                ruleRegex));
+                                                                new(ruleRegex,
+                                                                ruleName));
                     (Settings as ISettings).Save<FilterMatcherSettings>(this);
                     await command.RespondAsync($"Rule {ruleName} added, meow", ephemeral: true);
                     return;
@@ -269,8 +269,8 @@ public class FilterMatcherModule : GuildModule
                                     await command.RespondAsync($"Pwease input a valid hexadecimal color value :3", ephemeral: true);
                                     return;
                                 }
-                                bundle1.WarnColorRed = r; 
-                                bundle1.WarnColorGreen = g; 
+                                bundle1.WarnColorRed = r;
+                                bundle1.WarnColorGreen = g;
                                 bundle1.WarnColorBlue = b;
                                 break;
                             case "cooldown":
@@ -302,7 +302,7 @@ public class FilterMatcherModule : GuildModule
                 await command.RespondAsync($"Something went wrong, mew!", ephemeral: true);
                 return;
             case "list":
-                StringBuilder sb ;
+                StringBuilder sb;
                 if (subOpts.Count >= 1 && subOpts[0].Value is long ruleID3 && Settings.RuleList.TryGetValue(ruleID3, out RuleBundle? bundle2))
                 {
                     sb = new($"## Rule: {bundle2.RuleName}\n");
@@ -445,7 +445,7 @@ public class FilterMatcherModule : GuildModule
 
                     }
                     else
-                    { 
+                    {
                         tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
                     }
                 }
@@ -495,7 +495,7 @@ public class FilterMatcherModule : GuildModule
             hex = hex.Substring(1);
 
         if (hex.Length != 6)
-            return (-1,-1,-1);
+            return (-1, -1, -1);
 
         int r = Convert.ToInt32(hex.Substring(0, 2), 16);
         int g = Convert.ToInt32(hex.Substring(2, 2), 16);
