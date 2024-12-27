@@ -29,7 +29,7 @@ public class PinBot : GuildModule
     {
         if (Owner.TryGetTarget(out var owner))
         {
-            //Add owner.Event callbacks here
+            owner.OnGuildThreadCreated += ThreadCreated;
         }
     }
 
