@@ -7,18 +7,21 @@
 
 Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives helpful advice
 
+- [Features](#features)
+  - [Top-Level Commands](#top-level-commands)
+  - [Filter Matcher](#filter-matcher)
+    - [Example Filter-Matcher setup](#example-filter-matcher-setup)
+  - [LogMuncher](#logmuncher)
+  - [Meow Board](#meow-board)
+  - [Forum Role Checker](#forum-role-checker)
+    - [Commands](#commands)
+
 ## Features
 
-> *Note*
->
-> Not all features are configurable yet. Pawsy was primarily designed for use on the Lethal Company Modding server, so more options are slowly coming.
-
-- Filter Matcher*
+- Filter Matcher
 - Log Muncher
 - Meow Board
 - Forum Role Checker
-
-\* Not fully configurable
 
 ### Top-Level Commands
 
@@ -26,10 +29,6 @@ Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives 
 - *module-manage* Activate or Deactivate a specific module. Use `/module-manage list` to see all available modules for your Pawsy instance
 
 ### Filter Matcher
-
-> *Note*
->
-> Pawsy's Filter Matcher module is not yet configurable by end-users. Please be patient while she's updated :3
 
 The primary feature of Pawsy, the filter matcher uses DotNet regex to match matches against patterns of your choosing and then perform a configurable action.
 
@@ -48,6 +47,15 @@ Rules Configuration:
   - *Response Message* what to say to the user that sent the matched message
 - *Filter Type* either Blacklist or Whitelist. Determines where this filter can run
   - *Filtered Channels* A list of channels for this filter
+
+#### Example Filter-Matcher setup
+
+- First, we setup the alert channel by running `/module-config filter-matcher` then selecting the `alert-channel` option and then using the helpful picker to select a channel for Pawsy to alert staff in. This is optional but most of the value of filters comes from alerting staff when they are met so do be sure to set it up
+- Next, we add a new basic filter with `/filter-matcher filters add` and fill in the name and regex fields. For testing filters I like to use [Regex101](https://regex101.com/) with the .Net 7.0 (C#) filter type (because Pawsy is C# code) and the /gi flags because Pawsy uses case-insensitive matching and global just lets me test multiple messages at once. For our test filter we'll name it "Test" and use the regex "meow" so Pawsy will match on messages containing the word meow
+- Assuming this is your first new rule, it will be rule ID 0. Otherwise you will need to use `/filter-matcher filters list` and get the rule ID for the next section
+- Now we edit the rule to actually enable it. By default, the rule is set to whitelist with no channels, so its functionally disabled. Use `/filter-matcher filters edit 0` and then select the optional components you wish to edit and change their values. For our purpose, we'll select the `type` property and change it to blacklist so now Pawsy will run this filter on every channel *except* the ones listed in the `channel` property, which is empty so it will run on every channel. Next, we select the `reply` property and set it to "Meow!" so that Pawsy will reply to every instance of "meow" with her own "Meow!". Finally, we select the `warn-staff` property and set it to false because this is a fun example filter and we don't need to spam our alert channel with it.
+
+This concludes the absolute basics of how to use Pawsy's filter module.
 
 ### LogMuncher
 
