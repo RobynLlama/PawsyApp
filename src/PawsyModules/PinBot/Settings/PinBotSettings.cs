@@ -8,4 +8,6 @@ public class PinBotSettings() : ISettings
 {
     [JsonInclude]
     internal ConcurrentDictionary<ulong, bool> RolesWithPerms = [];
+
+    internal ConcurrentDictionary<ulong, bool> AutoPinChannels = [];
 }
