@@ -112,6 +112,7 @@ public class PinBot : GuildModule
             case "auto-pin-channel":
                 if (optionValue is not SocketForumChannel channel)
                     return command.RespondAsync("Only forum channels please");
+
                 if (Settings.AutoPinChannels.ContainsKey(channel.Id))
                 {
                     Settings.AutoPinChannels.Remove(channel.Id, out var _);
@@ -122,6 +123,7 @@ public class PinBot : GuildModule
                     Settings.AutoPinChannels.TryAdd(channel.Id, true);
                     command.RespondAsync($"Added auto pin to {channel.Mention}");
                 }
+
                 (Settings as ISettings).Save<PinBotSettings>(this);
 
                 return Task.CompletedTask;
@@ -264,13 +266,18 @@ public class PinBot : GuildModule
     {
         if (Settings is null)
             return;
+
         if (!Settings.AutoPinChannels.ContainsKey(channel.ParentChannel.Id))
             return;
+
         if (channel.ParentChannel is not SocketForumChannel)
             return;
+
         var messages = await channel.GetMessagesAsync(1).FlattenAsync();
+
         if (messages.FirstOrDefault() is not IUserMessage message)
             return;
+
         _ = LogAppendContext("PinBot AutoPin accessed", [
             ("ThreadID", channel.Id),
             ("ThreadName", channel.Name),
@@ -280,6 +287,7 @@ public class PinBot : GuildModule
             ("User", channel.Owner.DisplayName),
             ("MessageContent", message.CleanContent)
         ]);
+
         try
         {
             await message.PinAsync();
