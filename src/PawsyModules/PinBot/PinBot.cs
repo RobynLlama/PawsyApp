@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using Discord;
@@ -74,12 +75,12 @@ public class PinBot : GuildModule
             new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.Role)
             .WithName("pin-role")
-            .WithDescription("Add or remove a role's permission to use pin commands")
+            .WithDescription("Add or remove a role's permission to use pin commands"))
         .AddOption(
             new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.Channel)
             .WithName("auto-pin-channel")
-            .WithDescription("Add or remove a forum channel to auto pin its first message")));
+            .WithDescription("Add or remove a forum channel to auto pin its first message"));
     }
 
     public override Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
