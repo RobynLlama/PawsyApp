@@ -37,7 +37,7 @@ public class PinBot : GuildModule
     {
         if (Owner.TryGetTarget(out var owner))
         {
-            //Remove owner.Event callbacks here
+            owner.OnGuildThreadCreated -= ThreadCreated;
         }
     }
 
@@ -257,6 +257,36 @@ public class PinBot : GuildModule
                 return command.RespondAsync("Done, message unpinned", ephemeral: true);
             default:
                 return command.RespondAsync("Something went wrong in command handler", ephemeral: true); ;
+        }
+    }
+
+    private async Task ThreadCreated(SocketThreadChannel channel)
+    {
+        if (Settings is null)
+            return;
+        if (!Settings.AutoPinChannels.ContainsKey(channel.ParentChannel.Id))
+            return;
+        if (channel.ParentChannel is not SocketForumChannel)
+            return;
+        var messages = await channel.GetMessagesAsync(1).FlattenAsync();
+        if (messages.FirstOrDefault() is not IUserMessage message)
+            return;
+        _ = LogAppendContext("PinBot AutoPin accessed", [
+            ("ThreadID", channel.Id),
+            ("ThreadName", channel.Name),
+            ("ParentChannelId", channel.ParentChannel.Id),
+            ("ParentChannel", channel.ParentChannel.Name),
+            ("UserId", channel.Owner.Id),
+            ("User", channel.Owner.DisplayName),
+            ("MessageContent", message.CleanContent)
+        ]);
+        try
+        {
+            await message.PinAsync();
+        }
+        catch (Exception ex)
+        {
+            await LogAppendLine($"Encountered an error while auto pinning {ex}");
         }
     }
 
