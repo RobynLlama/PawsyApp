@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 using Discord;
@@ -28,7 +29,7 @@ public class PinBot : GuildModule
     {
         if (Owner.TryGetTarget(out var owner))
         {
-            //Add owner.Event callbacks here
+            owner.OnGuildThreadCreated += ThreadCreated;
         }
     }
 
@@ -36,7 +37,7 @@ public class PinBot : GuildModule
     {
         if (Owner.TryGetTarget(out var owner))
         {
-            //Remove owner.Event callbacks here
+            owner.OnGuildThreadCreated -= ThreadCreated;
         }
     }
 
@@ -74,8 +75,12 @@ public class PinBot : GuildModule
             new SlashCommandOptionBuilder()
             .WithType(ApplicationCommandOptionType.Role)
             .WithName("pin-role")
-            .WithDescription("Add or remove a role's permission to use pin commands")
-        );
+            .WithDescription("Add or remove a role's permission to use pin commands"))
+        .AddOption(
+            new SlashCommandOptionBuilder()
+            .WithType(ApplicationCommandOptionType.Channel)
+            .WithName("auto-pin-channel")
+            .WithDescription("Add or remove a forum channel to auto pin its first message"));
     }
 
     public override Task OnConfigUpdated(SocketSlashCommand command, SocketSlashCommandDataOption options)
@@ -99,6 +104,24 @@ public class PinBot : GuildModule
                 {
                     Settings.RolesWithPerms.TryAdd(role.Id, true);
                     command.RespondAsync($"Added permissions to <@&{role.Id}>");
+                }
+
+                (Settings as ISettings).Save<PinBotSettings>(this);
+
+                return Task.CompletedTask;
+            case "auto-pin-channel":
+                if (optionValue is not SocketForumChannel channel)
+                    return command.RespondAsync("Only forum channels please");
+
+                if (Settings.AutoPinChannels.ContainsKey(channel.Id))
+                {
+                    Settings.AutoPinChannels.Remove(channel.Id, out var _);
+                    command.RespondAsync($"Removed auto pin from {channel.Mention}");
+                }
+                else
+                {
+                    Settings.AutoPinChannels.TryAdd(channel.Id, true);
+                    command.RespondAsync($"Added auto pin to {channel.Mention}");
                 }
 
                 (Settings as ISettings).Save<PinBotSettings>(this);
@@ -236,6 +259,42 @@ public class PinBot : GuildModule
                 return command.RespondAsync("Done, message unpinned", ephemeral: true);
             default:
                 return command.RespondAsync("Something went wrong in command handler", ephemeral: true); ;
+        }
+    }
+
+    private async Task ThreadCreated(SocketThreadChannel channel)
+    {
+        if (Settings is null)
+            return;
+
+        if (!Settings.AutoPinChannels.ContainsKey(channel.ParentChannel.Id))
+            return;
+
+        if (channel.ParentChannel is not SocketForumChannel)
+            return;
+
+        var messages = await channel.GetMessagesAsync(1).FlattenAsync();
+
+        if (messages.FirstOrDefault() is not IUserMessage message)
+            return;
+
+        _ = LogAppendContext("PinBot AutoPin accessed", [
+            ("ThreadID", channel.Id),
+            ("ThreadName", channel.Name),
+            ("ParentChannelId", channel.ParentChannel.Id),
+            ("ParentChannel", channel.ParentChannel.Name),
+            ("UserId", channel.Owner.Id),
+            ("User", channel.Owner.DisplayName),
+            ("MessageContent", message.CleanContent)
+        ]);
+
+        try
+        {
+            await message.PinAsync();
+        }
+        catch (Exception ex)
+        {
+            await LogAppendLine($"Encountered an error while auto pinning {ex}");
         }
     }
 
