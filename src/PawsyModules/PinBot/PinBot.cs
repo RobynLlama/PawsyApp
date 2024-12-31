@@ -273,9 +273,12 @@ public class PinBot : GuildModule
         if (channel.ParentChannel is not SocketForumChannel)
             return;
 
-        var messages = await channel.GetMessagesAsync(1).FlattenAsync();
+        var message = await channel.GetMessageAsync(channel.Id);
 
-        if (messages.FirstOrDefault() is not IUserMessage message)
+        if (message is not IUserMessage uMessage)
+            return;
+
+        if (uMessage.IsPinned)
             return;
 
         _ = LogAppendContext("PinBot AutoPin accessed", [
@@ -285,12 +288,12 @@ public class PinBot : GuildModule
             ("ParentChannel", channel.ParentChannel.Name),
             ("UserId", channel.Owner.Id),
             ("User", channel.Owner.DisplayName),
-            ("MessageContent", message.CleanContent)
+            ("MessageContent", uMessage.CleanContent)
         ]);
 
         try
         {
-            await message.PinAsync();
+            await uMessage.PinAsync();
         }
         catch (Exception ex)
         {
