@@ -7,6 +7,8 @@
 
 Pawsy is a friendly Kitten that lives on Discord and blocks scam links or gives helpful advice
 
+[![Join the Discord](https://img.shields.io/discord/1279336009045377075?color=5865F2&label=Join+The+Discord&logo=discord&style=for-the-badge)](https://discord.gg/y7ba8Cbg4y)
+
 - [Features](#features)
   - [Top-Level Commands](#top-level-commands)
   - [Filter Matcher](#filter-matcher)
