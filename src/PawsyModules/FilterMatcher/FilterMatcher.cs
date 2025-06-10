@@ -1,20 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
 using Discord;
 using Discord.WebSocket;
-
+using FilterMatcher.Settings;
 using PawsyApp.PawsyCore;
 using PawsyApp.PawsyCore.Modules;
-
-using FilterMatcher.Settings;
-using System.Text.RegularExpressions;
-using System.Reflection.Emit;
-using System.Data;
 
 namespace FilterMatcher;
 
@@ -386,26 +382,36 @@ public class FilterMatcherModule : GuildModule
         }
     }
 
+    private bool ShouldAssessRuleOnUser(RuleBundle rule, SocketGuildUser user, SocketGuildChannel channel)
+    {
+        bool isUserStaff = user.GetPermissions(channel).ManageMessages;
+        bool ruleDeletes = rule.DeleteMessage;
+        bool specialExemptions = user.Id == 156515680353517568 || user.Id == 792068317962567720;
+
+        return (isUserStaff, ruleDeletes, specialExemptions) switch
+        {
+            //Developer exemptions so we're always assessed for testing
+            (_, _, true) => true,
+
+            //Staff are assessed only if the rule is non-destructive
+            (true, false, _) => true,
+            (true, true, _) => false,
+
+            //Everyone else is always assessed
+            (false, _, _) => true,
+        };
+    }
+
     private async Task MessageCallBack(SocketUserMessage message, SocketGuildChannel channel)
     {
 
         if (Settings is null)
             return;
 
-        /*await WriteLog.Cutely("Filter heard a message callback",
-        [
-            ("ID", message.Id),
-            ("Author", message.Author),
-            ("Guild", channel.Guild.Name)
-        ]);*/
-
-        if (message.Author is SocketGuildUser gUser)
+        if (message.Author is not SocketGuildUser gUser)
         {
-            if (gUser.GetPermissions(channel).ManageMessages && gUser.Id != 156515680353517568 && gUser.Id != 792068317962567720)
-            {
-                await LogAppendLine("User is exempt from filters");
-                return;
-            }
+            await LogAppendLine("Ignoring message sent by non guild user");
+            return;
         }
 
         if (LastDeletedMessage == message.Id)
@@ -426,44 +432,45 @@ public class FilterMatcherModule : GuildModule
 
         foreach (var item in Settings.RuleList.Values)
         {
-            if (item.Match(message.CleanContent, channel))
-            {
-
-                if (item.WarnStaff)
+            if (ShouldAssessRuleOnUser(item, gUser, channel))
+                if (item.Match(message.CleanContent, channel))
                 {
-                    if (channel.Guild.GetChannel(Settings.LoggingChannelID) is SocketTextChannel logChannel)
+
+                    if (item.WarnStaff)
                     {
-                        tasks.Add(LogAppendLine("Filter is alerting staff about a message"));
-                        tasks.Add(SendMessageReport(logChannel, message, item));
+                        if (channel.Guild.GetChannel(Settings.LoggingChannelID) is SocketTextChannel logChannel)
+                        {
+                            tasks.Add(LogAppendLine("Filter is alerting staff about a message"));
+                            tasks.Add(SendMessageReport(logChannel, message, item));
+                        }
+
                     }
 
-                }
+                    //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
+                    if (item.SendResponse && DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.Cooldown))
+                    {
+                        item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-                //await message.Channel.SendMessageAsync(text: "Oopsie daisy! (✿◠‿◠) Your message got deleted for using naughty words. Pwease keep it pawsitive and kind! Let's keep our chat fun and fwiendly~ ≧◡≦");
-                if (item.SendResponse && DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= (item.lastMatchTime + item.Cooldown))
-                {
-                    item.lastMatchTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                        tasks.Add(LogAppendLine("Filter responding to a message"));
+                        if (item.DeleteMessage)
+                        {
+                            tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
 
-                    tasks.Add(LogAppendLine("Filter responding to a message"));
+                        }
+                        else
+                        {
+                            tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
+                        }
+                    }
+
                     if (item.DeleteMessage)
                     {
-                        tasks.Add(message.Channel.SendMessageAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
+                        LastDeletedMessage = message.Id;
+                        tasks.Add(LogAppendLine("Filter is deleting a message"));
 
-                    }
-                    else
-                    {
-                        tasks.Add(message.ReplyAsync(text: item.ResponseMSG?.Replace("{author}", $"{message.Author.Mention}")));
+                        tasks.Add(message.DeleteAsync());
                     }
                 }
-
-                if (item.DeleteMessage)
-                {
-                    LastDeletedMessage = message.Id;
-                    tasks.Add(LogAppendLine("Filter is deleting a message"));
-
-                    tasks.Add(message.DeleteAsync());
-                }
-            }
         }
 
         await Task.WhenAll(tasks);
