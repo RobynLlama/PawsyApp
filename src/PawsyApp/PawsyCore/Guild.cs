@@ -1,12 +1,12 @@
-using System.IO;
+using System;
 using System.Collections.Concurrent;
-using Discord.WebSocket;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
-using System.Linq;
-using System.Text;
-using System;
-using System.Reflection;
+using Discord.WebSocket;
 
 namespace PawsyApp.PawsyCore.Modules;
 
@@ -54,6 +54,17 @@ public class Guild : ISettingsOwner, IActivatable
         Settings = (this as ISettingsOwner).LoadSettings<GuildSettings>();
 
         SetupModules();
+        MakeGuildRecord();
+    }
+
+    protected void MakeGuildRecord()
+    {
+        if (Settings is null)
+            throw new Exception("Settings is null in MakeGuildRecord");
+
+        Settings.GuildName = DiscordGuild.Name;
+        Settings.OwnerSnowflake = DiscordGuild.OwnerId;
+        (Settings as ISettings).Save<GuildSettings>(this);
     }
 
     protected void SetupModules()

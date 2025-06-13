@@ -8,4 +8,10 @@ public class GuildSettings() : ISettings
 {
     [JsonInclude]
     public List<string> EnabledModules { get; set; } = [];
+
+    [JsonInclude]
+    public string GuildName { get; set; } = string.Empty;
+
+    [JsonInclude]
+    public ulong OwnerSnowflake { get; set; } = 0u;
 }
