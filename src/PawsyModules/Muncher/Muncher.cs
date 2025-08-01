@@ -1,19 +1,15 @@
-﻿using System.IO;
-using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-
 using Discord;
 using Discord.WebSocket;
-
 using MuncherLib.Muncher;
-
-using PawsyApp.PawsyCore.Modules;
-
 using MuncherModule.Settings;
-using System;
+using PawsyApp.PawsyCore.Modules;
 
 namespace MuncherModule;
 
@@ -143,21 +139,24 @@ public class LogMuncherModule : GuildModule
                 }
 
                 await LogAppendLine("Sending results");
-                await message.Channel.SendMessageAsync("I see you posted a log file, let me find the most serious errors for you..");
+                await message.Channel.SendMessageAsync("I see you posted a log file, let me find the most serious issue for you!");
 
-                var issues = lines.Take(2);
+                var items = lines.Count;
                 bool DidAny = false;
 
-                foreach (var thing in issues)
+                if (items != 0)
                 {
+                    var topIssue = lines[0];
+                    lines.Remove(topIssue);
+
                     await Task.Delay(750);
                     //await LogAppendLine("Sending a result");
 
-                    string output = thing.ToStringLimited(500);
+                    string output = topIssue.ToStringLimited(500);
 
                     try
                     {
-                        await message.Channel.SendMessageAsync(output, flags: Discord.MessageFlags.SuppressEmbeds);
+                        await message.Channel.SendMessageAsync(output, flags: MessageFlags.SuppressEmbeds);
                     }
                     catch (Exception ex)
                     {
@@ -171,14 +170,42 @@ public class LogMuncherModule : GuildModule
                 //await LogAppendLine("Done with results");
 
                 await Task.Delay(750);
-                if (DidAny)
+                if (items > 0)
                 {
-                    await message.Channel.SendMessageAsync("I hope this helps");
+                    var moreIssues = lines.Take(9);
+                    var count = moreIssues.Count();
+
+                    using MemoryStream ms = new();
+                    using TextWriter writer = new StreamWriter(ms);
+
+                    //allocate 1kb for each line item
+                    foreach (var thing in moreIssues)
+                    {
+                        int take = Math.Min(thing.Contents.Length, 1000);
+
+                        writer.Write($$"""
+                        --- ISSUE ---
+                        Line Number #{{thing.Line}}
+                        Source: {{thing.Source}}
+                        Severity: {{thing.Level}} ({{thing.Weight}})
+
+                        Contents:
+
+                        """);
+
+                        writer.Write(thing.Contents.AsSpan(0, take));
+                        writer.WriteLine();
+                        writer.WriteLine();
+                    }
+
+                    writer.Flush();
+                    var issue = count > 1 ? "issues" : "issue";
+                    await message.Channel.SendFileAsync(ms, "Issues.md", $"I've sorted {count} more {issue} for you");
                 }
-                else
-                {
+
+                await Task.Delay(750);
+                if (!DidAny)
                     await message.Channel.SendMessageAsync("I couldn't find any relevant issues in your log file, sorry :sob:");
-                }
 
 
                 //await LogAppendLine("Done!");
