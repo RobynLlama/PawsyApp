@@ -12,6 +12,7 @@ public class PawsyInput : CommandDispatcher
   public PawsyInput()
   {
     TryAddCommand(new PawsyCommandPart());
+    TryAddCommand(new PawsyCommandExit());
   }
 
   public override void OnCommandNotFound(string commandName)
