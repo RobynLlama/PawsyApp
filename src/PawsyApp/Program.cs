@@ -4,8 +4,12 @@ using System.Threading.Tasks;
 using PawsyApp.PawsyCore;
 
 namespace PawsyApp;
-public class PawsyProgram
+
+public partial class PawsyProgram
 {
+
+    public static readonly Pawsy pawsy = new();
+    public static bool running = true;
     public static async Task Main()
     {
 
@@ -16,25 +20,11 @@ public class PawsyProgram
 
         Console.WriteLine($"Pawsy version {informationalVersion}");
 
-        Pawsy pawsy = new();
-        bool running = true;
+        var InputHandler = Task.Run(HandleInputAsync);
 
         while (running)
         {
             await Task.Delay(100);
-
-            if (Console.KeyAvailable)
-            {
-                var key = Console.ReadKey(intercept: true);
-
-                if (key.Key == ConsoleKey.Q && key.Modifiers == ConsoleModifiers.Control)
-                {
-                    pawsy.Destroy();
-                    running = false;
-                }
-            }
         }
-
-        Console.WriteLine("Program exit");
     }
 }
