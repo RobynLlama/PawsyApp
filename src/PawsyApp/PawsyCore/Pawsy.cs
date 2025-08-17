@@ -90,7 +90,7 @@ public class Pawsy
             return;
         }
 
-        LogAppendLine("Console", $"Parted with guild {guild.Name} permanently");
+        LogAppendLine("Console", $"Parted with guild {guild.DiscordGuild.Name} permanently");
         guild.PartWithGuild();
     }
 
