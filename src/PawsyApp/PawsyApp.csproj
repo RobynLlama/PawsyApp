@@ -21,6 +21,7 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="3.15.3" />
     <PackageReference Include="OpenAI" Version="1.11.0" />
+    <PackageReference Include="SimpleCommandLib" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

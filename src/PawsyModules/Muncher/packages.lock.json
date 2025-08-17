@@ -171,6 +171,11 @@
           "Newtonsoft.Json": "13.0.3"
         }
       },
+      "SimpleCommandLib": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "dY+g64VS55OVJj/YQxRLUDT0W1ow6daC8AYysu2GsEWlzKktGX10YEwHFDqyY7XnfeQWLT3WEmjOAfZPcSmEkA=="
+      },
       "System.Collections.Immutable": {
         "type": "Transitive",
         "resolved": "6.0.0",
@@ -229,7 +234,8 @@
         "type": "Project",
         "dependencies": {
           "Discord.Net": "[3.15.3, )",
-          "OpenAI": "[1.11.0, )"
+          "OpenAI": "[1.11.0, )",
+          "SimpleCommandLib": "[1.1.1, )"
         }
       }
     }
