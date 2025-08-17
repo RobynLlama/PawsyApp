@@ -1,15 +1,15 @@
-using System.Collections.Concurrent;
 using System;
-using System.IO;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
-using Discord.WebSocket;
-using Discord;
 using System.Threading.Tasks;
+using Discord;
+using Discord.WebSocket;
 using PawsyApp.KittyColors;
 using PawsyApp.PawsyCore.Modules;
-using System.Reflection;
-using System.Linq;
 
 namespace PawsyApp.PawsyCore;
 
@@ -78,6 +78,20 @@ public class Pawsy
         {
             LogAppendLine(Name, "Token not found");
         }
+    }
+
+    public void PartFromGuild(ulong guildID)
+    {
+        if (!Guilds.TryGetValue(guildID, out var guild))
+        {
+            LogAppendContext("Console", "Unable to part with guild, not found in registry.", [
+                ("GuildID", guildID),
+            ]);
+            return;
+        }
+
+        LogAppendLine("Console", $"Parted with guild {guild.Name} permanently");
+        guild.PartWithGuild();
     }
 
     private async Task OnConnected()
@@ -454,6 +468,13 @@ public class Pawsy
         };
 
         var pGuild = AddOrGetGuild(guild);
+
+        if (pGuild.Settings.Parted)
+        {
+            await LogAppendLine(Name, $"Rejecting a parted guild: {ID}");
+            pGuild.PartWithGuild();
+            return;
+        }
 
         //Only become available if we previously were not available
         if (!pGuild.Available)

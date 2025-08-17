@@ -38,7 +38,7 @@ public class Guild : ISettingsOwner, IActivatable
     protected readonly WeakReference<Pawsy> Pawsy;
 
     protected readonly ConcurrentDictionary<ulong, SlashCommandBundle> GuildCommands = [];
-    protected readonly GuildSettings Settings;
+    public readonly GuildSettings Settings;
     protected readonly ConcurrentDictionary<string, IGuildModule> Modules = [];
 
     public Guild(SocketGuild guild, Pawsy pawsy)
@@ -55,6 +55,14 @@ public class Guild : ISettingsOwner, IActivatable
 
         SetupModules();
         MakeGuildRecord();
+    }
+
+    public void PartWithGuild()
+    {
+        Settings.Parted = true;
+        (Settings as ISettings).Save<GuildSettings>(this);
+        DiscordGuild.LeaveAsync();
+        Destroy();
     }
 
     protected void MakeGuildRecord()

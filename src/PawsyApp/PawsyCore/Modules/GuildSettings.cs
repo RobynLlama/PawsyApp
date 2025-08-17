@@ -14,4 +14,7 @@ public class GuildSettings() : ISettings
 
     [JsonInclude]
     public ulong OwnerSnowflake { get; set; } = 0u;
+
+    [JsonInclude]
+    public bool Parted { get; set; } = false;
 }
