@@ -203,7 +203,7 @@ public class LogMuncherModule : GuildModule
                     if (count > 0)
                     {
                         var issue = count > 1 ? "issues" : "issue";
-                        await message.Channel.SendFileAsync(ms, "Issues.md", $"I've sorted {count} more {issue} for you");
+                        await message.Channel.SendFileAsync(ms, "Issues.txt", $"I've sorted {count} more {issue} for you");
                     }
                     else
                     {
