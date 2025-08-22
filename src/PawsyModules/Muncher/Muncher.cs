@@ -199,8 +199,17 @@ public class LogMuncherModule : GuildModule
                     }
 
                     writer.Flush();
-                    var issue = count > 1 ? "issues" : "issue";
-                    await message.Channel.SendFileAsync(ms, "Issues.md", $"I've sorted {count} more {issue} for you");
+
+                    if (count > 0)
+                    {
+                        var issue = count > 1 ? "issues" : "issue";
+                        await message.Channel.SendFileAsync(ms, "Issues.md", $"I've sorted {count} more {issue} for you");
+                    }
+                    else
+                    {
+                        await message.Channel.SendMessageAsync("There were no more issues to sort in your log file, meow");
+                    }
+
                 }
 
                 await Task.Delay(750);
