@@ -10,7 +10,7 @@
     <Product>MuncherModule</Product>
     <LangVersion>latest</LangVersion>
 
-    <Version>1.33.0</Version>
+    <Version>1.34.0</Version>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
