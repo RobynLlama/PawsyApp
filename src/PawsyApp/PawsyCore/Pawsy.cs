@@ -227,18 +227,45 @@ public class Pawsy
         output = (null, null)!;
         return false;
     }
+
+    private static readonly TimeSpan _filterLimit = TimeSpan.FromDays(1);
+
+    private static bool ShouldRespondToMessage(SocketMessage message)
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        bool originalIsNew = (now - message.Timestamp) <= _filterLimit;
+        bool editIsNew = message.EditedTimestamp.HasValue && (now - message.EditedTimestamp.Value) <= _filterLimit;
+
+        return (originalIsNew, editIsNew) switch
+        {
+            (true, _) => true, //The message itself is new
+            (false, true) => true, //The message was newly edited
+            (false, false) => false, //The message is neither new nor newly edited
+        };
+    }
+
     private async Task OnMessageReceived(SocketMessage message)
     {
         //Filter out bots, system and webhook message
         if (message.Author.IsBot || message.Author.IsWebhook || message.Source == MessageSource.System)
             return;
 
+        if (!ShouldRespondToMessage(message))
+        {
+            await LogAppendContext("Pawsy", "Skipping an old message", [
+              ("Message Timestamp", message.Timestamp),
+              ("Edit Timestamp", message.EditedTimestamp.ToString() ?? "None"),
+            ]);
+            return;
+        }
+
         await LogAppendContext(Name, "Heard Something", [
             ("Author", (message.Author as SocketGuildUser)?.Nickname ?? message.Author.GlobalName ?? message.Author.Username ?? "Nobody"),
             ("CleanContent", message.CleanContent),
             ("Channel", message.Channel.Name),
             ("Guild", (message.Channel as SocketGuildChannel)?.Guild.Name ?? "No Guild"),
-            ]);
+                    ]);
 
         //Find which guild it belongs to
         if (message is SocketUserMessage uMessage && message.Channel is SocketTextChannel tChannel)
