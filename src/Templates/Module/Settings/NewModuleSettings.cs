@@ -6,6 +6,6 @@ namespace NewModule.Settings;
 
 public class NewModuleSettings() : ISettings
 {
-    [JsonInclude]
-    internal int MeowLimit = 0;
+  [JsonInclude]
+  internal int MeowLimit = 0;
 }
