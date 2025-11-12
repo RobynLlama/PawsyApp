@@ -5,13 +5,13 @@ namespace PawsyApp.PawsyCore.Modules;
 
 public interface ISettings
 {
-    internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
-    void Save<T>(ISettingsOwner owner) where T : class
+  internal static readonly JsonSerializerOptions options = new() { WriteIndented = true };
+  void Save<T>(ISettingsOwner owner) where T : class
+  {
+    if (this is T serial)
     {
-        if (this is T serial)
-        {
-            using StreamWriter writer = new(owner.GetSettingsLocation());
-            writer.Write(JsonSerializer.Serialize(serial, options));
-        }
+      using StreamWriter writer = new(owner.GetSettingsLocation());
+      writer.Write(JsonSerializer.Serialize(serial, options));
     }
+  }
 }

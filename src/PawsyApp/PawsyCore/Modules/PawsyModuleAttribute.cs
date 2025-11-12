@@ -5,5 +5,5 @@ namespace PawsyApp.PawsyCore.Modules;
 [AttributeUsage(AttributeTargets.Class)]
 public class PawsyModuleAttribute(string ModuleName) : Attribute
 {
-    public string ModuleName = ModuleName;
+  public string ModuleName = ModuleName;
 }

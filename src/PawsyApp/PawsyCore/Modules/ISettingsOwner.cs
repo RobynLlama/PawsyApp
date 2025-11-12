@@ -2,25 +2,26 @@ using System.IO;
 using System.Text.Json;
 
 namespace PawsyApp.PawsyCore.Modules;
+
 public interface ISettingsOwner
 {
-    string GetSettingsLocation();
+  string GetSettingsLocation();
 
-    public T LoadSettings<T>() where T : class, ISettings, new()
+  public T LoadSettings<T>() where T : class, ISettings, new()
+  {
+    FileInfo file = new(GetSettingsLocation());
+
+    if (file.Exists)
     {
-        FileInfo file = new(GetSettingsLocation());
+      using StreamReader data = new(file.FullName);
+      if (JsonSerializer.Deserialize<T>(data.ReadToEnd()) is T Settings)
+        return Settings;
 
-        if (file.Exists)
-        {
-            using StreamReader data = new(file.FullName);
-            if (JsonSerializer.Deserialize<T>(data.ReadToEnd()) is T Settings)
-                return Settings;
-
-        }
-
-        var config = new T();
-        config.Save<T>(this);
-
-        return config;
     }
+
+    var config = new T();
+    config.Save<T>(this);
+
+    return config;
+  }
 }
