@@ -6,12 +6,12 @@ namespace MeowBoard.Settings;
 
 public class MeowBoardSettings() : ISettings
 {
-    [JsonInclude]
-    internal ConcurrentDictionary<ulong, MeowBank> Records { get; set; } = [];
+  [JsonInclude]
+  internal ConcurrentDictionary<ulong, MeowBank> Records { get; set; } = [];
 
-    [JsonInclude]
-    internal int MeowBoardDisplayLimit = 5;
+  [JsonInclude]
+  internal int MeowBoardDisplayLimit = 5;
 
-    [JsonInclude]
-    internal ulong GameChannelID = 0;
+  [JsonInclude]
+  internal ulong GameChannelID = 0;
 }
