@@ -6,6 +6,6 @@ namespace MuncherModule.Settings;
 [method: JsonConstructor]
 public class LogMuncherSettings() : ISettings
 {
-    [JsonInclude]
-    public ulong MunchingChannel { get; set; } = 0;
+  [JsonInclude]
+  public ulong MunchingChannel { get; set; } = 0;
 }
