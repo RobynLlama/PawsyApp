@@ -191,11 +191,24 @@ public class PinBot : GuildModule
         if (!Owner.TryGetTarget(out var owner))
             return command.RespondAsync("Unable to locate module owner in command handler", ephemeral: true);
 
-        var options = command.Data.Options.First();
-        var link = options.Value.ToString();
+        var options = command.Data.Options.FirstOrDefault();
+        var link = options?.Value.ToString();
 
         if (link is null)
-            return command.RespondAsync("Invalid link in command handler");
+        {
+            return command.RespondAsync("You sent me a null link somehow, meow", ephemeral: true);
+        }
+
+        if (options is null)
+        {
+            LogAppendContext("Null options in CommandHandler for PinBot", [
+                ("Triggered by", command.User),
+                ("Channel in", command.Channel.Name),
+                ("Option count", command.Data.Options.Count)
+            ]);
+
+            return command.RespondAsync("An error has occurred while processing your input, options should never be null :[");
+        }
 
         var (ChannelID, MessageID) = ParseMessageLink(link);
 
