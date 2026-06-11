@@ -20,9 +20,11 @@ You agree not to use the Bot to:
 3. Termination of Service
 
 The developer reserves the right to deny service, block specific servers, or restrict individual users from accessing the Bot at any time, without prior notice, for violating these terms or disrupting the Bot's operation.
+
 4. Limitation of Liability ("As-Is" Clause)
 
 The Bot is provided on an "as-is" and "as-available" basis. The developer makes no guarantees that the Bot will be online 100% of the time, error-free, or catch every single moderation violation. The developer is not liable for any server disruptions, accidental data loss via Discord, or moderation actions taken by your server staff using the Bot.
+
 5. Self-Hosted Instances
 
 If you choose to self-host the source code of this Bot, you assume full responsibility for its operation, uptime, and compliance with Discord's developer policies. The primary developer provides no official warranty or guaranteed support for self-hosted instances.
